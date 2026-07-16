@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 import { http, HttpResponse } from 'msw'
+=======
+import { http, HttpResponse } from "msw";
+>>>>>>> Stashed changes
 
 const mockVehicles = [
   {
@@ -44,6 +48,7 @@ const mockVehicles = [
     brand: 'Yamaha',
     model: 'MT-07',
     color: 'Gris',
+<<<<<<< Updated upstream
     sidecar: false,
   },
 ]
@@ -59,12 +64,22 @@ const mockSpots = [
   { id: '8', code: 'A-05', vehicleType: 'COCHE', status: 'FREE' },
 ]
 
+=======
+    sidecar: true,
+  },
+]
+
+>>>>>>> Stashed changes
 export const adminHandlers = [
   http.get('/v1/vehicles', () => {
     return HttpResponse.json(mockVehicles)
   }),
+<<<<<<< Updated upstream
 
   http.get('/v1/spots', () => {
     return HttpResponse.json(mockSpots)
   }),
 ]
+=======
+];
+>>>>>>> Stashed changes

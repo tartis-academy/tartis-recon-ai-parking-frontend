@@ -1,4 +1,4 @@
-import { useState } from 'react'
+/*import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
@@ -120,3 +120,17 @@ function App() {
 }
 
 export default App
+*/
+import "./App.css";
+import VehicleTable from "./features/admin/components/VehicleTable";
+
+function App() {
+  return (
+    <div>
+      <h1>Listado de vehículos</h1>
+      <VehicleTable />
+    </div>
+  );
+}
+
+export default App;
