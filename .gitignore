@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+build/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swn
+*.swno
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Testing coverage
+coverage/
+
+# Local config files
+*.local
+
+# AI Tools
+.atl/
+.opencode/
+.cursor/
+.continue/
+.augment/
+.github/copilot-instructions.md
+
+# MSW (si se genera automáticamente)
+public/mockServiceWorker.js
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
