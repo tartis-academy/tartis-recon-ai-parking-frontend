@@ -5,6 +5,7 @@ import {
   Outlet,
   redirect,
 } from '@tanstack/react-router'
+import VehicleTable from '@/features/admin/components/VehicleTable'
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -26,18 +27,17 @@ const indexRoute = createRoute({
 const vehiclesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/vehicles',
-  component: () => <h1>Vehicles List</h1>,
-})
-
-const vehicleNewRoute = createRoute({
-  getParentRoute: () => vehiclesRoute,
-  path: '/new',
-  component: () => <h1>New Vehicle</h1>,
+  component: () => (
+    <div>
+      <h1>Vehículos</h1>
+      <VehicleTable />
+    </div>
+  ),
 })
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
-  vehiclesRoute.addChildren([vehicleNewRoute]),
+  vehiclesRoute,
 ])
 
 export const router = createRouter({ routeTree })
