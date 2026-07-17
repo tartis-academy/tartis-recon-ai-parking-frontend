@@ -6,6 +6,8 @@ import {
   redirect,
 } from '@tanstack/react-router'
 
+import { SpotListPage } from '@/features/admin'
+
 const rootRoute = createRootRoute({
   component: () => (
     <div>
@@ -35,9 +37,16 @@ const vehicleNewRoute = createRoute({
   component: () => <h1>New Vehicle</h1>,
 })
 
+const spotsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/spots',
+  component: SpotListPage,
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   vehiclesRoute.addChildren([vehicleNewRoute]),
+  spotsRoute,
 ])
 
 export const router = createRouter({ routeTree })
