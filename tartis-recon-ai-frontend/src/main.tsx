@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import { AppProviders } from './app/providers.tsx'
 
-<<<<<<< Updated upstream
 async function enableMocking() {
   if (import.meta.env.DEV) {
     const { worker } = await import('./testing/mocks/browser')
@@ -20,13 +19,3 @@ enableMocking().then(() => {
     </StrictMode>,
   )
 })
-=======
-import { worker } from "./testing/mocks/browser";
-await worker.start();
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
->>>>>>> Stashed changes
