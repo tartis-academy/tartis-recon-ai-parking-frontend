@@ -47,7 +47,6 @@ export const adminHandlers = [
   http.get('/v1/vehicles', () => {
     return HttpResponse.json(mockVehicles)
   }),
-
   http.get('/v1/spots', () => {
     return HttpResponse.json(mockSpots)
   }),
