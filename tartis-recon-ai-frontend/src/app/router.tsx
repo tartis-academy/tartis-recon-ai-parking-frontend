@@ -45,6 +45,7 @@ const spotsRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
+  //vehiclesRoute.addChildren([vehicleNewRoute]),
   vehiclesRoute,
   spotsRoute,
 ])
