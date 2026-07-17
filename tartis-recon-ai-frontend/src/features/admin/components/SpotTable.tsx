@@ -1,4 +1,4 @@
-import { Spot } from '../types/spot'
+import type { Spot } from '../types/spot'
 
 interface SpotTableProps {
   spots: Spot[];

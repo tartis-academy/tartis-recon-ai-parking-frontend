@@ -5,10 +5,10 @@ export const SpotListPage = () => {
   const { data: spots, isLoading, isError } = useSpots()
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
+      <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">Gestión de Plazas</h1>
+          <h1 className="text-3xl font-bold text-black">Plazas</h1>
           <p className="text-gray-500 mt-2 text-lg">Administra el estado y disponibilidad de las plazas del parking.</p>
         </div>
 

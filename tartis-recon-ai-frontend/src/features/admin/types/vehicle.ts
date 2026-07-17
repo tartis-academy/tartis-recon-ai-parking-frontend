@@ -1,21 +1,26 @@
 export interface VehicleBase {
-  id: string;
-  plate: string;
-  brand: string;
-  model: string;
-  color: string;
+  id: string
+  plate: string
+  brand: string
+  model: string
+  color: string
+  active: boolean
 }
 
 export interface Car extends VehicleBase {
-  type: 'COCHE';
-  doors: number;
+  type: 'CAR' | 'CAR_PMR'
+  numDoors: number
+  hasSideCar: false
 }
 
-export interface Motorcycle extends VehicleBase {
-  type: 'MOTO';
-  sidecar: boolean;
+export interface Motorbike extends VehicleBase {
+  type: 'MOTORBIKE'
+  numDoors: 0
+  hasSideCar: boolean
 }
 
-export type Vehicle = Car | Motorcycle;
+export type Vehicle = Car | Motorbike
 
-export type VehicleType = 'COCHE' | 'MOTO';
+export type VehicleType = 'CAR' | 'CAR_PMR' | 'MOTORBIKE'
+
+export type CreateVehicleInput = Omit<Vehicle, 'id' | 'active'>
