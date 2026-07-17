@@ -7,6 +7,8 @@ import {
 } from '@tanstack/react-router'
 import VehicleTable from '@/features/admin/components/VehicleTable'
 
+import { SpotListPage } from '@/features/admin'
+
 const rootRoute = createRootRoute({
   component: () => (
     <div>
@@ -35,9 +37,17 @@ const vehiclesRoute = createRoute({
   ),
 })
 
+const spotsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/spots',
+  component: SpotListPage,
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
+  //vehiclesRoute.addChildren([vehicleNewRoute]),
   vehiclesRoute,
+  spotsRoute,
 ])
 
 export const router = createRouter({ routeTree })

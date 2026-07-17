@@ -4,52 +4,50 @@ const mockVehicles = [
   {
     id: '1',
     plate: '1234ABC',
-    type: 'COCHE',
+    type: 'CAR',
     brand: 'Toyota',
     model: 'Corolla',
     color: 'Blanco',
-    doors: 4,
+    numDoors: 5,
+    hasSideCar: false,
+    active: true,
   },
   {
     id: '2',
     plate: '5678DEF',
-    type: 'COCHE',
+    type: 'CAR_PMR',
     brand: 'Seat',
     model: 'Ibiza',
     color: 'Rojo',
-    doors: 3,
+    numDoors: 3,
+    hasSideCar: false,
+    active: true,
   },
   {
     id: '3',
     plate: '9012GHI',
-    type: 'MOTO',
+    type: 'MOTORBIKE',
     brand: 'Honda',
     model: 'CBR 600',
     color: 'Negro',
-    sidecar: false,
+    numDoors: 0,
+    hasSideCar: false,
+    active: true,
   },
-  {
-    id: '4',
-    plate: '3456JKL',
-    type: 'COCHE',
-    brand: 'Ford',
-    model: 'Focus',
-    color: 'Azul',
-    doors: 5,
-  },
-  {
-    id: '5',
-    plate: '7890MNO',
-    type: 'MOTO',
-    brand: 'Yamaha',
-    model: 'MT-07',
-    color: 'Gris',
-    sidecar: false,
-  },
+]
+
+const mockSpots = [
+  { id: '1', numSpot: 1, type: 'CAR', status: 'OCCUPIED' },
+  { id: '2', numSpot: 2, type: 'CAR', status: 'AVAILABLE' },
+  { id: '3', numSpot: 3, type: 'CAR_PMR', status: 'AVAILABLE' },
+  { id: '4', numSpot: 4, type: 'MOTORBIKE', status: 'AVAILABLE' },
 ]
 
 export const adminHandlers = [
   http.get('/v1/vehicles', () => {
     return HttpResponse.json(mockVehicles)
+  }),
+  http.get('/v1/spots', () => {
+    return HttpResponse.json(mockSpots)
   }),
 ]
