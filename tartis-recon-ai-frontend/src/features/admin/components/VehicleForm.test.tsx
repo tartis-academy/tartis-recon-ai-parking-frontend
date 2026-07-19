@@ -24,7 +24,7 @@ function renderWithProviders() {
   return render(
     <QueryClientProvider client={queryClient}>
       <VehicleForm />
-    </QueryClientProvider>
+    </QueryClientProvider>,
   )
 }
 

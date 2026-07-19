@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
 import { vehicleSchema, type VehicleFormData } from '../validation/vehicleSchema'
@@ -15,7 +15,7 @@ export default function VehicleForm({ onSuccess }: VehicleFormProps) {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors },
   } = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
@@ -26,7 +26,7 @@ export default function VehicleForm({ onSuccess }: VehicleFormProps) {
     },
   })
 
-  const vehicleType = watch('type')
+  const vehicleType = useWatch({ control, name: 'type' })
   const isCar = vehicleType === 'CAR' || vehicleType === 'CAR_PMR'
 
   const onSubmit = (data: VehicleFormData) => {
