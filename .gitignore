@@ -58,3 +58,6 @@ coverage/
 *.tmp
 *.temp
 .cache/
+
+# Playwright MCP artifacts
+.playwright-mcp/
