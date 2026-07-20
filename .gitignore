@@ -51,10 +51,13 @@ coverage/
 .augment/
 .github/copilot-instructions.md
 
-# MSW (si se genera automáticamente)
-public/mockServiceWorker.js
+# MSW - El service worker DEBE estar commiteado
+# Ver: https://mswjs.io/docs/faq#should-i-commit-the-mock-service-worker-file
 
 # Temporary files
 *.tmp
 *.temp
 .cache/
+
+# Playwright MCP artifacts
+.playwright-mcp/

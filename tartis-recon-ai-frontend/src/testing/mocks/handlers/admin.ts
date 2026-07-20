@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw'
+import type { CreateVehicleInput } from '@/features/admin/types/vehicle'
 
 const mockVehicles = [
   {
@@ -46,6 +47,16 @@ const mockSpots = [
 export const adminHandlers = [
   http.get('/v1/vehicles', () => {
     return HttpResponse.json(mockVehicles)
+  }),
+  http.post('/v1/vehicles', async ({ request }) => {
+    const body = (await request.json()) as CreateVehicleInput
+    const newVehicle = {
+      id: String(mockVehicles.length + 1),
+      ...body,
+      active: true,
+    }
+    mockVehicles.push(newVehicle)
+    return HttpResponse.json(newVehicle, { status: 201 })
   }),
   http.get('/v1/spots', () => {
     return HttpResponse.json(mockSpots)
