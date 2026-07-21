@@ -4,6 +4,5 @@ export type SpotStatus = 'AVAILABLE' | 'OCCUPIED' | 'UNAVAILABLE';
 export interface Spot {
   id: string;
   type: VehicleType;
-  numSpot: number;
   status: SpotStatus;
 }

@@ -12,6 +12,7 @@ const mockVehicles = [
     numDoors: 5,
     hasSideCar: false,
     active: true,
+    isParked: true,
   },
   {
     id: '2',
@@ -23,6 +24,7 @@ const mockVehicles = [
     numDoors: 3,
     hasSideCar: false,
     active: true,
+    isParked: false,
   },
   {
     id: '3',
@@ -34,14 +36,15 @@ const mockVehicles = [
     numDoors: 0,
     hasSideCar: false,
     active: true,
+    isParked: false,
   },
 ]
 
 const mockSpots = [
-  { id: '1', numSpot: 1, type: 'CAR', status: 'OCCUPIED' },
-  { id: '2', numSpot: 2, type: 'CAR', status: 'AVAILABLE' },
-  { id: '3', numSpot: 3, type: 'CAR_PMR', status: 'AVAILABLE' },
-  { id: '4', numSpot: 4, type: 'MOTORBIKE', status: 'AVAILABLE' },
+  { id: '1', type: 'CAR', status: 'OCCUPIED' },
+  { id: '2', type: 'CAR', status: 'AVAILABLE' },
+  { id: '3', type: 'CAR_PMR', status: 'AVAILABLE' },
+  { id: '4', type: 'MOTORBIKE', status: 'AVAILABLE' },
 ]
 
 export const adminHandlers = [
@@ -54,6 +57,7 @@ export const adminHandlers = [
       id: String(mockVehicles.length + 1),
       ...body,
       active: true,
+      isParked: true,
     }
     mockVehicles.push(newVehicle)
     return HttpResponse.json(newVehicle, { status: 201 })

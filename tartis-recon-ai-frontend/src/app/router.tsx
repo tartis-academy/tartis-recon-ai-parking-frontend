@@ -9,6 +9,7 @@ import VehicleCreatePage from '@/features/admin/pages/VehicleCreatePage'
 import AdminHomePage from '@/features/admin/pages/AdminHomePage'
 
 import { SpotListPage } from '@/features/admin'
+import { AdminLayout } from '@/features/admin/components/AdminLayout'
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -27,18 +28,23 @@ const indexRoute = createRoute({
 const adminRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin',
-  component: () => <Outlet />,
+  component: AdminLayout,
 })
 
 const vehiclesRoute = createRoute({
   getParentRoute: () => adminRoute,
   path: '/vehicles',
-  component: () => <VehicleTable />,
+  component: () => (
+    <>
+      <VehicleTable />
+      <Outlet />
+    </>
+  ),
 })
 
 const vehicleNewRoute = createRoute({
-  getParentRoute: () => adminRoute,
-  path: '/vehicles/new',
+  getParentRoute: () => vehiclesRoute,
+  path: '/new',
   component: VehicleCreatePage,
 })
 
@@ -51,8 +57,7 @@ const spotsRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   adminRoute.addChildren([
-    vehiclesRoute,
-    vehicleNewRoute,
+    vehiclesRoute.addChildren([vehicleNewRoute]),
     spotsRoute,
   ]),
 ])

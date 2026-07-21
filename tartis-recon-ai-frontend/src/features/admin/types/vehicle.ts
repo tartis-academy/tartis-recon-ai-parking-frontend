@@ -5,6 +5,7 @@ export interface VehicleBase {
   model: string
   color: string
   active: boolean
+  isParked?: boolean
 }
 
 export interface Car extends VehicleBase {
