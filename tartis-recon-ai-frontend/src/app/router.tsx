@@ -4,12 +4,12 @@ import {
   createRoute,
   Outlet,
 } from '@tanstack/react-router'
-import VehicleTable from '@/features/admin/components/VehicleTable'
-import VehicleCreatePage from '@/features/admin/pages/VehicleCreatePage'
 import AdminHomePage from '@/features/admin/pages/AdminHomePage'
 
-import { SpotListPage } from '@/features/admin'
-import { AdminLayout } from '@/features/admin/components/AdminLayout'
+import { AdminLayoutContainer } from '@/features/admin/containers/AdminLayoutContainer'
+import { VehicleListContainer } from '@/features/admin/containers/VehicleListContainer'
+import { SpotListContainer } from '@/features/admin/containers/SpotListContainer'
+import { VehicleFormContainer } from '@/features/admin/containers/VehicleFormContainer'
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -28,7 +28,7 @@ const indexRoute = createRoute({
 const adminRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin',
-  component: AdminLayout,
+  component: AdminLayoutContainer,
 })
 
 const vehiclesRoute = createRoute({
@@ -36,7 +36,7 @@ const vehiclesRoute = createRoute({
   path: '/vehicles',
   component: () => (
     <>
-      <VehicleTable />
+      <VehicleListContainer />
       <Outlet />
     </>
   ),
@@ -45,13 +45,13 @@ const vehiclesRoute = createRoute({
 const vehicleNewRoute = createRoute({
   getParentRoute: () => vehiclesRoute,
   path: '/new',
-  component: VehicleCreatePage,
+  component: VehicleFormContainer,
 })
 
 const spotsRoute = createRoute({
   getParentRoute: () => adminRoute,
   path: '/spots',
-  component: SpotListPage,
+  component: SpotListContainer,
 })
 
 const routeTree = rootRoute.addChildren([
