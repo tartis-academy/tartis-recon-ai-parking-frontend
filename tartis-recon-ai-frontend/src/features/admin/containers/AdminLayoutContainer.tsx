@@ -2,6 +2,7 @@ import { useVehicles } from '../hooks/useVehicles'
 import { useSpots } from '../hooks/useSpots'
 import { AdminLayout } from '../components/AdminLayout'
 import { useAdminUIStore } from '../stores/adminUIStore'
+import { DEFAULT_TOTAL_SPOTS } from '../constants'
 
 export function AdminLayoutContainer() {
   const { data: vehicles } = useVehicles()
@@ -10,7 +11,7 @@ export function AdminLayoutContainer() {
   const toggleSidebar = useAdminUIStore(state => state.toggleSidebar)
 
   const occupiedSpots = spots?.filter(s => s.status === 'OCCUPIED').length || 0
-  const totalSpots = spots?.length || 120
+  const totalSpots = spots?.length || DEFAULT_TOTAL_SPOTS
   const totalRegisteredVehicles = vehicles?.length || 0
 
   return (

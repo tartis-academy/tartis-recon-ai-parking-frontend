@@ -1,7 +1,9 @@
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { createPortal } from 'react-dom'
 import { vehicleSchema, type VehicleFormData } from '../validation/vehicleSchema'
 import { adminLabels } from '../labels'
+import { TextInput, Select, Button, Icon } from '@/shared/ui'
 
 interface VehicleFormProps {
   onSubmit: (data: VehicleFormData) => void
@@ -29,7 +31,7 @@ export function VehicleForm({ onSubmit, onClose, isPending }: VehicleFormProps) 
   const vehicleType = useWatch({ control, name: 'type' })
   const isCar = vehicleType === 'CAR' || vehicleType === 'CAR_PMR'
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-app/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="bg-surface-card border border-border-subtle rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
         
@@ -42,11 +44,9 @@ export function VehicleForm({ onSubmit, onClose, isPending }: VehicleFormProps) 
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-500 hover:text-white bg-surface-panel hover:bg-surface-row-hover p-1.5 rounded-md transition-colors border border-border-default"
+            className="text-gray-500 hover:text-white bg-surface-panel hover:bg-surface-row-hover p-1.5 rounded-md transition-colors border border-border-default flex-shrink-0"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <Icon name="close" className="w-5 h-5" />
           </button>
         </div>
 
@@ -64,74 +64,72 @@ export function VehicleForm({ onSubmit, onClose, isPending }: VehicleFormProps) 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="plate" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{form.plate} <span className="text-brand-500">*</span></label>
-              <input
+              <TextInput
                 id="plate"
                 {...register('plate')}
-                className="w-full bg-surface-app border border-border-default rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-brand-500 transition-colors uppercase"
+                className="uppercase"
                 placeholder={form.placeholder.plate}
+                error={errors.plate?.message}
               />
-              {errors.plate && <p className="mt-1 text-xs text-state-error">{errors.plate.message}</p>}
               <p className="text-[10px] text-gray-500 mt-1">{form.plateHint}</p>
             </div>
 
             <div>
               <label htmlFor="type" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{form.type} <span className="text-brand-500">*</span></label>
-              <select
+              <Select
                 id="type"
                 {...register('type')}
-                className="w-full bg-surface-app border border-border-default rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-brand-500 transition-colors appearance-none"
+                error={errors.type?.message}
               >
                 <option value="CAR">{adminLabels.vehicles.types.car} (Estándar)</option>
                 <option value="CAR_PMR">{adminLabels.vehicles.types.carPmr}</option>
                 <option value="MOTORBIKE">{adminLabels.vehicles.types.motorbike}</option>
-              </select>
+              </Select>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="brand" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{form.brand} <span className="text-brand-500">*</span></label>
-              <input
+              <TextInput
                 id="brand"
                 {...register('brand')}
-                className="w-full bg-surface-app border border-border-default rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-brand-500 transition-colors"
                 placeholder={form.placeholder.brand}
+                error={errors.brand?.message}
               />
-              {errors.brand && <p className="mt-1 text-xs text-state-error">{errors.brand.message}</p>}
             </div>
 
             <div>
               <label htmlFor="model" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{form.model} <span className="text-brand-500">*</span></label>
-              <input
+              <TextInput
                 id="model"
                 {...register('model')}
-                className="w-full bg-surface-app border border-border-default rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-brand-500 transition-colors"
                 placeholder={form.placeholder.model}
+                error={errors.model?.message}
               />
-              {errors.model && <p className="mt-1 text-xs text-state-error">{errors.model.message}</p>}
             </div>
           </div>
 
           <div>
             <label htmlFor="color" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{form.color}</label>
-            <input
+            <TextInput
               id="color"
               {...register('color')}
-              className="w-full bg-surface-app border border-border-default rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-brand-500 transition-colors"
               placeholder={form.placeholder.color}
+              error={errors.color?.message}
             />
           </div>
 
           {isCar ? (
             <div>
               <label htmlFor="numDoors" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{form.doors}</label>
-              <input
+              <TextInput
                 id="numDoors"
                 type="number"
                 {...register('numDoors', { valueAsNumber: true })}
-                className="w-full bg-surface-app border border-border-default rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-brand-500 transition-colors"
                 min="2"
                 max="5"
+                error={errors.numDoors?.message}
               />
             </div>
           ) : (
@@ -151,30 +149,27 @@ export function VehicleForm({ onSubmit, onClose, isPending }: VehicleFormProps) 
           <div className="mt-4 pt-5 border-t border-border-subtle flex items-center justify-between">
             <span className="text-[11px] text-gray-500">{form.mandatoryHint}</span>
             <div className="flex gap-3">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
                 onClick={onClose}
-                className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-surface-panel hover:bg-surface-row-hover transition-colors border border-border-default"
               >
                 {form.cancel}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
+                variant="primary"
                 disabled={isPending}
-                className="px-5 py-2 rounded-lg text-sm font-semibold text-black bg-brand-500 hover:bg-brand-400 flex items-center gap-2 transition-colors disabled:opacity-50"
+                icon={!isPending ? <Icon name="check" className="w-4 h-4" /> : undefined}
               >
-                {isPending ? form.processing : (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
-                    {form.submit}
-                  </>
-                )}
-              </button>
+                {isPending ? form.processing : form.submit}
+              </Button>
             </div>
           </div>
 
         </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

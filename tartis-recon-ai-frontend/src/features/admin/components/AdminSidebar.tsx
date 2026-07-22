@@ -32,17 +32,13 @@ export function AdminSidebar({
         onClick={toggleSidebar}
         className="absolute -right-3 top-8 bg-surface-card border border-border-default rounded-full w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white hover:border-brand-500 z-10 transition-colors"
       >
-        <svg className={`w-4 h-4 transform transition-transform ${isSidebarOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-        </svg>
+        <Icon name="chevron-right" className={`w-4 h-4 transform transition-transform ${isSidebarOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {/* Logo Area */}
       <div className="p-6 flex items-center gap-3">
         <div className="min-w-10 w-10 h-10 rounded-xl bg-brand-soft text-brand-400 flex items-center justify-center shadow-brand-glow flex-shrink-0">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+          <Icon name="document" className="w-6 h-6" />
         </div>
         {isSidebarOpen && (
           <div className="flex flex-col whitespace-nowrap overflow-hidden">
