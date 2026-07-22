@@ -58,3 +58,6 @@ public/mockServiceWorker.js
 *.tmp
 *.temp
 .cache/
+
+### === graphify ===
+graphify-out/
