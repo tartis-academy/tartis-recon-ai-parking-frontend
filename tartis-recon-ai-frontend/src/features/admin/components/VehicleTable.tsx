@@ -1,67 +1,104 @@
-import { useVehicles } from '../hooks/useVehicles'
-import { Link } from '@tanstack/react-router'
+import type { Vehicle } from '../types/vehicle'
+import type { StatusFilter } from '../types/vehicle'
+import { Card, CardHeader, CardBody, StatusBadge, EmptyState, TextInput, Select, Icon } from '@/shared/ui'
+import { adminLabels } from '../labels'
 
-export default function VehicleTable() {
-  const { data: vehicles, isLoading, error } = useVehicles()
+interface VehicleTableProps {
+  vehicles: Vehicle[]
+  searchQuery: string
+  onSearchChange: (val: string) => void
+  statusFilter: StatusFilter
+  onFilterChange: (val: StatusFilter) => void
+}
 
-  if (isLoading) return <p>Cargando...</p>
-  if (error) return <p>Error al cargar los vehículos.</p>
+export function VehicleTable({ 
+  vehicles, 
+  searchQuery, 
+  onSearchChange, 
+  statusFilter, 
+  onFilterChange,
+}: VehicleTableProps) {
+  const { 
+    tableHeaders, 
+    types, 
+    status, 
+    emptyState, 
+    records, 
+    searchPlaceholder,
+    filterAll,
+  } = adminLabels.vehicles
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-black">Vehículos</h1>
-          <Link to="/admin/vehicles/new">
-            <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition-colors duration-200">
-              + Crear vehículo
-            </button>
-          </Link>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-4">
+          <h2 className="text-lg font-semibold text-white">{adminLabels.vehicles.pageTitle}</h2>
+          <span className="bg-surface-row-hover text-gray-300 px-3 py-1 rounded-full text-xs font-medium border border-border-default">
+            {vehicles.length} {records}
+          </span>
         </div>
-        <div className="overflow-x-auto bg-white rounded-xl shadow-lg border border-gray-100">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50/50 border-b border-gray-100 text-gray-500 text-sm uppercase tracking-wider">
-                <th className="p-4 font-semibold">Matrícula</th>
-                <th className="p-4 font-semibold">Tipo</th>
-                <th className="p-4 font-semibold">Marca</th>
-                <th className="p-4 font-semibold">Modelo</th>
-                <th className="p-4 font-semibold">Color</th>
-                <th className="p-4 font-semibold">Detalles</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {vehicles?.map((vehicle) => (
-                <tr key={vehicle.id} className="hover:bg-purple-50/30 transition-colors duration-200">
-                  <td className="p-4 font-medium text-gray-900">{vehicle.plate}</td>
-                  <td className="p-4 text-gray-600">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
-                      {vehicle.type === 'CAR' ? 'Coche' : vehicle.type === 'CAR_PMR' ? 'Coche PMR' : 'Moto'}
-                    </span>
-                  </td>
-                  <td className="p-4 text-gray-600">{vehicle.brand}</td>
-                  <td className="p-4 text-gray-600">{vehicle.model}</td>
-                  <td className="p-4 text-gray-600">{vehicle.color}</td>
-                  <td className="p-4 text-gray-600">
-                    {vehicle.type === 'CAR' || vehicle.type === 'CAR_PMR'
-                      ? `${vehicle.numDoors} puertas`
-                      : vehicle.hasSideCar
-                        ? 'Con sidecar'
-                        : 'Sin sidecar'}
-                  </td>
-                </tr>
-              ))}
-              {vehicles?.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="p-8 text-center text-gray-500">
-                    No hay vehículos registrados en el sistema.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      </CardHeader>
+      
+      {/* Toolbar (Filters & Search) */}
+      <div className="p-5 border-b border-border-subtle bg-surface-card flex flex-wrap gap-4 items-center">
+        <div className="flex-1 min-w-[200px] max-w-sm">
+          <TextInput 
+            icon={<Icon name="search" />}
+            placeholder={searchPlaceholder}
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+          />
+        </div>
+        <div className="w-48">
+          <Select 
+            icon={<Icon name="filter" />}
+            value={statusFilter}
+            onChange={(e) => onFilterChange(e.target.value as 'ALL' | 'PARKED' | 'OUTSIDE')}
+          >
+            <option value="ALL">{filterAll}</option>
+            <option value="PARKED">{status.parked}</option>
+            <option value="OUTSIDE">{status.outside}</option>
+          </Select>
         </div>
       </div>
-    </div>
+
+      <CardBody>
+        <table className="w-full text-left border-collapse whitespace-nowrap">
+          <thead>
+            <tr className="bg-surface-app/50 border-b border-border-subtle text-gray-500 text-xs uppercase tracking-wider font-semibold">
+              <th className="p-5">{tableHeaders.id}</th>
+              <th className="p-5">{tableHeaders.plate}</th>
+              <th className="p-5">{tableHeaders.brandModel}</th>
+              <th className="p-5">{tableHeaders.type}</th>
+              <th className="p-5 text-center">{tableHeaders.status}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border-subtle">
+            {vehicles.map((vehicle) => (
+              <tr key={vehicle.id} className="hover:bg-surface-row-hover/50 transition-colors duration-200 text-sm">
+                <td className="p-5 text-gray-500">VHC-{vehicle.id}</td>
+                <td className="p-5 font-bold text-gray-200">{vehicle.plate}</td>
+                <td className="p-5 text-gray-300">{vehicle.brand} {vehicle.model}</td>
+                <td className="p-5 text-gray-400">
+                  <span className="inline-flex px-3 py-1 rounded-md text-xs font-medium bg-surface-panel border border-border-default text-gray-300">
+                    {vehicle.type === 'CAR' ? types.car : vehicle.type === 'CAR_PMR' ? types.carPmr : types.motorbike}
+                  </span>
+                </td>
+                <td className="p-5 text-center">
+                  {vehicle.isParked ? (
+                    <StatusBadge variant="parked">{status.parked}</StatusBadge>
+                  ) : (
+                    <StatusBadge variant="outside">{status.outside}</StatusBadge>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {vehicles.length === 0 && (
+              <EmptyState colSpan={5}>{emptyState}</EmptyState>
+            )}
+          </tbody>
+        </table>
+      </CardBody>
+    </Card>
   )
 }

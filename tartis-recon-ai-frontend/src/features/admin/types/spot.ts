@@ -1,9 +1,9 @@
-export type VehicleType = 'CAR' | 'CAR_PMR' | 'MOTORBIKE';
-export type SpotStatus = 'AVAILABLE' | 'OCCUPIED' | 'UNAVAILABLE';
+import type { VehicleType } from './vehicle'
+
+export type SpotStatus = 'AVAILABLE' | 'OCCUPIED' | 'UNAVAILABLE'
 
 export interface Spot {
   id: string;
   type: VehicleType;
-  numSpot: number;
   status: SpotStatus;
 }
