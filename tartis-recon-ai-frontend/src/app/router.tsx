@@ -10,6 +10,7 @@ import { AdminLayoutContainer } from '@/features/admin/containers/AdminLayoutCon
 import { VehicleListContainer } from '@/features/admin/containers/VehicleListContainer'
 import { SpotListContainer } from '@/features/admin/containers/SpotListContainer'
 import { VehicleFormContainer } from '@/features/admin/containers/VehicleFormContainer'
+import { TariffListPage } from '@/features/admin'
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -54,11 +55,18 @@ const spotsRoute = createRoute({
   component: SpotListContainer,
 })
 
+const tariffsRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/tariffs',
+  component: TariffListPage,
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   adminRoute.addChildren([
     vehiclesRoute.addChildren([vehicleNewRoute]),
     spotsRoute,
+    tariffsRoute,
   ]),
 ])
 
