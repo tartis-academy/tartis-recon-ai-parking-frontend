@@ -11,25 +11,25 @@
   --color-brand-400: #34d399;
   --color-brand-500: #10b185;
   --color-brand-600: #059669;
-  --color-brand-glow: rgba(16, 185, 129, 0.15);
+  --color-brand-soft: rgba(16, 185, 129, 0.15);
   --color-state-available: var(--color-brand-500);
   --color-state-occupied: #eab308;
   --color-state-unavailable: #6b7280;
   --color-state-error: #ef4444;
   --color-state-warn: #eab308;
-  --shadow-brand-glow: 0 0 15px var(--color-brand-glow);
+  --shadow-brand-glow: 0 0 15px var(--color-brand-soft);
   
   --animate-fade-in: fade-in 0.3s ease-out;
+}
 
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

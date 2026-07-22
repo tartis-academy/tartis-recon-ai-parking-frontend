@@ -1,14 +1,16 @@
-import { Link } from '@tanstack/react-router'
+import type { ReactNode } from 'react'
 import type { Vehicle } from '../types/vehicle'
-import { Card, CardHeader, CardBody, StatusBadge, EmptyState, Button, TextInput, Select, Icon } from '@/shared/ui'
+import type { StatusFilter } from '../types/vehicle'
+import { Card, CardHeader, CardBody, StatusBadge, EmptyState, TextInput, Select, Icon } from '@/shared/ui'
 import { adminLabels } from '../labels'
 
 interface VehicleTableProps {
   vehicles: Vehicle[]
   searchQuery: string
   onSearchChange: (val: string) => void
-  statusFilter: 'ALL' | 'PARKED' | 'OUTSIDE'
-  onFilterChange: (val: 'ALL' | 'PARKED' | 'OUTSIDE') => void
+  statusFilter: StatusFilter
+  onFilterChange: (val: StatusFilter) => void
+  primaryAction?: ReactNode
 }
 
 export function VehicleTable({ 
@@ -16,7 +18,8 @@ export function VehicleTable({
   searchQuery, 
   onSearchChange, 
   statusFilter, 
-  onFilterChange, 
+  onFilterChange,
+  primaryAction,
 }: VehicleTableProps) {
   const { 
     tableHeaders, 
@@ -24,7 +27,6 @@ export function VehicleTable({
     status, 
     emptyState, 
     records, 
-    newVehicle,
     searchPlaceholder,
     filterAll,
   } = adminLabels.vehicles
@@ -39,13 +41,11 @@ export function VehicleTable({
           </span>
         </div>
         
-        <div className="flex items-center gap-4">
-          <Link to="/admin/vehicles/new">
-            <Button variant="primary" icon={<Icon name="plus" />}>
-              {newVehicle}
-            </Button>
-          </Link>
-        </div>
+        {primaryAction && (
+          <div className="flex items-center gap-4">
+            {primaryAction}
+          </div>
+        )}
       </CardHeader>
       
       {/* Toolbar (Filters & Search) */}

@@ -25,3 +25,5 @@ export type Vehicle = Car | Motorbike
 export type VehicleType = 'CAR' | 'CAR_PMR' | 'MOTORBIKE'
 
 export type CreateVehicleInput = Omit<Vehicle, 'id' | 'active'>
+
+export type StatusFilter = 'ALL' | 'PARKED' | 'OUTSIDE'

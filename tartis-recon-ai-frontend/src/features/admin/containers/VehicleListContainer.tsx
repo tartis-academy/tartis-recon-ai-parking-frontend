@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { useVehicles } from '../hooks/useVehicles'
 import { VehicleTable } from '../components/VehicleTable'
-import { PageHeader } from '@/shared/ui'
+import { PageHeader, LoadingSpinner, ErrorMessage, Button, Icon } from '@/shared/ui'
 import { adminLabels } from '../labels'
 
 export function VehicleListContainer() {
@@ -11,13 +12,14 @@ export function VehicleListContainer() {
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'PARKED' | 'OUTSIDE'>('ALL')
 
   if (isLoading) {
-    return <div className="text-gray-400 p-8">{adminLabels.vehicles.loading}</div>
+    return <LoadingSpinner />
   }
 
   if (isError) {
-    return <div className="text-state-error p-8">{adminLabels.vehicles.error}</div>
+    return <ErrorMessage>{adminLabels.vehicles.error}</ErrorMessage>
   }
   
+  // TODO: Migrar filtrado a query params del router / backend cuando crezca el dataset
   // Filtrar localmente
   const filteredVehicles = (vehicles ?? []).filter((v) => {
     const matchesSearch = v.plate.toLowerCase().includes(searchQuery.toLowerCase())
@@ -41,6 +43,13 @@ export function VehicleListContainer() {
         onSearchChange={setSearchQuery}
         statusFilter={statusFilter}
         onFilterChange={setStatusFilter}
+        primaryAction={
+          <Link to="/admin/vehicles/new">
+            <Button variant="primary" icon={<Icon name="plus" />}>
+              {adminLabels.vehicles.newVehicle}
+            </Button>
+          </Link>
+        }
       />
     </div>
   )

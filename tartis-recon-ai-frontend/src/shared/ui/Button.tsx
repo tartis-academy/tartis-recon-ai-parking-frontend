@@ -19,7 +19,7 @@ export function Button({
   const baseStyles = 'inline-flex items-center justify-center font-semibold transition-colors rounded-lg disabled:opacity-50 disabled:cursor-not-allowed'
   
   const variantStyles = {
-    primary: 'bg-brand-500 text-black hover:bg-brand-400 shadow-[0_0_15px_var(--color-brand-glow)]',
+    primary: 'bg-brand-500 text-black hover:bg-brand-400 shadow-brand-glow',
     secondary: 'bg-surface-panel text-white border border-border-default hover:bg-surface-row-hover',
     ghost: 'bg-transparent text-gray-300 hover:text-white hover:bg-surface-panel',
     danger: 'bg-state-error/10 text-state-error border border-state-error/30 hover:bg-state-error/20',
