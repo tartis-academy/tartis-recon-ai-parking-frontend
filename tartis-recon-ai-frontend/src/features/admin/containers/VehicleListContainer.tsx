@@ -4,12 +4,13 @@ import { useVehicles } from '../hooks/useVehicles'
 import { VehicleTable } from '../components/VehicleTable'
 import { PageHeader, LoadingSpinner, ErrorMessage, Button, Icon } from '@/shared/ui'
 import { adminLabels } from '../labels'
+import type { StatusFilter } from '../types/vehicle'
 
 export function VehicleListContainer() {
   const { data: vehicles, isLoading, isError } = useVehicles()
   
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'PARKED' | 'OUTSIDE'>('ALL')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL')
 
   if (isLoading) {
     return <LoadingSpinner />
@@ -35,7 +36,14 @@ export function VehicleListContainer() {
     <div className="max-w-[1400px] mx-auto animate-fade-in">
       <PageHeader 
         title={adminLabels.vehicles.pageTitle} 
-        subtitle={adminLabels.vehicles.pageSubtitle} 
+        subtitle={adminLabels.vehicles.pageSubtitle}
+        action={
+          <Link to="/admin/vehicles/new">
+            <Button variant="primary" icon={<Icon name="plus" />}>
+              {adminLabels.vehicles.newVehicle}
+            </Button>
+          </Link>
+        }
       />
       <VehicleTable 
         vehicles={filteredVehicles}
@@ -43,13 +51,6 @@ export function VehicleListContainer() {
         onSearchChange={setSearchQuery}
         statusFilter={statusFilter}
         onFilterChange={setStatusFilter}
-        primaryAction={
-          <Link to="/admin/vehicles/new">
-            <Button variant="primary" icon={<Icon name="plus" />}>
-              {adminLabels.vehicles.newVehicle}
-            </Button>
-          </Link>
-        }
       />
     </div>
   )

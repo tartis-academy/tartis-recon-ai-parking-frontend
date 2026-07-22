@@ -6,8 +6,8 @@ interface StatusBadgeProps {
 }
 
 const variants = {
-  available: 'border-brand-500/30 bg-brand-glow text-brand-400',
-  parked: 'border-brand-500/30 bg-brand-glow text-brand-400',
+  available: 'border-brand-500/30 bg-brand-soft text-brand-400',
+  parked: 'border-brand-500/30 bg-brand-soft text-brand-400',
   occupied: 'border-state-occupied/30 bg-state-occupied/10 text-state-occupied',
   unavailable: 'border-state-unavailable/30 bg-state-unavailable/10 text-state-unavailable',
   outside: 'border-border-default bg-surface-panel text-gray-400',

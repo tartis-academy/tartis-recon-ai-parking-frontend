@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import type { Vehicle } from '../types/vehicle'
 import type { StatusFilter } from '../types/vehicle'
 import { Card, CardHeader, CardBody, StatusBadge, EmptyState, TextInput, Select, Icon } from '@/shared/ui'
@@ -10,7 +9,6 @@ interface VehicleTableProps {
   onSearchChange: (val: string) => void
   statusFilter: StatusFilter
   onFilterChange: (val: StatusFilter) => void
-  primaryAction?: ReactNode
 }
 
 export function VehicleTable({ 
@@ -19,7 +17,6 @@ export function VehicleTable({
   onSearchChange, 
   statusFilter, 
   onFilterChange,
-  primaryAction,
 }: VehicleTableProps) {
   const { 
     tableHeaders, 
@@ -40,12 +37,6 @@ export function VehicleTable({
             {vehicles.length} {records}
           </span>
         </div>
-        
-        {primaryAction && (
-          <div className="flex items-center gap-4">
-            {primaryAction}
-          </div>
-        )}
       </CardHeader>
       
       {/* Toolbar (Filters & Search) */}

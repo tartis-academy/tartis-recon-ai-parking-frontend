@@ -55,7 +55,7 @@ export function VehicleForm({ onSubmit, onClose, isPending }: VehicleFormProps) 
           
           <div>
             <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{form.idAssigned}</label>
-            <div className="w-full px-4 py-2.5 bg-brand-glow border border-brand-500/30 rounded-lg text-brand-400 font-medium">
+            <div className="w-full px-4 py-2.5 bg-brand-soft border border-brand-500/30 rounded-lg text-brand-400 font-medium">
               VHC-Auto
             </div>
             <p className="text-[10px] text-gray-500 mt-1">{form.idAssignedHint}</p>
