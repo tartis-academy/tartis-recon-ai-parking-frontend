@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import type { CreateVehicleInput } from '@/features/admin/types/vehicle'
+import type { Tariff, CreateTariffInput } from '@/features/admin/types/tariff'
 
 const mockVehicles = [
   {
@@ -47,6 +48,25 @@ const mockSpots = [
   { id: '4', type: 'MOTORBIKE', status: 'AVAILABLE' },
 ]
 
+const mockTariffs: Tariff[] = [
+  {
+    id: '1',
+    name: 'Tarifa Coche Estándar',
+    vehicleType: 'CAR',
+    pricePerMinute: 0.05,
+    description: 'Tarifa habitual para turismos',
+    active: true,
+  },
+  {
+    id: '2',
+    name: 'Tarifa Moto Económica',
+    vehicleType: 'MOTORBIKE',
+    pricePerMinute: 0.03,
+    description: 'Tarifa reducida para motocicletas',
+    active: true,
+  },
+]
+
 export const adminHandlers = [
   http.get('/v1/vehicles', () => {
     return HttpResponse.json(mockVehicles)
@@ -64,5 +84,17 @@ export const adminHandlers = [
   }),
   http.get('/v1/spots', () => {
     return HttpResponse.json(mockSpots)
+  }),
+  http.get('/v1/tariffs', () => {
+    return HttpResponse.json(mockTariffs)
+  }),
+  http.post('/v1/tariffs', async ({ request }) => {
+    const body = (await request.json()) as CreateTariffInput
+    const newTariff: Tariff = {
+      id: String(mockTariffs.length + 1),
+      ...body,
+    }
+    mockTariffs.push(newTariff)
+    return HttpResponse.json(newTariff, { status: 201 })
   }),
 ]
