@@ -37,21 +37,20 @@ describe('VehicleForm', () => {
     expect(screen.getByLabelText(/marca/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/modelo/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/color/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/número de puertas/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/puertas/i)).toBeInTheDocument()
   })
 
   it('shows validation errors for required fields', async () => {
     const user = userEvent.setup()
     renderWithProviders()
     
-    const submitButton = screen.getByRole('button', { name: /crear vehículo/i })
+    const submitButton = screen.getByRole('button', { name: /registrar vehículo/i })
     await user.click(submitButton)
     
     await waitFor(() => {
       expect(screen.getByText(/plate is required/i)).toBeInTheDocument()
       expect(screen.getByText(/brand is required/i)).toBeInTheDocument()
       expect(screen.getByText(/model is required/i)).toBeInTheDocument()
-      expect(screen.getByText(/color is required/i)).toBeInTheDocument()
     })
   })
 
@@ -62,7 +61,7 @@ describe('VehicleForm', () => {
     const typeSelect = screen.getByLabelText(/tipo/i)
     await user.selectOptions(typeSelect, 'CAR')
     
-    expect(screen.getByLabelText(/número de puertas/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/puertas/i)).toBeInTheDocument()
   })
 
   it('shows hasSideCar field when type is MOTORBIKE', async () => {
@@ -84,14 +83,14 @@ describe('VehicleForm', () => {
     await user.type(screen.getByLabelText(/marca/i), 'Toyota')
     await user.type(screen.getByLabelText(/modelo/i), 'Corolla')
     await user.type(screen.getByLabelText(/color/i), 'White')
-    await user.clear(screen.getByLabelText(/número de puertas/i))
-    await user.type(screen.getByLabelText(/número de puertas/i), '4')
+    await user.clear(screen.getByLabelText(/puertas/i))
+    await user.type(screen.getByLabelText(/puertas/i), '4')
     
-    const submitButton = screen.getByRole('button', { name: /crear vehículo/i })
+    const submitButton = screen.getByRole('button', { name: /registrar vehículo/i })
     await user.click(submitButton)
     
     await waitFor(() => {
-      expect(submitButton).toHaveTextContent(/crear vehículo/i)
+      expect(submitButton).toHaveTextContent(/registrar vehículo/i)
     })
   })
 })

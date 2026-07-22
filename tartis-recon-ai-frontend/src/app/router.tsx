@@ -8,7 +8,7 @@ import VehicleTable from '@/features/admin/components/VehicleTable'
 import VehicleCreatePage from '@/features/admin/pages/VehicleCreatePage'
 import AdminHomePage from '@/features/admin/pages/AdminHomePage'
 
-import { SpotListPage } from '@/features/admin'
+import { SpotListPage, TariffListPage } from '@/features/admin'
 import { AdminLayout } from '@/features/admin/components/AdminLayout'
 
 const rootRoute = createRootRoute({
@@ -54,11 +54,18 @@ const spotsRoute = createRoute({
   component: SpotListPage,
 })
 
+const tariffsRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/tariffs',
+  component: TariffListPage,
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   adminRoute.addChildren([
     vehiclesRoute.addChildren([vehicleNewRoute]),
     spotsRoute,
+    tariffsRoute,
   ]),
 ])
 
