@@ -1,14 +1,33 @@
 import { Link } from '@tanstack/react-router'
 import type { Vehicle } from '../types/vehicle'
-import { Card, CardHeader, CardBody, StatusBadge, EmptyState } from '@/shared/ui'
+import { Card, CardHeader, CardBody, StatusBadge, EmptyState, Button, TextInput, Select, Icon } from '@/shared/ui'
 import { adminLabels } from '../labels'
 
 interface VehicleTableProps {
   vehicles: Vehicle[]
+  searchQuery: string
+  onSearchChange: (val: string) => void
+  statusFilter: 'ALL' | 'PARKED' | 'OUTSIDE'
+  onFilterChange: (val: 'ALL' | 'PARKED' | 'OUTSIDE') => void
 }
 
-export function VehicleTable({ vehicles }: VehicleTableProps) {
-  const { tableHeaders, types, status, emptyState, records, newVehicle } = adminLabels.vehicles
+export function VehicleTable({ 
+  vehicles, 
+  searchQuery, 
+  onSearchChange, 
+  statusFilter, 
+  onFilterChange, 
+}: VehicleTableProps) {
+  const { 
+    tableHeaders, 
+    types, 
+    status, 
+    emptyState, 
+    records, 
+    newVehicle,
+    searchPlaceholder,
+    filterAll,
+  } = adminLabels.vehicles
 
   return (
     <Card>
@@ -22,16 +41,36 @@ export function VehicleTable({ vehicles }: VehicleTableProps) {
         
         <div className="flex items-center gap-4">
           <Link to="/admin/vehicles/new">
-            <button className="bg-brand-500 hover:bg-brand-400 text-black font-bold px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2 text-sm shadow-[0_0_15px_var(--color-brand-glow)]">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-              </svg>
+            <Button variant="primary" icon={<Icon name="plus" />}>
               {newVehicle}
-            </button>
+            </Button>
           </Link>
         </div>
       </CardHeader>
       
+      {/* Toolbar (Filters & Search) */}
+      <div className="p-5 border-b border-border-subtle bg-surface-card flex flex-wrap gap-4 items-center">
+        <div className="flex-1 min-w-[200px] max-w-sm">
+          <TextInput 
+            icon={<Icon name="search" />}
+            placeholder={searchPlaceholder}
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+          />
+        </div>
+        <div className="w-48">
+          <Select 
+            icon={<Icon name="filter" />}
+            value={statusFilter}
+            onChange={(e) => onFilterChange(e.target.value as 'ALL' | 'PARKED' | 'OUTSIDE')}
+          >
+            <option value="ALL">{filterAll}</option>
+            <option value="PARKED">{status.parked}</option>
+            <option value="OUTSIDE">{status.outside}</option>
+          </Select>
+        </div>
+      </div>
+
       <CardBody>
         <table className="w-full text-left border-collapse whitespace-nowrap">
           <thead>

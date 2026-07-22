@@ -13,6 +13,9 @@ export const adminLabels = {
     pageSubtitle: 'Administración · Vehículos',
     records: 'registros',
     newVehicle: 'Nuevo vehículo',
+    searchPlaceholder: 'Buscar por matrícula...',
+    filterLabel: 'Estado:',
+    filterAll: 'Todos los estados',
     tableHeaders: {
       id: 'ID',
       plate: 'Matrícula',
