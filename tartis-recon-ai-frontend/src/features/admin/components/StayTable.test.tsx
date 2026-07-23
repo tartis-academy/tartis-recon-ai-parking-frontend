@@ -137,27 +137,27 @@ describe('StayTable', () => {
   it('renders empty state when no stays are provided', () => {
     renderStayTable({ stays: [], total: 0 })
 
-    expect(screen.getByText(/no hay estancias registradas/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/no hay estancias registradas/i)).toHaveLength(2)
   })
 
   it('renders no-results state with clear filters button when search filter is active', () => {
     renderStayTable({ stays: [], total: 0, search: 'ABC' })
 
-    expect(screen.getByText(/no se encontraron estancias con los filtros aplicados/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /limpiar filtros/i })).toBeInTheDocument()
+    expect(screen.getAllByText(/no se encontraron estancias con los filtros aplicados/i)).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: /limpiar filtros/i })).toHaveLength(2)
   })
 
   it('renders no-results state with clear filters button when status filter is active', () => {
     renderStayTable({ stays: [], total: 0, status: 'IN_PROGRESS' })
 
-    expect(screen.getByText(/no se encontraron estancias con los filtros aplicados/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /limpiar filtros/i })).toBeInTheDocument()
+    expect(screen.getAllByText(/no se encontraron estancias con los filtros aplicados/i)).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: /limpiar filtros/i })).toHaveLength(2)
   })
 
   it('does not render clear filters button when no filters are active', () => {
     renderStayTable({ stays: [], total: 0, search: '', status: 'ALL' })
 
-    expect(screen.getByText(/no hay estancias registradas/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/no hay estancias registradas/i)).toHaveLength(2)
     expect(screen.queryByRole('button', { name: /limpiar filtros/i })).not.toBeInTheDocument()
   })
 
@@ -166,8 +166,8 @@ describe('StayTable', () => {
     const onClearFilters = vi.fn()
     renderStayTable({ stays: [], total: 0, search: 'ABC', onClearFilters })
 
-    const clearButton = screen.getByRole('button', { name: /limpiar filtros/i })
-    await user.click(clearButton)
+    const clearButtons = screen.getAllByRole('button', { name: /limpiar filtros/i })
+    await user.click(clearButtons[0])
 
     expect(onClearFilters).toHaveBeenCalledTimes(1)
   })
@@ -182,5 +182,37 @@ describe('StayTable', () => {
     renderStayTable({ isError: true })
 
     expect(screen.getByText(/error al cargar las estancias/i)).toBeInTheDocument()
+  })
+
+  it('renders cards with semantic markup for each stay', () => {
+    renderStayTable()
+
+    const cards = screen.getAllByRole('article')
+    expect(cards).toHaveLength(mockStays.length)
+
+    const headings = screen.getAllByRole('heading', { level: 3 })
+    expect(headings).toHaveLength(mockStays.length)
+    expect(headings[0]).toHaveTextContent('1234ABC')
+
+    const terms = screen.getAllByRole('term')
+    expect(terms.length).toBe(mockStays.length * 5)
+
+    const definitions = screen.getAllByRole('definition')
+    expect(definitions.length).toBe(mockStays.length * 5)
+  })
+
+  it('renders card empty state when no stays are provided', () => {
+    renderStayTable({ stays: [], total: 0 })
+
+    expect(screen.queryByRole('article')).not.toBeInTheDocument()
+    expect(screen.getAllByText(/no hay estancias registradas/i)).toHaveLength(2)
+  })
+
+  it('renders card no-results state with clear filters button when filters are active', () => {
+    renderStayTable({ stays: [], total: 0, search: 'ABC' })
+
+    expect(screen.queryByRole('article')).not.toBeInTheDocument()
+    expect(screen.getAllByText(/no se encontraron estancias con los filtros aplicados/i)).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: /limpiar filtros/i })).toHaveLength(2)
   })
 })
