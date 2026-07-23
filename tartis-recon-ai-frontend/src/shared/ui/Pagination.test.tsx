@@ -3,6 +3,22 @@ import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
 import { Pagination } from './Pagination'
 
+const mockLabels = {
+  show: 'Mostrar',
+  previous: 'Anterior',
+  next: 'Siguiente',
+  recordsPerPage: 'Registros por página',
+  records: 'registros',
+}
+
+const mockCustomLabels = {
+  show: 'Show',
+  previous: 'Previous',
+  next: 'Next',
+  recordsPerPage: 'Records per page',
+  records: 'records',
+}
+
 describe('Pagination', () => {
   it('displays current page range and total records', () => {
     const onChange = vi.fn()
@@ -12,6 +28,7 @@ describe('Pagination', () => {
         pageSize={10}
         total={47}
         onChange={onChange}
+        labels={mockLabels}
       />,
     )
 
@@ -26,6 +43,7 @@ describe('Pagination', () => {
         pageSize={10}
         total={47}
         onChange={onChange}
+        labels={mockLabels}
       />,
     )
 
@@ -41,6 +59,7 @@ describe('Pagination', () => {
         pageSize={10}
         total={47}
         onChange={onChange}
+        labels={mockLabels}
       />,
     )
 
@@ -57,6 +76,7 @@ describe('Pagination', () => {
         pageSize={10}
         total={47}
         onChange={onChange}
+        labels={mockLabels}
       />,
     )
 
@@ -75,6 +95,7 @@ describe('Pagination', () => {
         pageSize={10}
         total={47}
         onChange={onChange}
+        labels={mockLabels}
       />,
     )
 
@@ -93,6 +114,7 @@ describe('Pagination', () => {
         pageSize={10}
         total={47}
         onChange={onChange}
+        labels={mockLabels}
       />,
     )
 
@@ -100,5 +122,24 @@ describe('Pagination', () => {
     await user.selectOptions(pageSizeSelect, '25')
 
     expect(onChange).toHaveBeenCalledWith({ page: 1, pageSize: 25 })
+  })
+
+  it('uses provided labels instead of hardcoded strings', () => {
+    const onChange = vi.fn()
+    render(
+      <Pagination
+        page={1}
+        pageSize={10}
+        total={47}
+        onChange={onChange}
+        labels={mockCustomLabels}
+      />,
+    )
+
+    expect(screen.getByText('Show')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /previous/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /next/i })).toBeInTheDocument()
+    expect(screen.getByLabelText(/records per page/i)).toBeInTheDocument()
+    expect(screen.getByText('1 - 10 de 47 records')).toBeInTheDocument()
   })
 })
