@@ -1,22 +1,31 @@
 import { Button, Select } from './'
 
+export interface PaginationLabels {
+  show: string
+  previous: string
+  next: string
+  recordsPerPage: string
+  records: string
+}
+
 interface PaginationProps {
   page: number
   pageSize: number
   total: number
   onChange: (params: { page: number; pageSize: number }) => void
+  labels: PaginationLabels
 }
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50] as const
+const rangeFormatter = new Intl.NumberFormat('es-ES')
 
-function formatRange(page: number, pageSize: number, total: number): string {
+function formatRange(page: number, pageSize: number, total: number, recordsLabel: string): string {
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1
   const end = Math.min(page * pageSize, total)
-  const numberFormatter = new Intl.NumberFormat('es-ES')
-  return `${numberFormatter.format(start)} - ${numberFormatter.format(end)} de ${numberFormatter.format(total)} registros`
+  return `${rangeFormatter.format(start)} - ${rangeFormatter.format(end)} de ${rangeFormatter.format(total)} ${recordsLabel}`
 }
 
-export function Pagination({ page, pageSize, total, onChange }: PaginationProps) {
+export function Pagination({ page, pageSize, total, onChange, labels }: PaginationProps) {
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
   const isFirstPage = page <= 1
   const isLastPage = page >= totalPages
@@ -37,13 +46,13 @@ export function Pagination({ page, pageSize, total, onChange }: PaginationProps)
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-4 border-t border-border-subtle bg-surface-card text-sm text-gray-400">
-      <span>{formatRange(page, pageSize, total)}</span>
+      <span>{formatRange(page, pageSize, total, labels.records)}</span>
 
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <span>Mostrar</span>
+          <span>{labels.show}</span>
           <Select
-            aria-label="Registros por página"
+            aria-label={labels.recordsPerPage}
             value={String(pageSize)}
             onChange={(e) => handlePageSizeChange(Number(e.target.value))}
             className="w-20"
@@ -63,7 +72,7 @@ export function Pagination({ page, pageSize, total, onChange }: PaginationProps)
             onClick={handlePrevious}
             disabled={isFirstPage}
           >
-            Anterior
+            {labels.previous}
           </Button>
           <span className="px-2 text-gray-300">
             {page} / {totalPages}
@@ -74,7 +83,7 @@ export function Pagination({ page, pageSize, total, onChange }: PaginationProps)
             onClick={handleNext}
             disabled={isLastPage}
           >
-            Siguiente
+            {labels.next}
           </Button>
         </div>
       </div>
