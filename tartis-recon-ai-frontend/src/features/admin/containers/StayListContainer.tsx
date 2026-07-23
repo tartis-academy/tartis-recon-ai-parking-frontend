@@ -4,17 +4,19 @@ import { StayTable } from '../components/StayTable'
 import { PageHeader, LoadingSpinner, ErrorMessage } from '@/shared/ui'
 import { adminLabels } from '../labels'
 import { DEFAULT_PAGE_SIZE } from '../constants'
-import type { StayStatusFilter } from '../types/stay'
+import type { StayStatusFilter, StayVehicleTypeFilter } from '../types/stay'
 
 export function StayListContainer() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState<StayStatusFilter>('ALL')
+  const [vehicleType, setVehicleType] = useState<StayVehicleTypeFilter>('ALL')
 
   const filters = {
     search: search || undefined,
     status: status === 'ALL' ? undefined : status,
+    vehicleType: vehicleType === 'ALL' ? undefined : vehicleType,
   }
 
   const { data, isLoading, isError } = useStays(page, pageSize, filters)
@@ -42,9 +44,15 @@ export function StayListContainer() {
     setPage(1)
   }
 
+  const handleVehicleTypeChange = (value: StayVehicleTypeFilter) => {
+    setVehicleType(value)
+    setPage(1)
+  }
+
   const handleClearFilters = () => {
     setSearch('')
     setStatus('ALL')
+    setVehicleType('ALL')
     setPage(1)
   }
 
@@ -61,8 +69,10 @@ export function StayListContainer() {
         pageSize={data?.pageSize ?? pageSize}
         search={search}
         status={status}
+        vehicleType={vehicleType}
         onSearchChange={handleSearchChange}
         onStatusChange={handleStatusChange}
+        onVehicleTypeChange={handleVehicleTypeChange}
         onPaginationChange={handlePaginationChange}
         onClearFilters={handleClearFilters}
         isLoading={isLoading}

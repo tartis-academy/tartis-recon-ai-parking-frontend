@@ -14,9 +14,11 @@ const mockStays: Stay[] = [
     checkOut: null,
     totalAmount: null,
     status: 'IN_PROGRESS',
-    vehicle: { plate: '1234ABC' },
+    vehicle: { plate: '1234ABC', type: 'CAR' },
     spot: { code: 'A-01' },
     tariff: { name: 'Tarifa Coche', rate: 0.05 },
+    entryTicket: { id: 'et-1' },
+    ticket: null,
   },
   {
     id: '2',
@@ -27,9 +29,11 @@ const mockStays: Stay[] = [
     checkOut: '2026-07-21T14:30:00.000Z',
     totalAmount: 12.5,
     status: 'FINISHED',
-    vehicle: { plate: '5678DEF' },
+    vehicle: { plate: '5678DEF', type: 'MOTORBIKE' },
     spot: { code: 'B-02' },
     tariff: { name: 'Tarifa Moto', rate: 0.03 },
+    entryTicket: { id: 'et-2' },
+    ticket: { id: 'tk-2', totalAmount: 12.5 },
   },
   {
     id: '3',
@@ -40,9 +44,11 @@ const mockStays: Stay[] = [
     checkOut: null,
     totalAmount: null,
     status: 'CANCELLED',
-    vehicle: { plate: '9012GHI' },
+    vehicle: { plate: '9012GHI', type: 'CAR_PMR' },
     spot: { code: 'C-03' },
     tariff: { name: 'Tarifa Coche', rate: 0.05 },
+    entryTicket: null,
+    ticket: null,
   },
 ]
 
@@ -54,8 +60,10 @@ function renderStayTable(props = {}) {
     pageSize: 10,
     search: '',
     status: 'ALL' as const,
+    vehicleType: 'ALL' as const,
     onSearchChange: vi.fn(),
     onStatusChange: vi.fn(),
+    onVehicleTypeChange: vi.fn(),
     onPaginationChange: vi.fn(),
     onClearFilters: vi.fn(),
     isLoading: false,
@@ -74,7 +82,7 @@ describe('StayTable', () => {
     expect(screen.getByRole('columnheader', { name: /tarifa/i })).toBeInTheDocument()
     expect(screen.getByRole('columnheader', { name: /entrada/i })).toBeInTheDocument()
     expect(screen.getByRole('columnheader', { name: /salida/i })).toBeInTheDocument()
-    expect(screen.getByRole('columnheader', { name: /total/i })).toBeInTheDocument()
+    expect(screen.getByRole('columnheader', { name: /importe/i })).toBeInTheDocument()
     expect(screen.getByRole('columnheader', { name: /estado/i })).toBeInTheDocument()
   })
 
@@ -87,13 +95,14 @@ describe('StayTable', () => {
     expect(screen.getByRole('cell', { name: '5678DEF' })).toBeInTheDocument()
   })
 
-  it('shows placeholder for null check-out and total on in-progress stays', () => {
+  it('shows contextual placeholders for null check-out and total on in-progress stays', () => {
     renderStayTable()
 
     const rows = screen.getAllByRole('row')
     const inProgressRow = rows.find((row) => row.textContent?.includes('1234ABC'))
     expect(inProgressRow).toBeDefined()
-    expect(inProgressRow!.textContent).toContain('—')
+    expect(inProgressRow!.textContent).toContain('En curso')
+    expect(inProgressRow!.textContent).toContain('Pendiente')
   })
 
   it('renders status badges for each stay status', () => {
@@ -134,6 +143,17 @@ describe('StayTable', () => {
     expect(onStatusChange).toHaveBeenCalledWith('IN_PROGRESS')
   })
 
+  it('calls onVehicleTypeChange when vehicle type filter changes', async () => {
+    const user = userEvent.setup()
+    const onVehicleTypeChange = vi.fn()
+    renderStayTable({ onVehicleTypeChange })
+
+    const typeSelect = screen.getByLabelText(/filtrar por tipo de vehículo/i)
+    await user.selectOptions(typeSelect, 'MOTORBIKE')
+
+    expect(onVehicleTypeChange).toHaveBeenCalledWith('MOTORBIKE')
+  })
+
   it('renders empty state when no stays are provided', () => {
     renderStayTable({ stays: [], total: 0 })
 
@@ -154,8 +174,15 @@ describe('StayTable', () => {
     expect(screen.getAllByRole('button', { name: /limpiar filtros/i })).toHaveLength(2)
   })
 
+  it('renders no-results state when vehicle type filter is active', () => {
+    renderStayTable({ stays: [], total: 0, vehicleType: 'MOTORBIKE' })
+
+    expect(screen.getAllByText(/no se encontraron estancias con los filtros aplicados/i)).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: /limpiar filtros/i })).toHaveLength(2)
+  })
+
   it('does not render clear filters button when no filters are active', () => {
-    renderStayTable({ stays: [], total: 0, search: '', status: 'ALL' })
+    renderStayTable({ stays: [], total: 0, search: '', status: 'ALL', vehicleType: 'ALL' })
 
     expect(screen.getAllByText(/no hay estancias registradas/i)).toHaveLength(2)
     expect(screen.queryByRole('button', { name: /limpiar filtros/i })).not.toBeInTheDocument()
@@ -184,7 +211,7 @@ describe('StayTable', () => {
     expect(screen.getByText(/error al cargar las estancias/i)).toBeInTheDocument()
   })
 
-  it('renders cards with semantic markup for each stay', () => {
+  it('renders cards with semantic markup and vehicle type context', () => {
     renderStayTable()
 
     const cards = screen.getAllByRole('article')
@@ -194,11 +221,37 @@ describe('StayTable', () => {
     expect(headings).toHaveLength(mockStays.length)
     expect(headings[0]).toHaveTextContent('1234ABC')
 
+    expect(cards[0].textContent).toContain('Plaza A-01')
+    expect(cards[0].textContent).toContain('Coche')
+    expect(cards[0].textContent).toContain('En curso')
+    expect(cards[0].textContent).toContain('Pendiente')
+    expect(cards[1].textContent).toContain('Moto')
+
     const terms = screen.getAllByRole('term')
-    expect(terms.length).toBe(mockStays.length * 5)
+    expect(terms.length).toBe(mockStays.length * 4)
 
     const definitions = screen.getAllByRole('definition')
-    expect(definitions.length).toBe(mockStays.length * 5)
+    expect(definitions.length).toBe(mockStays.length * 4)
+  })
+
+  it('does not render ticket button when onViewTicket is not provided', () => {
+    renderStayTable()
+
+    expect(screen.queryByRole('button', { name: /ver ticket/i })).not.toBeInTheDocument()
+  })
+
+  it('renders ticket slot when onViewTicket is provided', async () => {
+    const user = userEvent.setup()
+    const onViewTicket = vi.fn()
+    renderStayTable({ onViewTicket })
+
+    const ticketButtons = screen.getAllByRole('button', { name: /ver ticket|ticket no disponible/i })
+    expect(ticketButtons).toHaveLength(mockStays.length)
+
+    const enabledButton = ticketButtons.find((button) => !button.hasAttribute('disabled'))
+    expect(enabledButton).toBeDefined()
+    await user.click(enabledButton!)
+    expect(onViewTicket).toHaveBeenCalled()
   })
 
   it('renders card empty state when no stays are provided', () => {

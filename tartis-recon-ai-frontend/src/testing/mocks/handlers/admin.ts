@@ -59,9 +59,11 @@ const mockStays: Stay[] = [
     checkOut: null,
     totalAmount: null,
     status: 'IN_PROGRESS',
-    vehicle: { plate: '1234ABC' },
+    vehicle: { plate: '1234ABC', type: 'CAR' },
     spot: { code: 'A-01' },
     tariff: { name: 'Tarifa Coche', rate: 0.05 },
+    entryTicket: { id: 'et-1' },
+    ticket: null,
   },
   {
     id: '2',
@@ -72,9 +74,11 @@ const mockStays: Stay[] = [
     checkOut: '2026-07-21T14:30:00.000Z',
     totalAmount: 12.5,
     status: 'FINISHED',
-    vehicle: { plate: '5678DEF' },
+    vehicle: { plate: '5678DEF', type: 'CAR_PMR' },
     spot: { code: 'B-02' },
     tariff: { name: 'Tarifa Moto', rate: 0.03 },
+    entryTicket: { id: 'et-2' },
+    ticket: { id: 'tk-2', totalAmount: 12.5 },
   },
   {
     id: '3',
@@ -85,9 +89,11 @@ const mockStays: Stay[] = [
     checkOut: null,
     totalAmount: null,
     status: 'CANCELLED',
-    vehicle: { plate: '9012GHI' },
+    vehicle: { plate: '9012GHI', type: 'MOTORBIKE' },
     spot: { code: 'C-03' },
     tariff: { name: 'Tarifa Coche', rate: 0.05 },
+    entryTicket: null,
+    ticket: null,
   },
   {
     id: '4',
@@ -98,9 +104,11 @@ const mockStays: Stay[] = [
     checkOut: null,
     totalAmount: null,
     status: 'IN_PROGRESS',
-    vehicle: { plate: '3456JKL' },
+    vehicle: { plate: '3456JKL', type: 'CAR' },
     spot: { code: 'A-04' },
     tariff: { name: 'Tarifa Coche', rate: 0.05 },
+    entryTicket: { id: 'et-4' },
+    ticket: null,
   },
   {
     id: '5',
@@ -111,9 +119,11 @@ const mockStays: Stay[] = [
     checkOut: '2026-07-19T13:45:00.000Z',
     totalAmount: 4.05,
     status: 'FINISHED',
-    vehicle: { plate: '7890MNO' },
+    vehicle: { plate: '7890MNO', type: 'MOTORBIKE' },
     spot: { code: 'B-05' },
     tariff: { name: 'Tarifa Moto', rate: 0.03 },
+    entryTicket: { id: 'et-5' },
+    ticket: { id: 'tk-5', totalAmount: 4.05 },
   },
   {
     id: '6',
@@ -124,9 +134,11 @@ const mockStays: Stay[] = [
     checkOut: '2026-07-18T12:00:00.000Z',
     totalAmount: 15.0,
     status: 'FINISHED',
-    vehicle: { plate: 'ABCD123' },
+    vehicle: { plate: 'ABCD123', type: 'CAR' },
     spot: { code: 'A-06' },
     tariff: { name: 'Tarifa Coche', rate: 0.05 },
+    entryTicket: { id: 'et-6' },
+    ticket: { id: 'tk-6', totalAmount: 15.0 },
   },
   {
     id: '7',
@@ -137,9 +149,11 @@ const mockStays: Stay[] = [
     checkOut: null,
     totalAmount: null,
     status: 'IN_PROGRESS',
-    vehicle: { plate: 'EFGH456' },
+    vehicle: { plate: 'EFGH456', type: 'MOTORBIKE' },
     spot: { code: 'B-07' },
     tariff: { name: 'Tarifa Moto', rate: 0.03 },
+    entryTicket: { id: 'et-7' },
+    ticket: null,
   },
   {
     id: '8',
@@ -150,9 +164,11 @@ const mockStays: Stay[] = [
     checkOut: '2026-07-17T18:30:00.000Z',
     totalAmount: 7.5,
     status: 'CANCELLED',
-    vehicle: { plate: 'IJKL789' },
+    vehicle: { plate: 'IJKL789', type: 'CAR_PMR' },
     spot: { code: 'C-08' },
     tariff: { name: 'Tarifa Coche', rate: 0.05 },
+    entryTicket: null,
+    ticket: null,
   },
   {
     id: '9',
@@ -163,9 +179,11 @@ const mockStays: Stay[] = [
     checkOut: '2026-07-16T10:00:00.000Z',
     totalAmount: 6.0,
     status: 'FINISHED',
-    vehicle: { plate: 'MNOP000' },
+    vehicle: { plate: 'MNOP000', type: 'CAR' },
     spot: { code: 'A-09' },
     tariff: { name: 'Tarifa Coche', rate: 0.05 },
+    entryTicket: { id: 'et-9' },
+    ticket: { id: 'tk-9', totalAmount: 6.0 },
   },
   {
     id: '10',
@@ -176,9 +194,11 @@ const mockStays: Stay[] = [
     checkOut: null,
     totalAmount: null,
     status: 'IN_PROGRESS',
-    vehicle: { plate: 'QRST111' },
+    vehicle: { plate: 'QRST111', type: 'MOTORBIKE' },
     spot: { code: 'B-10' },
     tariff: { name: 'Tarifa Moto', rate: 0.03 },
+    entryTicket: { id: 'et-10' },
+    ticket: null,
   },
   {
     id: '11',
@@ -189,9 +209,11 @@ const mockStays: Stay[] = [
     checkOut: '2026-07-15T11:30:00.000Z',
     totalAmount: 6.0,
     status: 'FINISHED',
-    vehicle: { plate: 'UVWX222' },
+    vehicle: { plate: 'UVWX222', type: 'CAR' },
     spot: { code: 'A-11' },
     tariff: { name: 'Tarifa Coche', rate: 0.05 },
+    entryTicket: { id: 'et-11' },
+    ticket: { id: 'tk-11', totalAmount: 6.0 },
   },
 ]
 
@@ -215,10 +237,10 @@ const mockTariffs: Tariff[] = [
 ]
 
 export const adminHandlers = [
-  http.get('/v1/vehicles', () => {
+  http.get('*/v1/vehicles', () => {
     return HttpResponse.json(mockVehicles)
   }),
-  http.post('/v1/vehicles', async ({ request }) => {
+  http.post('*/v1/vehicles', async ({ request }) => {
     const body = (await request.json()) as CreateVehicleInput
     const newVehicle = {
       id: String(mockVehicles.length + 1),
@@ -229,18 +251,19 @@ export const adminHandlers = [
     mockVehicles.push(newVehicle)
     return HttpResponse.json(newVehicle, { status: 201 })
   }),
-  http.get('/v1/spots', () => {
+  http.get('*/v1/spots', () => {
     return HttpResponse.json(mockSpots)
   }),
-  http.get('/v1/tariffs', () => {
+  http.get('*/v1/tariffs', () => {
     return HttpResponse.json(mockTariffs)
   }),
-  http.get('/v1/stays', ({ request }) => {
+  http.get('*/v1/stays', ({ request }) => {
     const url = new URL(request.url)
     const page = Number(url.searchParams.get('page') ?? '1')
     const pageSize = Number(url.searchParams.get('pageSize') ?? '10')
     const search = url.searchParams.get('search')?.toLowerCase() ?? ''
     const status = url.searchParams.get('status')
+    const vehicleType = url.searchParams.get('vehicleType')
 
     let filtered = [...mockStays]
 
@@ -250,6 +273,10 @@ export const adminHandlers = [
 
     if (status) {
       filtered = filtered.filter((stay) => stay.status === status)
+    }
+
+    if (vehicleType) {
+      filtered = filtered.filter((stay) => stay.vehicle.type === vehicleType)
     }
 
     const total = filtered.length
@@ -265,7 +292,7 @@ export const adminHandlers = [
 
     return HttpResponse.json(response)
   }),
-  http.post('/v1/tariffs', async ({ request }) => {
+  http.post('*/v1/tariffs', async ({ request }) => {
     const body = (await request.json()) as CreateTariffInput
     const newTariff: Tariff = {
       id: String(mockTariffs.length + 1),
