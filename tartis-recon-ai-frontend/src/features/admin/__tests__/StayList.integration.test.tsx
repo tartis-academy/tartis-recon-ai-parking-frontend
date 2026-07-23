@@ -92,6 +92,25 @@ describe('StayListContainer integration', () => {
     expect(screen.getByRole('cell', { name: '5678DEF' })).toBeInTheDocument()
   })
 
+  it('filters stays by vehicle type', async () => {
+    const user = userEvent.setup()
+    renderWithProviders()
+
+    await waitFor(() => {
+      expect(screen.getByRole('cell', { name: '1234ABC' })).toBeInTheDocument()
+    })
+
+    const typeSelect = screen.getByLabelText(/filtrar por tipo de vehículo/i)
+    await user.selectOptions(typeSelect, 'MOTORBIKE')
+
+    await waitFor(() => {
+      expect(screen.queryByRole('cell', { name: '1234ABC' })).not.toBeInTheDocument()
+    })
+
+    expect(screen.getByRole('cell', { name: '7890MNO' })).toBeInTheDocument()
+    expect(screen.getByRole('cell', { name: 'EFGH456' })).toBeInTheDocument()
+  })
+
   it('disables next button on last page', async () => {
     const user = userEvent.setup()
     renderWithProviders()

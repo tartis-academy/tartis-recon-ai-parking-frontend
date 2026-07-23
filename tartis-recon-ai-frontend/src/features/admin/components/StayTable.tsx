@@ -1,9 +1,28 @@
-import type { Stay, StayStatus, StayStatusFilter } from '../types/stay'
-import { Card, CardHeader, CardBody, StatusBadge, TextInput, Select, Icon, Pagination, LoadingSpinner, ErrorMessage } from '@/shared/ui'
+import type { Stay, StayStatusFilter, StayVehicleTypeFilter } from '../types/stay'
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  StatusBadge,
+  Pagination,
+  LoadingSpinner,
+  ErrorMessage,
+} from '@/shared/ui'
 import { adminLabels } from '../labels'
 import { STAY_TABLE_COLUMNS_COUNT } from '../constants'
+import {
+  formatCheckIn,
+  formatCheckOut,
+  formatTotal,
+  formatTariff,
+  resolveStatusLabel,
+  resolveVehicleTypeLabel,
+  statusBadgeVariant,
+  hasTicket,
+} from '../utils/stayFormatters'
 import { StayCard } from './StayCard'
 import { StayTableEmptyState } from './StayTableEmptyState'
+import { StayTableToolbar } from './StayTableToolbar'
 
 interface StayTableProps {
   stays: Stay[]
@@ -12,50 +31,15 @@ interface StayTableProps {
   pageSize: number
   search: string
   status: StayStatusFilter
+  vehicleType: StayVehicleTypeFilter
   onSearchChange: (value: string) => void
   onStatusChange: (value: StayStatusFilter) => void
+  onVehicleTypeChange: (value: StayVehicleTypeFilter) => void
   onPaginationChange: (params: { page: number; pageSize: number }) => void
   onClearFilters: () => void
+  onViewTicket?: (stayId: string) => void
   isLoading: boolean
   isError: boolean
-}
-
-const dateTimeFormatter = new Intl.DateTimeFormat('es-ES', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit',
-})
-
-const currencyFormatter = new Intl.NumberFormat('es-ES', {
-  style: 'currency',
-  currency: 'EUR',
-})
-
-const statusBadgeVariant: Record<StayStatus, 'inProgress' | 'finished' | 'unavailable'> = {
-  IN_PROGRESS: 'inProgress',
-  FINISHED: 'finished',
-  CANCELLED: 'unavailable',
-  PAY_PENDING: 'inProgress',
-  PAID: 'finished',
-}
-
-function formatDateTime(value: string | null): string {
-  if (!value) return '—'
-  return dateTimeFormatter.format(new Date(value))
-}
-
-function formatTotal(value: number | null): string {
-  if (value === null) return '—'
-  return currencyFormatter.format(value)
-}
-
-function resolveStatusLabel(status: StayStatus): string {
-  const labels = adminLabels.stays.status
-  if (status === 'IN_PROGRESS') return labels.inProgress
-  if (status === 'FINISHED' || status === 'PAID') return labels.finished
-  return labels.cancelled
 }
 
 export function StayTable({
@@ -65,15 +49,18 @@ export function StayTable({
   pageSize,
   search,
   status,
+  vehicleType,
   onSearchChange,
   onStatusChange,
+  onVehicleTypeChange,
   onPaginationChange,
   onClearFilters,
+  onViewTicket,
   isLoading,
   isError,
 }: StayTableProps) {
   const labels = adminLabels.stays
-  const hasActiveFilters = Boolean(search) || status !== 'ALL'
+  const hasActiveFilters = Boolean(search) || status !== 'ALL' || vehicleType !== 'ALL'
 
   if (isLoading) {
     return (
@@ -105,31 +92,15 @@ export function StayTable({
             {total} {labels.pagination.records}
           </span>
         </div>
+        <StayTableToolbar
+          search={search}
+          status={status}
+          vehicleType={vehicleType}
+          onSearchChange={onSearchChange}
+          onStatusChange={onStatusChange}
+          onVehicleTypeChange={onVehicleTypeChange}
+        />
       </CardHeader>
-
-      <div className="p-5 border-b border-border-subtle bg-surface-card flex flex-wrap gap-4 items-center">
-        <div className="flex-1 min-w-[200px] max-w-sm">
-          <TextInput
-            icon={<Icon name="search" />}
-            placeholder={labels.searchPlaceholder}
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
-        </div>
-        <div className="w-48">
-          <Select
-            icon={<Icon name="filter" />}
-            value={status}
-            onChange={(e) => onStatusChange(e.target.value as StayStatusFilter)}
-            aria-label={labels.filterByStatus}
-          >
-            <option value="ALL">{labels.filterAll}</option>
-            <option value="IN_PROGRESS">{labels.status.inProgress}</option>
-            <option value="FINISHED">{labels.status.finished}</option>
-            <option value="CANCELLED">{labels.status.cancelled}</option>
-          </Select>
-        </div>
-      </div>
 
       <CardBody>
         <table className="hidden xl:table w-full text-left border-collapse">
@@ -150,13 +121,13 @@ export function StayTable({
                 <td className="p-3 xl:p-4 2xl:p-5 font-bold text-gray-200">{stay.vehicle.plate}</td>
                 <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">{stay.spot.code}</td>
                 <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">
-                  <span className="inline-flex px-3 py-1 rounded-md text-xs font-medium bg-surface-panel border border-border-default text-gray-300 truncate max-w-[160px]">
+                  <span className="inline-flex px-3 py-1 rounded-md text-xs font-medium bg-surface-panel border border-border-default text-gray-300 truncate max-w-[180px]">
                     {stay.tariff.name}
                   </span>
                 </td>
-                <td className="p-3 xl:p-4 2xl:p-5 text-gray-400">{formatDateTime(stay.checkIn)}</td>
-                <td className="p-3 xl:p-4 2xl:p-5 text-gray-400">{formatDateTime(stay.checkOut)}</td>
-                <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">{formatTotal(stay.totalAmount)}</td>
+                <td className="p-3 xl:p-4 2xl:p-5 text-gray-400">{formatCheckIn(stay.checkIn)}</td>
+                <td className="p-3 xl:p-4 2xl:p-5 text-gray-400">{formatCheckOut(stay.checkOut, stay.status)}</td>
+                <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">{formatTotal(stay.totalAmount, stay.status)}</td>
                 <td className="p-3 xl:p-4 2xl:p-5 text-center">
                   <StatusBadge variant={statusBadgeVariant[stay.status]}>
                     {resolveStatusLabel(stay.status)}
@@ -183,13 +154,24 @@ export function StayTable({
                   key={stay.id}
                   plate={stay.vehicle.plate}
                   spot={stay.spot.code}
-                  tariff={stay.tariff.name}
-                  checkIn={formatDateTime(stay.checkIn)}
-                  checkOut={formatDateTime(stay.checkOut)}
-                  total={formatTotal(stay.totalAmount)}
+                  vehicleTypeLabel={resolveVehicleTypeLabel(stay.vehicle.type)}
+                  tariff={formatTariff(stay.tariff.name, stay.tariff.rate)}
+                  checkIn={formatCheckIn(stay.checkIn)}
+                  checkOut={formatCheckOut(stay.checkOut, stay.status)}
+                  total={formatTotal(stay.totalAmount, stay.status)}
                   statusLabel={resolveStatusLabel(stay.status)}
                   statusVariant={statusBadgeVariant[stay.status]}
-                  labels={labels.tableHeaders}
+                  hasTicket={hasTicket(stay)}
+                  labels={{
+                    spot: labels.tableHeaders.spot,
+                    tariff: labels.tableHeaders.tariff,
+                    checkIn: labels.tableHeaders.checkIn,
+                    checkOut: labels.tableHeaders.checkOut,
+                    total: labels.tableHeaders.total,
+                    viewTicket: labels.viewTicket,
+                    viewTicketUnavailable: labels.viewTicketUnavailable,
+                  }}
+                  onViewTicket={onViewTicket ? () => onViewTicket(stay.id) : undefined}
                 />
               ))}
             </div>
