@@ -1,10 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import type { CreateVehicleInput } from '@/features/admin/types/vehicle'
 import type { Tariff, CreateTariffInput } from '@/features/admin/types/tariff'
-<<<<<<< HEAD
 import type { PaginatedResponse, Stay } from '@/features/admin/types/stay'
-=======
->>>>>>> origin/release
 
 const mockVehicles = [
   {
@@ -52,7 +49,6 @@ const mockSpots = [
   { id: '4', type: 'MOTORBIKE', status: 'AVAILABLE' },
 ]
 
-<<<<<<< HEAD
 const mockStays: Stay[] = [
   {
     id: '1',
@@ -221,8 +217,6 @@ const mockStays: Stay[] = [
   },
 ]
 
-=======
->>>>>>> origin/release
 const mockTariffs: Tariff[] = [
   {
     id: '1',

@@ -1,7 +1,6 @@
 import apiClient from '@/lib/api-client'
 import type { Vehicle, CreateVehicleInput } from '../types/vehicle'
 
-<<<<<<< HEAD
 function toVehicleList(payload: unknown): Vehicle[] {
   if (Array.isArray(payload)) {
     return payload as Vehicle[]
@@ -22,11 +21,6 @@ function toVehicleList(payload: unknown): Vehicle[] {
 export const getVehicles = async (): Promise<Vehicle[]> => {
   const response = await apiClient.get<unknown>('/v1/vehicles')
   return toVehicleList(response.data)
-=======
-export const getVehicles = async (): Promise<Vehicle[]> => {
-  const response = await apiClient.get<Vehicle[]>('/v1/vehicles')
-  return response.data
->>>>>>> origin/release
 }
 
 export const createVehicle = async (data: CreateVehicleInput): Promise<Vehicle> => {

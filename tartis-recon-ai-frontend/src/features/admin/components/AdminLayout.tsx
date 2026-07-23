@@ -2,23 +2,17 @@ import { Outlet } from '@tanstack/react-router'
 import { AdminSidebar } from './AdminSidebar'
 
 interface AdminLayoutProps {
-<<<<<<< HEAD
-=======
-  occupiedSpots: number;
-  totalSpots: number;
-  totalRegisteredVehicles: number;
->>>>>>> origin/release
+  occupiedSpots?: number;
+  totalSpots?: number;
+  totalRegisteredVehicles?: number;
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
 }
 
 export function AdminLayout({ 
-<<<<<<< HEAD
-=======
   occupiedSpots, 
   totalSpots, 
   totalRegisteredVehicles, 
->>>>>>> origin/release
   isSidebarOpen, 
   toggleSidebar, 
 }: AdminLayoutProps) {
@@ -27,16 +21,11 @@ export function AdminLayout({
       <AdminSidebar 
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
-<<<<<<< HEAD
-      />
-      <main className="flex-1 overflow-y-auto bg-surface-app p-4 lg:p-6 xl:p-8">
-=======
         occupiedSpots={occupiedSpots}
         totalSpots={totalSpots}
         totalRegisteredVehicles={totalRegisteredVehicles}
       />
-      <main className="flex-1 overflow-y-auto bg-surface-app p-8">
->>>>>>> origin/release
+      <main className="flex-1 overflow-y-auto bg-surface-app p-4 lg:p-6 xl:p-8">
         <Outlet />
       </main>
     </div>
