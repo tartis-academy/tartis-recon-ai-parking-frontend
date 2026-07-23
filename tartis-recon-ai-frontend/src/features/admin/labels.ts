@@ -116,8 +116,14 @@ export const adminLabels = {
     clearFilters: 'Limpiar filtros',
     loading: 'Cargando estancias...',
     error: 'Error al cargar las estancias.',
-    paginationLabel: 'Registros por página',
     filterByStatus: 'Filtrar por estado',
+    pagination: {
+      show: 'Mostrar',
+      previous: 'Anterior',
+      next: 'Siguiente',
+      recordsPerPage: 'Registros por página',
+      records: 'registros',
+    },
   },
   form: {
     title: 'Registrar vehículo',
