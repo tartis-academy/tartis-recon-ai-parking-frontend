@@ -1,7 +1,9 @@
 import type { Stay, StayStatus, StayStatusFilter } from '../types/stay'
-import { Card, CardHeader, CardBody, StatusBadge, EmptyState, TextInput, Select, Icon, Pagination, LoadingSpinner, ErrorMessage, Button } from '@/shared/ui'
+import { Card, CardHeader, CardBody, StatusBadge, TextInput, Select, Icon, Pagination, LoadingSpinner, ErrorMessage } from '@/shared/ui'
 import { adminLabels } from '../labels'
 import { STAY_TABLE_COLUMNS_COUNT } from '../constants'
+import { StayCard } from './StayCard'
+import { StayTableEmptyState } from './StayTableEmptyState'
 
 interface StayTableProps {
   stays: Stay[]
@@ -47,6 +49,13 @@ function formatDateTime(value: string | null): string {
 function formatTotal(value: number | null): string {
   if (value === null) return '—'
   return currencyFormatter.format(value)
+}
+
+function resolveStatusLabel(status: StayStatus): string {
+  const labels = adminLabels.stays.status
+  if (status === 'IN_PROGRESS') return labels.inProgress
+  if (status === 'FINISHED' || status === 'PAID') return labels.finished
+  return labels.cancelled
 }
 
 export function StayTable({
@@ -123,52 +132,75 @@ export function StayTable({
       </div>
 
       <CardBody>
-        <table className="w-full text-left border-collapse whitespace-nowrap">
+        <table className="hidden xl:table w-full text-left border-collapse">
           <thead>
             <tr className="bg-surface-app/50 border-b border-border-subtle text-gray-500 text-xs uppercase tracking-wider font-semibold">
-              <th className="p-5">{labels.tableHeaders.plate}</th>
-              <th className="p-5">{labels.tableHeaders.spot}</th>
-              <th className="p-5">{labels.tableHeaders.tariff}</th>
-              <th className="p-5">{labels.tableHeaders.checkIn}</th>
-              <th className="p-5">{labels.tableHeaders.checkOut}</th>
-              <th className="p-5">{labels.tableHeaders.total}</th>
-              <th className="p-5 text-center">{labels.tableHeaders.status}</th>
+              <th className="p-3 xl:p-4 2xl:p-5">{labels.tableHeaders.plate}</th>
+              <th className="p-3 xl:p-4 2xl:p-5">{labels.tableHeaders.spot}</th>
+              <th className="p-3 xl:p-4 2xl:p-5">{labels.tableHeaders.tariff}</th>
+              <th className="p-3 xl:p-4 2xl:p-5">{labels.tableHeaders.checkIn}</th>
+              <th className="p-3 xl:p-4 2xl:p-5">{labels.tableHeaders.checkOut}</th>
+              <th className="p-3 xl:p-4 2xl:p-5">{labels.tableHeaders.total}</th>
+              <th className="p-3 xl:p-4 2xl:p-5 text-center">{labels.tableHeaders.status}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-subtle">
             {stays.map((stay) => (
               <tr key={stay.id} className="hover:bg-surface-row-hover/50 transition-colors duration-200 text-sm">
-                <td className="p-5 font-bold text-gray-200">{stay.vehicle.plate}</td>
-                <td className="p-5 text-gray-300">{stay.spot.code}</td>
-                <td className="p-5 text-gray-300">
-                  <span className="inline-flex px-3 py-1 rounded-md text-xs font-medium bg-surface-panel border border-border-default text-gray-300">
+                <td className="p-3 xl:p-4 2xl:p-5 font-bold text-gray-200">{stay.vehicle.plate}</td>
+                <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">{stay.spot.code}</td>
+                <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">
+                  <span className="inline-flex px-3 py-1 rounded-md text-xs font-medium bg-surface-panel border border-border-default text-gray-300 truncate max-w-[160px]">
                     {stay.tariff.name}
                   </span>
                 </td>
-                <td className="p-5 text-gray-400">{formatDateTime(stay.checkIn)}</td>
-                <td className="p-5 text-gray-400">{formatDateTime(stay.checkOut)}</td>
-                <td className="p-5 text-gray-300">{formatTotal(stay.totalAmount)}</td>
-                <td className="p-5 text-center">
+                <td className="p-3 xl:p-4 2xl:p-5 text-gray-400">{formatDateTime(stay.checkIn)}</td>
+                <td className="p-3 xl:p-4 2xl:p-5 text-gray-400">{formatDateTime(stay.checkOut)}</td>
+                <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">{formatTotal(stay.totalAmount)}</td>
+                <td className="p-3 xl:p-4 2xl:p-5 text-center">
                   <StatusBadge variant={statusBadgeVariant[stay.status]}>
-                    {labels.status[stay.status === 'IN_PROGRESS' ? 'inProgress' : stay.status === 'FINISHED' ? 'finished' : 'cancelled']}
+                    {resolveStatusLabel(stay.status)}
                   </StatusBadge>
                 </td>
               </tr>
             ))}
             {stays.length === 0 && (
-              <EmptyState colSpan={STAY_TABLE_COLUMNS_COUNT}>
-                <div className="flex flex-col items-center gap-3">
-                  <span>{hasActiveFilters ? labels.noResults : labels.emptyState}</span>
-                  {hasActiveFilters && (
-                    <Button variant="secondary" size="sm" onClick={onClearFilters}>
-                      {labels.clearFilters}
-                    </Button>
-                  )}
-                </div>
-              </EmptyState>
+              <StayTableEmptyState
+                hasActiveFilters={hasActiveFilters}
+                labels={labels}
+                onClearFilters={onClearFilters}
+                colSpan={STAY_TABLE_COLUMNS_COUNT}
+              />
             )}
           </tbody>
         </table>
+
+        <div className="xl:hidden">
+          {stays.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {stays.map((stay) => (
+                <StayCard
+                  key={stay.id}
+                  plate={stay.vehicle.plate}
+                  spot={stay.spot.code}
+                  tariff={stay.tariff.name}
+                  checkIn={formatDateTime(stay.checkIn)}
+                  checkOut={formatDateTime(stay.checkOut)}
+                  total={formatTotal(stay.totalAmount)}
+                  statusLabel={resolveStatusLabel(stay.status)}
+                  statusVariant={statusBadgeVariant[stay.status]}
+                  labels={labels.tableHeaders}
+                />
+              ))}
+            </div>
+          ) : (
+            <StayTableEmptyState
+              hasActiveFilters={hasActiveFilters}
+              labels={labels}
+              onClearFilters={onClearFilters}
+            />
+          )}
+        </div>
       </CardBody>
 
       <Pagination
