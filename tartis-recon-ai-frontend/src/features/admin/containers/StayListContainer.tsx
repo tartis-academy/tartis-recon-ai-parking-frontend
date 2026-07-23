@@ -42,6 +42,12 @@ export function StayListContainer() {
     setPage(1)
   }
 
+  const handleClearFilters = () => {
+    setSearch('')
+    setStatus('ALL')
+    setPage(1)
+  }
+
   return (
     <div className="max-w-[1400px] mx-auto animate-fade-in">
       <PageHeader
@@ -58,6 +64,7 @@ export function StayListContainer() {
         onSearchChange={handleSearchChange}
         onStatusChange={handleStatusChange}
         onPaginationChange={handlePaginationChange}
+        onClearFilters={handleClearFilters}
         isLoading={isLoading}
         isError={isError}
       />

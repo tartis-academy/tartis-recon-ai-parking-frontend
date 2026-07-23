@@ -1,6 +1,7 @@
 import type { Stay, StayStatus, StayStatusFilter } from '../types/stay'
-import { Card, CardHeader, CardBody, StatusBadge, EmptyState, TextInput, Select, Icon, Pagination, LoadingSpinner, ErrorMessage } from '@/shared/ui'
+import { Card, CardHeader, CardBody, StatusBadge, EmptyState, TextInput, Select, Icon, Pagination, LoadingSpinner, ErrorMessage, Button } from '@/shared/ui'
 import { adminLabels } from '../labels'
+import { STAY_TABLE_COLUMNS_COUNT } from '../constants'
 
 interface StayTableProps {
   stays: Stay[]
@@ -12,6 +13,7 @@ interface StayTableProps {
   onSearchChange: (value: string) => void
   onStatusChange: (value: StayStatusFilter) => void
   onPaginationChange: (params: { page: number; pageSize: number }) => void
+  onClearFilters: () => void
   isLoading: boolean
   isError: boolean
 }
@@ -57,10 +59,12 @@ export function StayTable({
   onSearchChange,
   onStatusChange,
   onPaginationChange,
+  onClearFilters,
   isLoading,
   isError,
 }: StayTableProps) {
   const labels = adminLabels.stays
+  const hasActiveFilters = Boolean(search) || status !== 'ALL'
 
   if (isLoading) {
     return (
@@ -89,7 +93,7 @@ export function StayTable({
         <div className="flex items-center gap-4">
           <h2 className="text-lg font-semibold text-white">{labels.pageTitle}</h2>
           <span className="bg-surface-row-hover text-gray-300 px-3 py-1 rounded-full text-xs font-medium border border-border-default">
-            {total} {labels.records}
+            {total} {labels.pagination.records}
           </span>
         </div>
       </CardHeader>
@@ -152,7 +156,16 @@ export function StayTable({
               </tr>
             ))}
             {stays.length === 0 && (
-              <EmptyState colSpan={7}>{search || status !== 'ALL' ? labels.noResults : labels.emptyState}</EmptyState>
+              <EmptyState colSpan={STAY_TABLE_COLUMNS_COUNT}>
+                <div className="flex flex-col items-center gap-3">
+                  <span>{hasActiveFilters ? labels.noResults : labels.emptyState}</span>
+                  {hasActiveFilters && (
+                    <Button variant="secondary" size="sm" onClick={onClearFilters}>
+                      {labels.clearFilters}
+                    </Button>
+                  )}
+                </div>
+              </EmptyState>
             )}
           </tbody>
         </table>
@@ -163,6 +176,7 @@ export function StayTable({
         pageSize={pageSize}
         total={total}
         onChange={onPaginationChange}
+        labels={labels.pagination}
       />
     </Card>
   )

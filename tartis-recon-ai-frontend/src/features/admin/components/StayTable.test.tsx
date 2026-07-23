@@ -57,6 +57,7 @@ function renderStayTable(props = {}) {
     onSearchChange: vi.fn(),
     onStatusChange: vi.fn(),
     onPaginationChange: vi.fn(),
+    onClearFilters: vi.fn(),
     isLoading: false,
     isError: false,
   }
@@ -137,6 +138,38 @@ describe('StayTable', () => {
     renderStayTable({ stays: [], total: 0 })
 
     expect(screen.getByText(/no hay estancias registradas/i)).toBeInTheDocument()
+  })
+
+  it('renders no-results state with clear filters button when search filter is active', () => {
+    renderStayTable({ stays: [], total: 0, search: 'ABC' })
+
+    expect(screen.getByText(/no se encontraron estancias con los filtros aplicados/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /limpiar filtros/i })).toBeInTheDocument()
+  })
+
+  it('renders no-results state with clear filters button when status filter is active', () => {
+    renderStayTable({ stays: [], total: 0, status: 'IN_PROGRESS' })
+
+    expect(screen.getByText(/no se encontraron estancias con los filtros aplicados/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /limpiar filtros/i })).toBeInTheDocument()
+  })
+
+  it('does not render clear filters button when no filters are active', () => {
+    renderStayTable({ stays: [], total: 0, search: '', status: 'ALL' })
+
+    expect(screen.getByText(/no hay estancias registradas/i)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /limpiar filtros/i })).not.toBeInTheDocument()
+  })
+
+  it('calls onClearFilters when clear filters button is clicked', async () => {
+    const user = userEvent.setup()
+    const onClearFilters = vi.fn()
+    renderStayTable({ stays: [], total: 0, search: 'ABC', onClearFilters })
+
+    const clearButton = screen.getByRole('button', { name: /limpiar filtros/i })
+    await user.click(clearButton)
+
+    expect(onClearFilters).toHaveBeenCalledTimes(1)
   })
 
   it('renders loading state', () => {
