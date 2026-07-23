@@ -105,6 +105,22 @@ export function AdminSidebar({
               </div>
             )}
           </Link>
+
+          <Link
+            to="/admin/stays"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+              location.pathname.includes('/stays')
+                ? 'bg-surface-row-hover text-brand-400 border-l-2 border-brand-500 shadow-sm'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-surface-card border-l-2 border-transparent'
+            }`}
+          >
+            <Icon name="clock" className="w-5 h-5 flex-shrink-0" />
+            {isSidebarOpen && (
+              <div className="flex items-center justify-between flex-1 overflow-hidden">
+                <span className="font-medium whitespace-nowrap">{layout.stays}</span>
+              </div>
+            )}
+          </Link>
         </nav>
       </div>
 
