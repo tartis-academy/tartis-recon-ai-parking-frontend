@@ -25,7 +25,7 @@ export function AdminLayout({
         totalSpots={totalSpots}
         totalRegisteredVehicles={totalRegisteredVehicles}
       />
-      <main className="flex-1 overflow-y-auto bg-surface-app p-8">
+      <main className="flex-1 overflow-y-auto bg-surface-app p-4 lg:p-6 xl:p-8">
         <Outlet />
       </main>
     </div>
