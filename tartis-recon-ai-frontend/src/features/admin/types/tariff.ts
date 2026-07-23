@@ -5,7 +5,7 @@ export interface Tariff {
   name: string
   vehicleType: VehicleType
   pricePerMinute: number
-  description?: string
+  basePrice: number
   active: boolean
 }
 

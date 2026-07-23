@@ -31,7 +31,7 @@ describe('TariffForm', () => {
     expect(screen.getByLabelText(/nombre de la tarifa/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/tipo de vehículo/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/precio por minuto/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/descripción/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/precio base/i)).toBeInTheDocument()
   })
 
   it('shows validation errors for invalid or short inputs', async () => {
@@ -59,9 +59,10 @@ describe('TariffForm', () => {
 
     await user.type(screen.getByLabelText(/nombre de la tarifa/i), 'Tarifa VIP Coche')
     await user.selectOptions(screen.getByLabelText(/tipo de vehículo/i), 'CAR')
+    await user.clear(screen.getByLabelText(/precio base/i))
+    await user.type(screen.getByLabelText(/precio base/i), '1.50')
     await user.clear(screen.getByLabelText(/precio por minuto/i))
     await user.type(screen.getByLabelText(/precio por minuto/i), '0.10')
-    await user.type(screen.getByLabelText(/descripción/i), 'Tarifa para clientes preferentes')
 
     const submitButton = screen.getByRole('button', { name: /crear tarifa/i })
     await user.click(submitButton)

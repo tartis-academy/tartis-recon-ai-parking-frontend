@@ -26,7 +26,7 @@ export function TariffForm({ onClose, onSuccess }: TariffFormProps) {
       name: '',
       vehicleType: 'CAR',
       pricePerMinute: 0.05,
-      description: '',
+      basePrice: 0.00,
       active: true,
     },
   })
@@ -83,21 +83,37 @@ export function TariffForm({ onClose, onSuccess }: TariffFormProps) {
             />
           </div>
 
+          {/* Tipo de Vehículo */}
+          <div>
+            <label htmlFor="vehicleType" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+              {form.vehicleType} <span className="text-brand-500">*</span>
+            </label>
+            <Select
+              id="vehicleType"
+              {...register('vehicleType')}
+              error={errors.vehicleType?.message}
+            >
+              <option value="CAR">{form.types.car}</option>
+              <option value="CAR_PMR">{form.types.carPmr}</option>
+              <option value="MOTORBIKE">{form.types.motorbike}</option>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
-            {/* Tipo de Vehículo */}
+            {/* Precio Base */}
             <div>
-              <label htmlFor="vehicleType" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                {form.vehicleType} <span className="text-brand-500">*</span>
+              <label htmlFor="basePrice" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                {form.basePrice} <span className="text-brand-500">*</span>
               </label>
-              <Select
-                id="vehicleType"
-                {...register('vehicleType')}
-                error={errors.vehicleType?.message}
-              >
-                <option value="CAR">{form.types.car}</option>
-                <option value="CAR_PMR">{form.types.carPmr}</option>
-                <option value="MOTORBIKE">{form.types.motorbike}</option>
-              </Select>
+              <TextInput
+                id="basePrice"
+                type="number"
+                step="0.01"
+                min="0"
+                {...register('basePrice', { valueAsNumber: true })}
+                placeholder={form.basePricePlaceholder}
+                error={errors.basePrice?.message}
+              />
             </div>
 
             {/* Precio por Minuto */}
@@ -116,20 +132,6 @@ export function TariffForm({ onClose, onSuccess }: TariffFormProps) {
               />
               <p className="text-[10px] text-gray-500 mt-1">~ {estimatedPerHour} {form.estimatedPerHour}</p>
             </div>
-          </div>
-
-          {/* Descripción */}
-          <div>
-            <label htmlFor="description" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-              {form.description}
-            </label>
-            <textarea
-              id="description"
-              rows={2}
-              {...register('description')}
-              className="w-full bg-surface-app border border-border-default rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-brand-500 transition-colors resize-none"
-              placeholder={form.descriptionPlaceholder}
-            />
           </div>
 
           {/* Footer Actions */}

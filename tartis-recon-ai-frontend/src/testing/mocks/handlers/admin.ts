@@ -54,7 +54,7 @@ const mockTariffs: Tariff[] = [
     name: 'Tarifa Coche Estándar',
     vehicleType: 'CAR',
     pricePerMinute: 0.05,
-    description: 'Tarifa habitual para turismos',
+    basePrice: 1.00,
     active: true,
   },
   {
@@ -62,7 +62,7 @@ const mockTariffs: Tariff[] = [
     name: 'Tarifa Moto Económica',
     vehicleType: 'MOTORBIKE',
     pricePerMinute: 0.03,
-    description: 'Tarifa reducida para motocicletas',
+    basePrice: 0.50,
     active: true,
   },
 ]
@@ -96,5 +96,22 @@ export const adminHandlers = [
     }
     mockTariffs.push(newTariff)
     return HttpResponse.json(newTariff, { status: 201 })
+  }),
+  http.patch('/v1/tariffs/:id', async ({ params, request }) => {
+    const { id } = params
+    const body = (await request.json()) as { active?: boolean }
+    const tariff = mockTariffs.find((t) => t.id === id)
+    if (tariff && typeof body.active === 'boolean') {
+      tariff.active = body.active
+    }
+    return HttpResponse.json(tariff)
+  }),
+  http.delete('/v1/tariffs/:id', ({ params }) => {
+    const { id } = params
+    const index = mockTariffs.findIndex((t) => t.id === id)
+    if (index !== -1) {
+      mockTariffs.splice(index, 1)
+    }
+    return new HttpResponse(null, { status: 204 })
   }),
 ]
