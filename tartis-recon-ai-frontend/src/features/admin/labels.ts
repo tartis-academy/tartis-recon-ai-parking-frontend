@@ -6,11 +6,16 @@ export const adminLabels = {
     vehicles: 'Vehículos',
     spots: 'Plazas',
     tariffs: 'Tarifas',
+<<<<<<< HEAD
     stays: 'Estancias',
     adminName: 'Álvaro Orta',
     adminRole: 'Administrador',
     collapseSidebar: 'Colapsar menú lateral',
     expandSidebar: 'Expandir menú lateral',
+=======
+    adminName: 'Álvaro Orta',
+    adminRole: 'Administrador',
+>>>>>>> origin/release
   },
   vehicles: {
     pageTitle: 'Vehículos',
@@ -92,6 +97,7 @@ export const adminLabels = {
       },
     },
   },
+<<<<<<< HEAD
   stays: {
     pageTitle: 'Estancias',
     pageSubtitle: 'Administración · Estancias',
@@ -143,6 +149,8 @@ export const adminLabels = {
       records: 'registros',
     },
   },
+=======
+>>>>>>> origin/release
   form: {
     title: 'Registrar vehículo',
     subtitle: 'Alta en el registro · la plaza seleccionada se marcará como ocupada',

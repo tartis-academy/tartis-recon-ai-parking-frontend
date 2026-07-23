@@ -21,6 +21,7 @@ export function VehicleListContainer() {
   }
   
   // TODO: Migrar filtrado a query params del router / backend cuando crezca el dataset
+<<<<<<< HEAD
   const vehicleList = Array.isArray(vehicles) ? vehicles : []
   const filteredVehicles = vehicleList.filter((v) => {
     const matchesSearch = v.plate.toLowerCase().includes(searchQuery.toLowerCase())
@@ -29,6 +30,16 @@ export function VehicleListContainer() {
       statusFilter === 'PARKED' ? v.isParked === true :
       v.isParked === false
 
+=======
+  // Filtrar localmente
+  const filteredVehicles = (vehicles ?? []).filter((v) => {
+    const matchesSearch = v.plate.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesStatus = 
+      statusFilter === 'ALL' ? true : 
+      statusFilter === 'PARKED' ? v.isParked === true : 
+      v.isParked === false
+      
+>>>>>>> origin/release
     return matchesSearch && matchesStatus
   })
 
