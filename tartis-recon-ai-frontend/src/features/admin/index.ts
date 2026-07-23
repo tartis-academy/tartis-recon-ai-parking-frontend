@@ -1,6 +1,7 @@
 export * from './containers/AdminLayoutContainer'
 export * from './containers/VehicleListContainer'
 export * from './containers/SpotListContainer'
+export * from './containers/StayListContainer'
 export * from './containers/VehicleFormContainer'
 export * from './components/TariffListPage'
 export * from './components/TariffForm'

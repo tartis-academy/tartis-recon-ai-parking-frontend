@@ -9,6 +9,7 @@ import AdminHomePage from '@/features/admin/pages/AdminHomePage'
 import { AdminLayoutContainer } from '@/features/admin/containers/AdminLayoutContainer'
 import { VehicleListContainer } from '@/features/admin/containers/VehicleListContainer'
 import { SpotListContainer } from '@/features/admin/containers/SpotListContainer'
+import { StayListContainer } from '@/features/admin/containers/StayListContainer'
 import { VehicleFormContainer } from '@/features/admin/containers/VehicleFormContainer'
 import { TariffListPage } from '@/features/admin'
 
@@ -61,12 +62,19 @@ const tariffsRoute = createRoute({
   component: TariffListPage,
 })
 
+const staysRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/stays',
+  component: StayListContainer,
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   adminRoute.addChildren([
     vehiclesRoute.addChildren([vehicleNewRoute]),
     spotsRoute,
     tariffsRoute,
+    staysRoute,
   ]),
 ])
 
