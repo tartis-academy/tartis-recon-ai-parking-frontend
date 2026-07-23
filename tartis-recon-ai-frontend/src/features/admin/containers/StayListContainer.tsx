@@ -49,7 +49,7 @@ export function StayListContainer() {
   }
 
   return (
-    <div className="max-w-[1400px] mx-auto animate-fade-in">
+    <div className="max-w-[1400px] 2xl:max-w-[1600px] mx-auto animate-fade-in">
       <PageHeader
         title={adminLabels.stays.pageTitle}
         subtitle={adminLabels.stays.pageSubtitle}
