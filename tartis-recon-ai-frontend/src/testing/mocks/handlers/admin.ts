@@ -3,38 +3,38 @@ import type { CreateVehicleInput } from '@/features/admin/types/vehicle'
 
 const mockVehicles = [
   {
-    id: '1',
+    uniqueId: '1',
     plate: '1234ABC',
     type: 'CAR',
     brand: 'Toyota',
     model: 'Corolla',
     color: 'Blanco',
     numDoors: 5,
-    hasSideCar: false,
+    hasSidecar: false,
     active: true,
     isParked: true,
   },
   {
-    id: '2',
+    uniqueId: '2',
     plate: '5678DEF',
     type: 'CAR_PMR',
     brand: 'Seat',
     model: 'Ibiza',
     color: 'Rojo',
     numDoors: 3,
-    hasSideCar: false,
+    hasSidecar: false,
     active: true,
     isParked: false,
   },
   {
-    id: '3',
+    uniqueId: '3',
     plate: '9012GHI',
     type: 'MOTORBIKE',
     brand: 'Honda',
     model: 'CBR 600',
     color: 'Negro',
     numDoors: 0,
-    hasSideCar: false,
+    hasSidecar: false,
     active: true,
     isParked: false,
   },
@@ -54,7 +54,7 @@ export const adminHandlers = [
   http.post('/v1/vehicles', async ({ request }) => {
     const body = (await request.json()) as CreateVehicleInput
     const newVehicle = {
-      id: String(mockVehicles.length + 1),
+      uniqueId: String(mockVehicles.length + 1),
       ...body,
       active: true,
       isParked: true,
