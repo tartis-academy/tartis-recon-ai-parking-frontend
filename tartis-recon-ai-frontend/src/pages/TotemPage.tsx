@@ -43,7 +43,7 @@ export function TotemPage() {
           color: 'UNKNOWN',
           ...(vehicleType === 'MOTORBIKE' 
             ? { numDoors: 0, hasSidecar: false } 
-            : { numDoors: 5, hasSidecar: false })
+            : { numDoors: 5, hasSidecar: false }),
         } as CreateVehicleInput
         
         await createVehicle(payload)
