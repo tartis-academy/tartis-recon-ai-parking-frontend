@@ -1,22 +1,21 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import { adminLabels } from '../labels'
-import { DEFAULT_TOTAL_VEHICLES } from '../constants'
 import { Icon } from '@/shared/ui'
 
 interface AdminSidebarProps {
   isSidebarOpen: boolean
   toggleSidebar: () => void
+<<<<<<< HEAD
   occupiedSpots?: number
   totalSpots?: number
   totalRegisteredVehicles?: number
+=======
+>>>>>>> f83143181685b5900ed0cd460f6236ebf3c89fef
 }
 
 export function AdminSidebar({ 
   isSidebarOpen, 
   toggleSidebar, 
-  occupiedSpots = 0, 
-  totalSpots = 0, 
-  totalRegisteredVehicles = DEFAULT_TOTAL_VEHICLES, 
 }: AdminSidebarProps) {
   const location = useLocation()
   const { layout } = adminLabels
@@ -68,12 +67,7 @@ export function AdminSidebar({
           >
             <Icon name="search" className="w-5 h-5 flex-shrink-0" />
             {isSidebarOpen && (
-              <div className="flex items-center justify-between flex-1 overflow-hidden">
-                <span className="font-medium whitespace-nowrap">{layout.vehicles}</span>
-                <span className="text-[10px] font-bold bg-surface-panel text-gray-400 px-2 py-0.5 rounded-full border border-border-default">
-                  {occupiedSpots}/{totalRegisteredVehicles || DEFAULT_TOTAL_VEHICLES}
-                </span>
-              </div>
+              <span className="font-medium whitespace-nowrap">{layout.vehicles}</span>
             )}
           </Link>
 
@@ -88,12 +82,7 @@ export function AdminSidebar({
           >
             <Icon name="grid" className="w-5 h-5 flex-shrink-0" />
             {isSidebarOpen && (
-              <div className="flex items-center justify-between flex-1 overflow-hidden">
-                <span className="font-medium whitespace-nowrap">{layout.spots}</span>
-                <span className="text-[10px] font-bold bg-surface-panel text-gray-400 px-2 py-0.5 rounded-full border border-border-default">
-                  {occupiedSpots}/{totalSpots}
-                </span>
-              </div>
+              <span className="font-medium whitespace-nowrap">{layout.spots}</span>
             )}
           </Link>
 
@@ -108,9 +97,7 @@ export function AdminSidebar({
           >
             <Icon name="document" className="w-5 h-5 flex-shrink-0" />
             {isSidebarOpen && (
-              <div className="flex items-center justify-between flex-1 overflow-hidden">
-                <span className="font-medium whitespace-nowrap">{layout.tariffs}</span>
-              </div>
+              <span className="font-medium whitespace-nowrap">{layout.tariffs}</span>
             )}
           </Link>
 

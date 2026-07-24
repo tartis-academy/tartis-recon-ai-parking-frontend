@@ -9,4 +9,3 @@ export * from './components/TariffListPage'
 export * from './components/TariffForm'
 export * from './components/TariffTable'
 export * from './types/ticket'
-

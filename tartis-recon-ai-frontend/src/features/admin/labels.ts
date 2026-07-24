@@ -7,7 +7,10 @@ export const adminLabels = {
     spots: 'Plazas',
     tariffs: 'Tarifas',
     stays: 'Estancias',
+<<<<<<< HEAD
     tickets: 'Tickets',
+=======
+>>>>>>> f83143181685b5900ed0cd460f6236ebf3c89fef
     adminName: 'Álvaro Orta',
     adminRole: 'Administrador',
     collapseSidebar: 'Colapsar menú lateral',
