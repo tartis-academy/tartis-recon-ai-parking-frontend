@@ -13,7 +13,7 @@ export const stayService = {
   async checkIn(payload: CheckInRequest): Promise<CheckInResponse> {
     const response = await apiClient.post<CheckInResponse>(
       TICKET_SERVICE_URL,
-      payload
+      payload,
     )
     return response.data
   },
@@ -21,7 +21,7 @@ export const stayService = {
   async checkOut(payload: CheckOutRequest): Promise<CheckOutResponse> {
     const response = await apiClient.post<CheckOutResponse>(
       `${TICKET_SERVICE_URL}/checkout`,
-      payload
+      payload,
     )
     return response.data
   },
