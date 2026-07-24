@@ -9,7 +9,7 @@ beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
-function renderWithProviders(onClose = vi.fn(), onSuccess = vi.fn()) {
+function renderWithProviders(onClose = vi.fn(), onSubmit = vi.fn()) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -19,7 +19,7 @@ function renderWithProviders(onClose = vi.fn(), onSuccess = vi.fn()) {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <TariffForm onClose={onClose} onSuccess={onSuccess} />
+      <TariffForm onClose={onClose} onSubmit={onSubmit} isPending={false} />
     </QueryClientProvider>,
   )
 }
@@ -53,9 +53,9 @@ describe('TariffForm', () => {
   it('submits form successfully with valid data', async () => {
     const user = userEvent.setup()
     const onCloseMock = vi.fn()
-    const onSuccessMock = vi.fn()
+    const onSubmitMock = vi.fn()
 
-    renderWithProviders(onCloseMock, onSuccessMock)
+    renderWithProviders(onCloseMock, onSubmitMock)
 
     await user.type(screen.getByLabelText(/nombre de la tarifa/i), 'Tarifa VIP Coche')
     await user.selectOptions(screen.getByLabelText(/tipo de vehículo/i), 'CAR')
@@ -68,8 +68,15 @@ describe('TariffForm', () => {
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(onSuccessMock).toHaveBeenCalled()
-      expect(onCloseMock).toHaveBeenCalled()
+      expect(onSubmitMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Tarifa VIP Coche',
+          vehicleType: 'CAR',
+          basePrice: 2.00,
+          pricePerMinute: 0.10,
+        }),
+        expect.anything()
+      )
     })
   })
 })
