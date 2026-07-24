@@ -5,6 +5,8 @@ import type {
   CheckOutResponse,
   VehicleType,
 } from '@/types/stay'
+import { createVehicle } from '@/features/admin/api/vehicles'
+import type { CreateVehicleInput } from '@/features/admin/types/vehicle'
 
 export function TotemPage() {
   const [activeTab, setActiveTab] = useState<'checkin' | 'checkout'>('checkin')
@@ -29,8 +31,28 @@ export function TotemPage() {
     setCheckInResult(null)
 
     try {
+      const plateUpper = licensePlate.trim().toUpperCase()
+
+      // Auto-register vehicle in backend DB so it shows up in Admin Panel
+      try {
+        const payload = {
+          plate: plateUpper,
+          type: vehicleType,
+          brand: 'SENSOR_AUTO',
+          model: 'UNKNOWN',
+          color: 'UNKNOWN',
+          ...(vehicleType === 'MOTORBIKE' 
+            ? { numDoors: 0, hasSidecar: false } 
+            : { numDoors: 5, hasSidecar: false })
+        } as CreateVehicleInput
+        
+        await createVehicle(payload)
+      } catch (autoRegErr) {
+        console.warn('Could not auto-register vehicle (it might already exist):', autoRegErr)
+      }
+
       const response = await stayService.checkIn({
-        licensePlate: licensePlate.trim().toUpperCase(),
+        licensePlate: plateUpper,
         vehicleType,
       })
       setCheckInResult(response)
