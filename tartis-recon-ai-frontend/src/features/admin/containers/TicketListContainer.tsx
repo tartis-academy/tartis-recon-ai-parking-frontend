@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useTickets } from '../hooks/useTickets'
 import { TicketTable } from '../components/TicketTable'
-import { PageHeader, ErrorMessage } from '@/shared/ui'
+import { PageHeader } from '@/shared/ui'
+import { useDebounce } from '@/shared'
 import { adminLabels } from '../labels'
 import { DEFAULT_PAGE_SIZE } from '../constants'
 import type { TicketSortField, SortOrder } from '../types/ticket'
@@ -15,8 +16,10 @@ export function TicketListContainer() {
   const [sortBy, setSortBy] = useState<TicketSortField | undefined>(undefined)
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
 
+  const debouncedSearch = useDebounce(search, 350)
+
   const filters = {
-    search: search || undefined,
+    search: debouncedSearch || undefined,
     dateFrom: dateFrom || undefined,
     dateTo: dateTo || undefined,
     sortBy,
@@ -24,10 +27,6 @@ export function TicketListContainer() {
   }
 
   const { data, isLoading, isError } = useTickets(page, pageSize, filters)
-
-  if (isError) {
-    return <ErrorMessage>{adminLabels.tickets.error}</ErrorMessage>
-  }
 
   const handlePaginationChange = (params: { page: number; pageSize: number }) => {
     setPage(params.page)

@@ -312,14 +312,14 @@ export const adminHandlers = [
     }
 
     if (dateFrom) {
-      const startOfDay = dateFrom.includes('T') ? dateFrom : `${dateFrom}T00:00:00.000Z`
-      const fromTime = new Date(startOfDay).getTime()
+      const [year, month, day] = dateFrom.split('-').map(Number)
+      const fromTime = new Date(year, month - 1, day, 0, 0, 0, 0).getTime()
       filtered = filtered.filter((t) => new Date(t.issuedAt).getTime() >= fromTime)
     }
 
     if (dateTo) {
-      const endOfDay = dateTo.includes('T') ? dateTo : `${dateTo}T23:59:59.999Z`
-      const toTime = new Date(endOfDay).getTime()
+      const [year, month, day] = dateTo.split('-').map(Number)
+      const toTime = new Date(year, month - 1, day, 23, 59, 59, 999).getTime()
       filtered = filtered.filter((t) => new Date(t.issuedAt).getTime() <= toTime)
     }
 

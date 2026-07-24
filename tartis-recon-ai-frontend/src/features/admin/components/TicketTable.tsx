@@ -64,7 +64,12 @@ export function TicketTable({
   isError,
 }: TicketTableProps) {
   const labels = adminLabels.tickets
-  const hasActiveFilters = Boolean(search || dateFrom || dateTo)
+  const hasActiveFilters = Boolean(search || dateFrom || dateTo || sortBy)
+
+  const getAriaSort = (field: TicketSortField): 'ascending' | 'descending' | 'none' => {
+    if (sortBy !== field) return 'none'
+    return sortOrder === 'asc' ? 'ascending' : 'descending'
+  }
 
   const renderSortIcon = (field: TicketSortField) => {
     if (sortBy !== field) {
@@ -102,6 +107,7 @@ export function TicketTable({
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               className="w-full pr-8"
+              aria-label={labels.searchPlaceholder}
             />
             {search && (
               <button
@@ -120,20 +126,28 @@ export function TicketTable({
         <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-border-subtle/50 text-xs text-gray-400">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-1.5">
-              <span>{labels.dateFromLabel}</span>
+              <label htmlFor="ticket-date-from" className="cursor-pointer">
+                {labels.dateFromLabel}
+              </label>
               <input
+                id="ticket-date-from"
                 type="date"
                 value={dateFrom}
                 onChange={(e) => onDateFromChange(e.target.value)}
+                aria-label={labels.dateFromLabel}
                 className="bg-surface-panel text-gray-200 border border-border-default rounded-lg px-2.5 py-1.5 focus:border-brand-500 focus:outline-none"
               />
             </div>
             <div className="flex items-center gap-1.5">
-              <span>{labels.dateToLabel}</span>
+              <label htmlFor="ticket-date-to" className="cursor-pointer">
+                {labels.dateToLabel}
+              </label>
               <input
+                id="ticket-date-to"
                 type="date"
                 value={dateTo}
                 onChange={(e) => onDateToChange(e.target.value)}
+                aria-label={labels.dateToLabel}
                 className="bg-surface-panel text-gray-200 border border-border-default rounded-lg px-2.5 py-1.5 focus:border-brand-500 focus:outline-none"
               />
             </div>
@@ -166,7 +180,7 @@ export function TicketTable({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-panel border-b border-border-subtle text-xs font-semibold text-gray-400 uppercase tracking-wider select-none">
-                <th className="py-3.5 px-5">
+                <th className="py-3.5 px-5" aria-sort={getAriaSort('uniqueId')}>
                   <button
                     type="button"
                     onClick={() => onSortChange('uniqueId')}
@@ -176,7 +190,7 @@ export function TicketTable({
                     {renderSortIcon('uniqueId')}
                   </button>
                 </th>
-                <th className="py-3.5 px-5">
+                <th className="py-3.5 px-5" aria-sort={getAriaSort('stayId')}>
                   <button
                     type="button"
                     onClick={() => onSortChange('stayId')}
@@ -186,7 +200,7 @@ export function TicketTable({
                     {renderSortIcon('stayId')}
                   </button>
                 </th>
-                <th className="py-3.5 px-5">
+                <th className="py-3.5 px-5" aria-sort={getAriaSort('issuedAt')}>
                   <button
                     type="button"
                     onClick={() => onSortChange('issuedAt')}
@@ -196,7 +210,7 @@ export function TicketTable({
                     {renderSortIcon('issuedAt')}
                   </button>
                 </th>
-                <th className="py-3.5 px-5">
+                <th className="py-3.5 px-5" aria-sort={getAriaSort('totalAmount')}>
                   <button
                     type="button"
                     onClick={() => onSortChange('totalAmount')}

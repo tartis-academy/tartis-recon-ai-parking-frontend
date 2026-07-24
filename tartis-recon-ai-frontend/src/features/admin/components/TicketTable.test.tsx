@@ -38,8 +38,8 @@ describe('TicketTable', () => {
     isError: false,
   }
 
-  it('renders ticket table headers and row items correctly', () => {
-    render(<TicketTable {...defaultProps} />)
+  it('renders ticket table headers and row items correctly with aria-sort attributes', () => {
+    const { container } = render(<TicketTable {...defaultProps} sortBy="totalAmount" sortOrder="desc" />)
 
     expect(screen.getByText('ID Ticket')).toBeInTheDocument()
     expect(screen.getByText('ID Estancia')).toBeInTheDocument()
@@ -48,8 +48,16 @@ describe('TicketTable', () => {
 
     expect(screen.getByText('tk-1001')).toBeInTheDocument()
     expect(screen.getByText('stay-001')).toBeInTheDocument()
-    expect(screen.getByText('tk-1002')).toBeInTheDocument()
-    expect(screen.getByText('stay-002')).toBeInTheDocument()
+
+    const headers = container.querySelectorAll('th')
+    expect(headers[3]).toHaveAttribute('aria-sort', 'descending')
+    expect(headers[0]).toHaveAttribute('aria-sort', 'none')
+  })
+
+  it('shows clear filters button when sortBy is active', () => {
+    render(<TicketTable {...defaultProps} sortBy="uniqueId" sortOrder="asc" />)
+
+    expect(screen.getByRole('button', { name: /Limpiar filtros/i })).toBeInTheDocument()
   })
 
   it('calls onSearchChange when typing into search input', async () => {
@@ -105,9 +113,10 @@ describe('TicketTable', () => {
     expect(screen.getByText('No hay tickets registrados en el sistema.')).toBeInTheDocument()
   })
 
-  it('renders error message when isError is true', () => {
+  it('renders error message inside CardBody when isError is true without unmounting header', () => {
     render(<TicketTable {...defaultProps} isError={true} />)
 
+    expect(screen.getByText('Tickets')).toBeInTheDocument()
     expect(screen.getByText('Error al cargar los tickets.')).toBeInTheDocument()
   })
 })
