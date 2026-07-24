@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw'
 import type { CreateVehicleInput } from '@/features/admin/types/vehicle'
 import type { Tariff, CreateTariffInput } from '@/features/admin/types/tariff'
 import type { PaginatedResponse, Stay } from '@/features/admin/types/stay'
+import type { Ticket } from '@/features/admin/types/ticket'
 
 const mockVehicles = [
   {
@@ -236,6 +237,39 @@ const mockTariffs: Tariff[] = [
   },
 ]
 
+const mockTickets: Ticket[] = [
+  {
+    uniqueId: 'tk-1001',
+    stayId: '2',
+    issuedAt: '2026-07-21T14:30:00.000Z',
+    totalAmount: 12.5,
+  },
+  {
+    uniqueId: 'tk-1002',
+    stayId: '5',
+    issuedAt: '2026-07-19T13:45:00.000Z',
+    totalAmount: 4.05,
+  },
+  {
+    uniqueId: 'tk-1003',
+    stayId: '6',
+    issuedAt: '2026-07-18T12:00:00.000Z',
+    totalAmount: 15.0,
+  },
+  {
+    uniqueId: 'tk-1004',
+    stayId: '9',
+    issuedAt: '2026-07-16T10:00:00.000Z',
+    totalAmount: 6.0,
+  },
+  {
+    uniqueId: 'tk-1005',
+    stayId: '11',
+    issuedAt: '2026-07-15T11:30:00.000Z',
+    totalAmount: 6.0,
+  },
+]
+
 export const adminHandlers = [
   http.get('*/v1/vehicles', () => {
     return HttpResponse.json(mockVehicles)
@@ -256,6 +290,67 @@ export const adminHandlers = [
   }),
   http.get('*/v1/tariffs', () => {
     return HttpResponse.json(mockTariffs)
+  }),
+  http.get('*/v1/tickets', ({ request }) => {
+    const url = new URL(request.url)
+    const page = Number(url.searchParams.get('page') ?? '1')
+    const pageSize = Number(url.searchParams.get('pageSize') ?? '10')
+    const search = url.searchParams.get('search')?.toLowerCase() ?? ''
+    const dateFrom = url.searchParams.get('dateFrom')
+    const dateTo = url.searchParams.get('dateTo')
+    const sortBy = url.searchParams.get('sortBy') as 'uniqueId' | 'stayId' | 'issuedAt' | 'totalAmount' | null
+    const sortOrder = (url.searchParams.get('sortOrder') ?? 'asc') as 'asc' | 'desc'
+
+    let filtered = [...mockTickets]
+
+    if (search) {
+      filtered = filtered.filter(
+        (t) =>
+          t.uniqueId.toLowerCase().includes(search) ||
+          t.stayId.toLowerCase().includes(search),
+      )
+    }
+
+    if (dateFrom) {
+      const startOfDay = dateFrom.includes('T') ? dateFrom : `${dateFrom}T00:00:00.000Z`
+      const fromTime = new Date(startOfDay).getTime()
+      filtered = filtered.filter((t) => new Date(t.issuedAt).getTime() >= fromTime)
+    }
+
+    if (dateTo) {
+      const endOfDay = dateTo.includes('T') ? dateTo : `${dateTo}T23:59:59.999Z`
+      const toTime = new Date(endOfDay).getTime()
+      filtered = filtered.filter((t) => new Date(t.issuedAt).getTime() <= toTime)
+    }
+
+    if (sortBy) {
+      filtered.sort((a, b) => {
+        if (sortBy === 'issuedAt') {
+          const valA = new Date(a.issuedAt).getTime()
+          const valB = new Date(b.issuedAt).getTime()
+          return sortOrder === 'asc' ? valA - valB : valB - valA
+        }
+
+        const valA = a[sortBy]
+        const valB = b[sortBy]
+        if (valA < valB) return sortOrder === 'asc' ? -1 : 1
+        if (valA > valB) return sortOrder === 'asc' ? 1 : -1
+        return 0
+      })
+    }
+
+    const total = filtered.length
+    const start = (page - 1) * pageSize
+    const paginated = filtered.slice(start, start + pageSize)
+
+    const response: PaginatedResponse<Ticket> = {
+      data: paginated,
+      total,
+      page,
+      pageSize,
+    }
+
+    return HttpResponse.json(response)
   }),
   http.get('*/v1/stays', ({ request }) => {
     const url = new URL(request.url)

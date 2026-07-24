@@ -25,6 +25,7 @@ export function AdminSidebar({
   const isSpotsActive = location.pathname.includes('/spots')
   const isTariffsActive = location.pathname.includes('/tariffs')
   const isStaysActive = location.pathname.includes('/stays')
+  const isTicketsActive = location.pathname.includes('/tickets')
 
   return (
     <aside
@@ -125,6 +126,21 @@ export function AdminSidebar({
             <Icon name="clock" className="w-5 h-5 flex-shrink-0" />
             {isSidebarOpen && (
               <span className="font-medium whitespace-nowrap">{layout.stays}</span>
+            )}
+          </Link>
+
+          <Link
+            to="/admin/tickets"
+            aria-current={isTicketsActive ? 'page' : undefined}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+              isTicketsActive
+                ? 'bg-surface-row-hover text-brand-400 border-l-2 border-brand-500 shadow-sm'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-surface-card border-l-2 border-transparent'
+            }`}
+          >
+            <Icon name="document" className="w-5 h-5 flex-shrink-0" />
+            {isSidebarOpen && (
+              <span className="font-medium whitespace-nowrap">{layout.tickets}</span>
             )}
           </Link>
         </nav>
