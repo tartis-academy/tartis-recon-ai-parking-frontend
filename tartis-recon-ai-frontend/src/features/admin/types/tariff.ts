@@ -4,9 +4,10 @@ export interface Tariff {
   id: string
   name: string
   vehicleType: VehicleType
+  basePrice: number
   pricePerMinute: number
-  description?: string
   active: boolean
 }
 
 export type CreateTariffInput = Omit<Tariff, 'id'>
+

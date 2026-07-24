@@ -222,16 +222,16 @@ const mockTariffs: Tariff[] = [
     id: '1',
     name: 'Tarifa Coche Estándar',
     vehicleType: 'CAR',
+    basePrice: 1.50,
     pricePerMinute: 0.05,
-    description: 'Tarifa habitual para turismos',
     active: true,
   },
   {
     id: '2',
     name: 'Tarifa Moto Económica',
     vehicleType: 'MOTORBIKE',
+    basePrice: 0.80,
     pricePerMinute: 0.03,
-    description: 'Tarifa reducida para motocicletas',
     active: true,
   },
 ]
@@ -301,4 +301,22 @@ export const adminHandlers = [
     mockTariffs.push(newTariff)
     return HttpResponse.json(newTariff, { status: 201 })
   }),
+  http.patch('/v1/tariffs/:id/status', ({ params }) => {
+    const { id } = params
+    const tariff = mockTariffs.find((t) => t.id === id)
+    if (!tariff) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    tariff.active = !tariff.active
+    return HttpResponse.json(tariff)
+  }),
+  http.delete('/v1/tariffs/:id', ({ params }) => {
+    const { id } = params
+    const index = mockTariffs.findIndex((t) => t.id === id)
+    if (index !== -1) {
+      mockTariffs.splice(index, 1)
+    }
+    return new HttpResponse(null, { status: 204 })
+  }),
 ]
+
