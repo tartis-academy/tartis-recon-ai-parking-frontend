@@ -2,6 +2,7 @@
 
 Fuente de la verdad para contribuciones al frontend de Tartis. Este documento es **ejecutable**: cada regla incluye un comando `rg` (ripgrep) que la verifica mecánicamente. Si un agente de IA asiste a un compañero, **debe respetar este guideline por encima de cualquier suposición propia**.
 
+> Documentación extendida y justificación pedagógica en el vault de Obsidian: `C:\Users\jhony\Desktop\Dev Secrets\03 - Proyectos\tartis\Frontend\`.
 
 ---
 

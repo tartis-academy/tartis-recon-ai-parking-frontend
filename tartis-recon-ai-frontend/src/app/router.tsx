@@ -11,6 +11,7 @@ import { VehicleListContainer } from '@/features/admin/containers/VehicleListCon
 import { SpotListContainer } from '@/features/admin/containers/SpotListContainer'
 import { StayListContainer } from '@/features/admin/containers/StayListContainer'
 import { VehicleFormContainer } from '@/features/admin/containers/VehicleFormContainer'
+import { TicketListContainer } from '@/features/admin/containers/TicketListContainer'
 import { TariffListPage } from '@/features/admin'
 
 const rootRoute = createRootRoute({
@@ -68,6 +69,12 @@ const staysRoute = createRoute({
   component: StayListContainer,
 })
 
+const ticketsRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/tickets',
+  component: TicketListContainer,
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   adminRoute.addChildren([
@@ -75,6 +82,7 @@ const routeTree = rootRoute.addChildren([
     spotsRoute,
     tariffsRoute,
     staysRoute,
+    ticketsRoute,
   ]),
 ])
 
