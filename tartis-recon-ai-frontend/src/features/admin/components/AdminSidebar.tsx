@@ -5,12 +5,6 @@ import { Icon } from '@/shared/ui'
 interface AdminSidebarProps {
   isSidebarOpen: boolean
   toggleSidebar: () => void
-<<<<<<< HEAD
-  occupiedSpots?: number
-  totalSpots?: number
-  totalRegisteredVehicles?: number
-=======
->>>>>>> f83143181685b5900ed0cd460f6236ebf3c89fef
 }
 
 export function AdminSidebar({ 

@@ -2,10 +2,7 @@ import { http, HttpResponse } from 'msw'
 import type { CreateVehicleInput } from '@/features/admin/types/vehicle'
 import type { Tariff, CreateTariffInput } from '@/features/admin/types/tariff'
 import type { PaginatedResponse, Stay } from '@/features/admin/types/stay'
-<<<<<<< HEAD
 import type { Ticket } from '@/features/admin/types/ticket'
-=======
->>>>>>> f83143181685b5900ed0cd460f6236ebf3c89fef
 
 const mockVehicles = [
   {
