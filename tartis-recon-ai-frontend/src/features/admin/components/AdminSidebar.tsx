@@ -1,4 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router'
+import { useState } from 'react'
 import { adminLabels } from '../labels'
 import { Icon } from '@/shared/ui'
 
@@ -13,6 +14,18 @@ export function AdminSidebar({
 }: AdminSidebarProps) {
   const location = useLocation()
   const { layout } = adminLabels
+
+  const [useMocks, setUseMocks] = useState(() => {
+    const stored = localStorage.getItem('VITE_USE_MOCKS')
+    return stored !== null ? stored === 'true' : import.meta.env.VITE_USE_MOCKS === 'true'
+  })
+
+  const toggleMocks = () => {
+    const newValue = !useMocks
+    localStorage.setItem('VITE_USE_MOCKS', String(newValue))
+    setUseMocks(newValue)
+    window.location.reload()
+  }
 
   const isVehiclesActive = location.pathname.includes('/vehicles')
   const isSpotsActive = location.pathname.includes('/spots')
@@ -132,10 +145,19 @@ export function AdminSidebar({
           {layout.adminName.split(' ').map(n => n[0]).join('')}
         </div>
         {isSidebarOpen && (
-          <div className="flex flex-col whitespace-nowrap overflow-hidden">
-            <span className="font-semibold text-sm">{layout.adminName}</span>
-            <span className="text-xs text-gray-500">{layout.adminRole}</span>
-          </div>
+          <>
+            <div className="flex flex-col whitespace-nowrap overflow-hidden flex-1">
+              <span className="font-semibold text-sm">{layout.adminName}</span>
+              <span className="text-xs text-gray-500">{layout.adminRole}</span>
+            </div>
+            <button 
+              onClick={toggleMocks}
+              title={useMocks ? 'Mocks Activos - Click para usar backend real' : 'Mocks Inactivos - Click para usar datos falsos'}
+              className={`p-2 rounded-lg transition-colors flex-shrink-0 ${useMocks ? 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30' : 'bg-surface-card text-gray-400 hover:bg-surface-row-hover hover:text-white border border-border-default'}`}
+            >
+              <Icon name="server" className="w-4 h-4" />
+            </button>
+          </>
         )}
       </div>
     </aside>

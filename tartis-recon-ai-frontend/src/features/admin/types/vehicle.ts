@@ -1,5 +1,5 @@
 export interface VehicleBase {
-  id: string
+  uniqueId: string
   plate: string
   brand: string
   model: string
@@ -11,19 +11,19 @@ export interface VehicleBase {
 export interface Car extends VehicleBase {
   type: 'CAR' | 'CAR_PMR'
   numDoors: number
-  hasSideCar: false
+  hasSidecar: false
 }
 
 export interface Motorbike extends VehicleBase {
   type: 'MOTORBIKE'
   numDoors: 0
-  hasSideCar: boolean
+  hasSidecar: boolean
 }
 
 export type Vehicle = Car | Motorbike
 
 export type VehicleType = 'CAR' | 'CAR_PMR' | 'MOTORBIKE'
 
-export type CreateVehicleInput = Omit<Vehicle, 'id' | 'active'>
+export type CreateVehicleInput = Omit<Vehicle, 'uniqueId' | 'active'>
 
 export type StatusFilter = 'ALL' | 'PARKED' | 'OUTSIDE'

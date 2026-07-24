@@ -75,8 +75,8 @@ export function VehicleTable({
           </thead>
           <tbody className="divide-y divide-border-subtle">
             {vehicles.map((vehicle) => (
-              <tr key={vehicle.id} className="hover:bg-surface-row-hover/50 transition-colors duration-200 text-sm">
-                <td className="p-5 text-gray-500">VHC-{vehicle.id}</td>
+              <tr key={vehicle.uniqueId} className="hover:bg-surface-row-hover/50 transition-colors duration-200 text-sm">
+                <td className="p-5 text-gray-500">VHC-{vehicle.uniqueId}</td>
                 <td className="p-5 font-bold text-gray-200">{vehicle.plate}</td>
                 <td className="p-5 text-gray-300">{vehicle.brand} {vehicle.model}</td>
                 <td className="p-5 text-gray-400">
