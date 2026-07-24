@@ -9,7 +9,12 @@ import AdminHomePage from '@/features/admin/pages/AdminHomePage'
 import { AdminLayoutContainer } from '@/features/admin/containers/AdminLayoutContainer'
 import { VehicleListContainer } from '@/features/admin/containers/VehicleListContainer'
 import { SpotListContainer } from '@/features/admin/containers/SpotListContainer'
+import { StayListContainer } from '@/features/admin/containers/StayListContainer'
 import { VehicleFormContainer } from '@/features/admin/containers/VehicleFormContainer'
+import { TicketListContainer } from '@/features/admin/containers/TicketListContainer'
+import { TariffListPage } from '@/features/admin'
+
+import { TotemPage } from '@/pages/TotemPage'
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -23,6 +28,12 @@ const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   component: AdminHomePage,
+})
+
+const totemRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/totem',
+  component: TotemPage,
 })
 
 const adminRoute = createRoute({
@@ -54,11 +65,33 @@ const spotsRoute = createRoute({
   component: SpotListContainer,
 })
 
+const tariffsRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/tariffs',
+  component: TariffListPage,
+})
+
+const staysRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/stays',
+  component: StayListContainer,
+})
+
+const ticketsRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/tickets',
+  component: TicketListContainer,
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
+  totemRoute,
   adminRoute.addChildren([
     vehiclesRoute.addChildren([vehicleNewRoute]),
     spotsRoute,
+    tariffsRoute,
+    staysRoute,
+    ticketsRoute,
   ]),
 ])
 
