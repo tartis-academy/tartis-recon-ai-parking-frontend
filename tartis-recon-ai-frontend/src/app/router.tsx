@@ -14,6 +14,8 @@ import { VehicleFormContainer } from '@/features/admin/containers/VehicleFormCon
 import { TicketListContainer } from '@/features/admin/containers/TicketListContainer'
 import { TariffListPage } from '@/features/admin'
 
+import { TotemPage } from '@/pages/TotemPage'
+
 const rootRoute = createRootRoute({
   component: () => (
     <div>
@@ -26,6 +28,12 @@ const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   component: AdminHomePage,
+})
+
+const totemRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/totem',
+  component: TotemPage,
 })
 
 const adminRoute = createRoute({
@@ -77,6 +85,7 @@ const ticketsRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
+  totemRoute,
   adminRoute.addChildren([
     vehiclesRoute.addChildren([vehicleNewRoute]),
     spotsRoute,
