@@ -109,6 +109,8 @@ export function TotemPage() {
     }
   }
 
+  const checkInDateStr = checkInResult?.entryTicket?.issuedAt || checkInResult?.checkIn
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center p-4 sm:p-6">
       {/* Background Decorative Blur */}
@@ -287,9 +289,7 @@ export function TotemPage() {
                   </span>
                 </div>
                 <span className="text-xs text-slate-500 font-mono">
-                  {checkInResult.entryTicket?.issuedAt || checkInResult.checkIn
-                    ? new Date(checkInResult.entryTicket?.issuedAt || checkInResult.checkIn!).toLocaleTimeString()
-                    : ''}
+                  {checkInDateStr ? new Date(checkInDateStr).toLocaleTimeString() : ''}
                 </span>
               </div>
 
@@ -309,9 +309,7 @@ export function TotemPage() {
                 <div className="flex justify-between py-1">
                   <span className="text-slate-400">Fecha / Hora:</span>
                   <span className="text-slate-300">
-                    {checkInResult.entryTicket?.issuedAt || checkInResult.checkIn
-                      ? new Date(checkInResult.entryTicket?.issuedAt || checkInResult.checkIn!).toLocaleString()
-                      : 'N/A'}
+                    {checkInDateStr ? new Date(checkInDateStr).toLocaleString() : 'N/A'}
                   </span>
                 </div>
               </div>
