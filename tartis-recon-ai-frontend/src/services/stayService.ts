@@ -6,13 +6,13 @@ import type {
   CheckOutResponse,
 } from '@/types/stay'
 
-const TICKET_SERVICE_URL =
-  import.meta.env.VITE_TICKET_SERVICE_URL || '/v1/entry-tickets'
+const STAY_SERVICE_URL =
+  import.meta.env.VITE_STAY_SERVICE_URL || '/v1/stays'
 
 export const stayService = {
   async checkIn(payload: CheckInRequest): Promise<CheckInResponse> {
     const response = await apiClient.post<CheckInResponse>(
-      TICKET_SERVICE_URL,
+      `${STAY_SERVICE_URL}/check-in`,
       payload,
     )
     return response.data
@@ -20,7 +20,7 @@ export const stayService = {
 
   async checkOut(payload: CheckOutRequest): Promise<CheckOutResponse> {
     const response = await apiClient.post<CheckOutResponse>(
-      `${TICKET_SERVICE_URL}/checkout`,
+      `${STAY_SERVICE_URL}/check-out`,
       payload,
     )
     return response.data

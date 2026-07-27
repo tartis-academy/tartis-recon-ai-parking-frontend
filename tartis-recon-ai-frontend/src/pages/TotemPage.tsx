@@ -5,8 +5,15 @@ import type {
   CheckOutResponse,
   VehicleType,
 } from '@/types/stay'
-import { createVehicle } from '@/features/admin/api/vehicles'
-import type { CreateVehicleInput } from '@/features/admin/types/vehicle'
+
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string
+    }
+  }
+  message?: string
+}
 
 export function TotemPage() {
   const [activeTab, setActiveTab] = useState<'checkin' | 'checkout'>('checkin')
@@ -32,25 +39,6 @@ export function TotemPage() {
 
     try {
       const plateUpper = licensePlate.trim().toUpperCase()
-
-      // Auto-register vehicle in backend DB so it shows up in Admin Panel
-      try {
-        const payload = {
-          plate: plateUpper,
-          type: vehicleType,
-          brand: 'SENSOR_AUTO',
-          model: 'UNKNOWN',
-          color: 'UNKNOWN',
-          ...(vehicleType === 'MOTORBIKE' 
-            ? { numDoors: 0, hasSidecar: false } 
-            : { numDoors: 5, hasSidecar: false }),
-        } as CreateVehicleInput
-        
-        await createVehicle(payload)
-      } catch (autoRegErr) {
-        console.warn('Could not auto-register vehicle (it might already exist):', autoRegErr)
-      }
-
       const response = await stayService.checkIn({
         licensePlate: plateUpper,
         vehicleType,
@@ -58,15 +46,12 @@ export function TotemPage() {
       setCheckInResult(response)
     } catch (err: unknown) {
       console.error('Error during check-in:', err)
-      // Fallback response for simulator preview if backend service is unreachable
-      const mockResult: CheckInResponse = {
-        entryTicketId: `TICK-${Math.random().toString(36).substring(2, 9).toUpperCase()}`,
-        stayId: `STAY-${Date.now()}`,
-        issuedAt: new Date().toISOString(),
-        licensePlate: licensePlate.trim().toUpperCase(),
-        barcode: `*${licensePlate.trim().toUpperCase()}-${Date.now()}*`,
-      }
-      setCheckInResult(mockResult)
+      const apiErr = err as ApiError
+      setErrorMsg(
+        apiErr.response?.data?.message ||
+          apiErr.message ||
+          'Error al realizar el check-in.',
+      )
     } finally {
       setIsLoading(false)
     }
@@ -90,19 +75,12 @@ export function TotemPage() {
       setCheckOutResult(response)
     } catch (err: unknown) {
       console.error('Error during check-out:', err)
-      // Fallback response for simulator preview if backend is unreachable
-      const now = new Date()
-      const entryTime = new Date(now.getTime() - 1000 * 60 * 75) // 75 mins ago
-      const mockResult: CheckOutResponse = {
-        stayId: `STAY-${Date.now()}`,
-        licensePlate: ticketIdOrPlate.trim().toUpperCase(),
-        entryTime: entryTime.toISOString(),
-        exitTime: now.toISOString(),
-        totalAmount: 15.5,
-        currency: 'EUR',
-        paid: true,
-      }
-      setCheckOutResult(mockResult)
+      const apiErr = err as ApiError
+      setErrorMsg(
+        apiErr.response?.data?.message ||
+          apiErr.message ||
+          'Error al realizar el check-out.',
+      )
     } finally {
       setIsLoading(false)
     }
