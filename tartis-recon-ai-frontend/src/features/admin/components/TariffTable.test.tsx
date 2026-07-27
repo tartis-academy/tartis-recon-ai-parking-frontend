@@ -8,7 +8,7 @@ const sampleTariffs: Tariff[] = [
   {
     id: '1',
     name: 'Tarifa Coche Estándar',
-    vehicleType: 'CAR',
+    type: 'CAR',
     basePrice: 1.50,
     pricePerMinute: 0.05,
     active: true,
@@ -16,7 +16,7 @@ const sampleTariffs: Tariff[] = [
   {
     id: '2',
     name: 'Tarifa Moto Económica',
-    vehicleType: 'MOTORBIKE',
+    type: 'MOTORBIKE',
     basePrice: 0.80,
     pricePerMinute: 0.03,
     active: false,
@@ -81,7 +81,7 @@ describe('TariffTable', () => {
     const toggleButtons = screen.getAllByRole('button', { name: /desactivar|activar/i })
     await user.click(toggleButtons[0])
 
-    expect(onToggleStatusMock).toHaveBeenCalledWith('1')
+    expect(onToggleStatusMock).toHaveBeenCalledWith('1', false)
   })
 
   it('opens confirmation modal and calls onDelete when delete is confirmed', async () => {

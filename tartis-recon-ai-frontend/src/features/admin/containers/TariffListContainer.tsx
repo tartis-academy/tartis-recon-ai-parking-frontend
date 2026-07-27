@@ -71,7 +71,7 @@ export function TariffListContainer() {
       <TariffTable
         tariffs={tariffs ?? []}
         onEdit={(tariff) => setEditingTariff(tariff)}
-        onToggleStatus={(id) => toggleStatus(id)}
+        onToggleStatus={(id, active) => toggleStatus({ id, active })}
         onDelete={(id) => deleteTariff(id)}
         isToggling={isToggling}
         isDeleting={isDeleting}

@@ -6,7 +6,7 @@ import { adminLabels } from '../labels'
 interface TariffTableProps {
   tariffs: Tariff[]
   onEdit?: (tariff: Tariff) => void
-  onToggleStatus: (id: string) => void
+  onToggleStatus: (id: string, active: boolean) => void
   onDelete: (id: string) => void
   isToggling?: boolean
   isDeleting?: boolean
@@ -23,7 +23,7 @@ export function TariffTable({
   const { tableHeaders, status, actions, emptyState, records, form } = adminLabels.tariffs
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  const getVehicleTypeLabel = (type: Tariff['vehicleType']) => {
+  const getVehicleTypeLabel = (type: Tariff['type']) => {
     switch (type) {
       case 'CAR':
         return form.types.car
@@ -73,7 +73,7 @@ export function TariffTable({
                 <td className="p-5 font-bold text-gray-200">{tariff.name}</td>
                 <td className="p-5 text-gray-400">
                   <span className="inline-flex px-3 py-1 rounded-md text-xs font-medium bg-surface-panel border border-border-default text-gray-300">
-                    {getVehicleTypeLabel(tariff.vehicleType)}
+                    {getVehicleTypeLabel(tariff.type)}
                   </span>
                 </td>
                 <td className="p-5 text-gray-200 font-medium">
@@ -107,7 +107,7 @@ export function TariffTable({
                       variant={tariff.active ? 'secondary' : 'primary'}
                       size="sm"
                       disabled={isToggling}
-                      onClick={() => onToggleStatus(tariff.id)}
+                      onClick={() => onToggleStatus(tariff.id, !tariff.active)}
                     >
                       {tariff.active ? actions.deactivate : actions.activate}
                     </Button>

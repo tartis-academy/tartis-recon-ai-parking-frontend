@@ -82,7 +82,7 @@ describe('TariffForm', () => {
       expect(onSubmitMock).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'Tarifa VIP Coche',
-          vehicleType: 'CAR',
+          type: 'CAR',
           basePrice: 2.00,
           pricePerMinute: 0.10,
         }),
@@ -99,7 +99,7 @@ describe('TariffForm', () => {
     const existingTariff: Tariff = {
       id: '1',
       name: 'Tarifa Coche Estándar',
-      vehicleType: 'CAR',
+      type: 'CAR',
       basePrice: 1.50,
       pricePerMinute: 0.05,
       active: true,
@@ -121,7 +121,7 @@ describe('TariffForm', () => {
       expect(onSubmitMock).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'Tarifa Coche Modificada',
-          vehicleType: 'CAR',
+          type: 'CAR',
           basePrice: 1.50,
           pricePerMinute: 0.05,
         }),

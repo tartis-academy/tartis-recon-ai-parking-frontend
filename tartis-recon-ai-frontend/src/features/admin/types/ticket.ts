@@ -1,13 +1,13 @@
 import type { PaginatedResponse } from './stay'
 
 export interface Ticket {
-  uniqueId: string
+  id: string
   stayId: string
   issuedAt: string
   totalAmount: number
 }
 
-export type TicketSortField = 'uniqueId' | 'stayId' | 'issuedAt' | 'totalAmount'
+export type TicketSortField = 'id' | 'stayId' | 'issuedAt' | 'totalAmount'
 export type SortOrder = 'asc' | 'desc'
 
 export interface TicketFilters {

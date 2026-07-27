@@ -15,4 +15,32 @@ export default defineConfig({
       '@shared': path.resolve(__dirname, 'src/shared'),
     },
   },
+  server: {
+    proxy: {
+      '/v1/vehicles': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/v1/spots': {
+        target: 'http://localhost:8081',
+        changeOrigin: true,
+      },
+      '/v1/tariffs': {
+        target: 'http://localhost:8082',
+        changeOrigin: true,
+      },
+      '/v1/tickets': {
+        target: 'http://localhost:8083',
+        changeOrigin: true,
+      },
+      '/v1/entry-tickets': {
+        target: 'http://localhost:8083',
+        changeOrigin: true,
+      },
+      '/v1/stays': {
+        target: 'http://localhost:8084',
+        changeOrigin: true,
+      },
+    },
+  },
 })
