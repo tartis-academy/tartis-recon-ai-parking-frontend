@@ -69,7 +69,6 @@ export function TariffListContainer() {
   if (isError) return <ErrorMessage>{labels.error}</ErrorMessage>
 
   const isFormVisible = isModalOpen || Boolean(editingTariff)
-  const formKey = editingTariff?.id ?? (isModalOpen ? 'create-new-tariff' : 'idle')
 
   return (
     <div className="max-w-[1400px] mx-auto animate-fade-in">
@@ -98,7 +97,7 @@ export function TariffListContainer() {
 
       {isFormVisible && (
         <TariffForm
-          key={formKey}
+          key={editingTariff?.id ?? (isModalOpen ? 'create-new-tariff' : 'idle')}
           tariffToEdit={editingTariff}
           onClose={handleCloseModal}
           onSubmit={handleSubmit}
