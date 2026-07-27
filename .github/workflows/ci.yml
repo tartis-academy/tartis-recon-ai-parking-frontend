@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, release]
+  push:
+    branches: [main, release]
+
+# Si llegan dos push seguidos, cancela el run anterior: no interesa el
+# resultado de un commit que ya esta superado.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    # El proyecto NO esta en la raiz del repo, vive en esta subcarpeta.
+    # Sin esto, npm no encuentra package.json y el job muere en el primer paso.
+    defaults:
+      run:
+        working-directory: tartis-recon-ai-frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # La dependencia mas exigente es eslint 10 (^20.19 || ^22.13 || >=24).
+          # Node 22 las cumple todas; no hay .nvmrc en el repo que fije otra.
+          node-version: '22'
+          cache: npm
+          # La cache NO respeta defaults.working-directory: sin esta ruta busca
+          # el lock en la raiz del repo, no lo encuentra y falla.
+          cache-dependency-path: tartis-recon-ai-frontend/package-lock.json
+
+      # 'npm ci' y no 'npm install': instala exactamente lo que fija el lock y
+      # falla si lock y package.json se desincronizan, en vez de resolver
+      # versiones distintas en cada build.
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tests
+        run: npm run test:run
+
+      # 'build' ejecuta 'tsc -b' antes de vite: este paso tambien es quien
+      # comprueba los tipos. No hace falta un typecheck aparte.
+      - name: Build
+        run: npm run build

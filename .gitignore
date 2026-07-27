@@ -61,3 +61,6 @@ coverage/
 
 # Playwright MCP artifacts
 .playwright-mcp/
+
+# graphify
+graphify-out/
