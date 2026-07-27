@@ -1,1 +1,1 @@
-export {}
+export { ExitTicketModal } from './components/ExitTicketModal'
