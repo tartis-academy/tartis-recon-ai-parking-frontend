@@ -406,7 +406,7 @@ export const adminHandlers = [
     mockTariffs[index] = { ...mockTariffs[index], ...body }
     return HttpResponse.json(mockTariffs[index])
   }),
-  http.patch('/v1/tariffs/:id/status', ({ params }) => {
+  http.patch('*/v1/tariffs/:id/status', ({ params }) => {
     const { id } = params
     const tariff = mockTariffs.find((t) => t.id === id)
     if (!tariff) {
@@ -415,7 +415,7 @@ export const adminHandlers = [
     tariff.active = !tariff.active
     return HttpResponse.json(tariff)
   }),
-  http.delete('/v1/tariffs/:id', ({ params }) => {
+  http.delete('*/v1/tariffs/:id', ({ params }) => {
     const { id } = params
     const index = mockTariffs.findIndex((t) => t.id === id)
     if (index !== -1) {
