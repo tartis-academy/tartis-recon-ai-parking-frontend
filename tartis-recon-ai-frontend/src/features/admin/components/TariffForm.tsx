@@ -2,16 +2,19 @@ import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createPortal } from 'react-dom'
 import { tariffSchema, type TariffFormData } from '../validation/tariffSchema'
+import type { Tariff } from '../types/tariff'
 import { adminLabels } from '../labels'
 import { TextInput, Select, Button, Icon } from '@/shared/ui'
 
 interface TariffFormProps {
+  tariffToEdit?: Tariff | null
   onClose: () => void
   onSubmit: (data: TariffFormData) => void
   isPending: boolean
 }
 
-export function TariffForm({ onClose, onSubmit, isPending }: TariffFormProps) {
+export function TariffForm({ tariffToEdit, onClose, onSubmit, isPending }: TariffFormProps) {
+  const isEditing = Boolean(tariffToEdit)
   const { form } = adminLabels.tariffs
 
   const {
@@ -21,13 +24,21 @@ export function TariffForm({ onClose, onSubmit, isPending }: TariffFormProps) {
     formState: { errors },
   } = useForm<TariffFormData>({
     resolver: zodResolver(tariffSchema),
-    defaultValues: {
-      name: '',
-      type: 'CAR',
-      basePrice: 1.50,
-      pricePerMinute: 0.05,
-      active: true,
-    },
+    defaultValues: tariffToEdit
+      ? {
+          name: tariffToEdit.name,
+          type: tariffToEdit.type,
+          basePrice: tariffToEdit.basePrice,
+          pricePerMinute: tariffToEdit.pricePerMinute,
+          active: tariffToEdit.active,
+        }
+      : {
+          name: '',
+          type: 'CAR',
+          basePrice: 1.50,
+          pricePerMinute: 0.05,
+          active: true,
+        },
   })
 
   const pricePerMinute = useWatch({ control, name: 'pricePerMinute' })
@@ -42,8 +53,12 @@ export function TariffForm({ onClose, onSubmit, isPending }: TariffFormProps) {
         {/* Header */}
         <div className="p-6 border-b border-border-subtle flex justify-between items-start bg-surface-card">
           <div>
-            <h2 className="text-xl font-bold text-white mb-1">{form.title}</h2>
-            <p className="text-xs text-gray-400">{form.subtitle}</p>
+            <h2 className="text-xl font-bold text-white mb-1">
+              {isEditing ? form.editTitle : form.title}
+            </h2>
+            <p className="text-xs text-gray-400">
+              {isEditing ? form.editSubtitle : form.subtitle}
+            </p>
           </div>
           <button
             type="button"
@@ -134,7 +149,7 @@ export function TariffForm({ onClose, onSubmit, isPending }: TariffFormProps) {
                 disabled={isPending}
                 icon={!isPending ? <Icon name="check" className="w-4 h-4" /> : undefined}
               >
-                {isPending ? form.processing : form.submit}
+                {isPending ? form.processing : isEditing ? form.submitEdit : form.submit}
               </Button>
             </div>
           </div>

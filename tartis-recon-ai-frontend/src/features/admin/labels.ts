@@ -87,6 +87,7 @@ export const adminLabels = {
       inactive: 'Inactiva',
     },
     actions: {
+      edit: 'Editar',
       deactivate: 'Desactivar',
       activate: 'Activar',
       delete: 'Eliminar',
@@ -96,7 +97,9 @@ export const adminLabels = {
     },
     form: {
       title: 'Crear nueva tarifa',
+      editTitle: 'Editar tarifa',
       subtitle: 'Define el precio base, precio por minuto y condiciones según el tipo de vehículo',
+      editSubtitle: 'Modifica los precios y la configuración de la tarifa seleccionada',
       name: 'Nombre de la tarifa',
       namePlaceholder: 'Ej. Tarifa Coche Estándar',
       vehicleType: 'Tipo de Vehículo',
@@ -108,6 +111,7 @@ export const adminLabels = {
       mandatoryHint: 'Los campos marcados con * son obligatorios.',
       cancel: 'Cancelar',
       submit: 'Crear tarifa',
+      submitEdit: 'Guardar cambios',
       processing: 'Guardando...',
       types: {
         car: 'Coche (Estándar)',
