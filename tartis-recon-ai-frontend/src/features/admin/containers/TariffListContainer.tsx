@@ -49,7 +49,7 @@ export function TariffListContainer() {
           onClose={() => setIsModalOpen(false)} 
           onSubmit={(data) => {
             createTariff({ ...data, active: true }, {
-              onSuccess: () => setIsModalOpen(false)
+              onSuccess: () => setIsModalOpen(false),
             })
           }}
           isPending={isCreating}

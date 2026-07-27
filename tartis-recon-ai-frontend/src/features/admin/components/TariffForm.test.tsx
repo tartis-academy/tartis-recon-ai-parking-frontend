@@ -75,7 +75,7 @@ describe('TariffForm', () => {
           basePrice: 2.00,
           pricePerMinute: 0.10,
         }),
-        expect.anything()
+        expect.anything(),
       )
     })
   })
