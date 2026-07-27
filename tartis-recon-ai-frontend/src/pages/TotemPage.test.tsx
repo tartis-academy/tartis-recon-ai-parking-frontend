@@ -2,15 +2,19 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { TotemPage } from './TotemPage'
-import { stayService } from '@/services/stayService'
-import type { CheckInResponse, CheckOutResponse } from '@/types/stay'
+import { stayService } from '@/features/entry-exit'
+import type { CheckInResponse, CheckOutResponse } from '@/features/entry-exit'
 
-vi.mock('@/services/stayService', () => ({
-  stayService: {
-    checkIn: vi.fn(),
-    checkOut: vi.fn(),
-  },
-}))
+vi.mock('@/features/entry-exit', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/features/entry-exit')>()
+  return {
+    ...actual,
+    stayService: {
+      checkIn: vi.fn(),
+      checkOut: vi.fn(),
+    },
+  }
+})
 
 describe('TotemPage Component', () => {
   beforeEach(() => {
@@ -80,11 +84,15 @@ describe('TotemPage Component', () => {
   it('handles successful check-in and renders ticket details', async () => {
     const user = userEvent.setup()
     const mockCheckInResponse: CheckInResponse = {
-      entryTicketId: 'TICK-9876',
       stayId: 'STAY-1234',
-      issuedAt: '2026-07-27T10:00:00.000Z',
-      licensePlate: '5678DEF',
-      barcode: '*5678DEF*',
+      plate: '5678DEF',
+      checkIn: '2026-07-27T10:00:00.000Z',
+      status: 'IN_PROGRESS',
+      entryTicket: {
+        ticketId: 'TICK-9876',
+        barCode: '*5678DEF*',
+        issuedAt: '2026-07-27T10:00:00.000Z',
+      },
     }
 
     vi.mocked(stayService.checkIn).mockResolvedValueOnce(mockCheckInResponse)
@@ -98,7 +106,7 @@ describe('TotemPage Component', () => {
     await user.click(submitBtn)
 
     expect(stayService.checkIn).toHaveBeenCalledWith({
-      licensePlate: '5678DEF',
+      plate: '5678DEF',
       vehicleType: 'CAR',
     })
 
@@ -142,12 +150,11 @@ describe('TotemPage Component', () => {
     const user = userEvent.setup()
     const mockCheckOutResponse: CheckOutResponse = {
       stayId: 'STAY-4321',
-      licensePlate: '9999ZZZ',
-      entryTime: '2026-07-27T12:00:00.000Z',
-      exitTime: '2026-07-27T14:00:00.000Z',
-      totalAmount: 18.75,
-      currency: 'EUR',
-      paid: true,
+      plate: '9999ZZZ',
+      checkIn: '2026-07-27T12:00:00.000Z',
+      checkOut: '2026-07-27T14:00:00.000Z',
+      amount: 18.75,
+      status: 'FINISHED',
     }
 
     vi.mocked(stayService.checkOut).mockResolvedValueOnce(mockCheckOutResponse)
@@ -166,12 +173,12 @@ describe('TotemPage Component', () => {
     await user.click(submitBtn)
 
     expect(stayService.checkOut).toHaveBeenCalledWith({
-      ticketIdOrPlate: '9999ZZZ',
+      plate: '9999ZZZ',
     })
 
     expect(screen.getByText(/resumen de salida/i)).toBeInTheDocument()
     expect(screen.getByText('18.75 EUR')).toBeInTheDocument()
-    expect(screen.getByText('PAGADO')).toBeInTheDocument()
+    expect(screen.getByText('FINISHED')).toBeInTheDocument()
   })
 
   it('renders real API error message on check-out failure', async () => {

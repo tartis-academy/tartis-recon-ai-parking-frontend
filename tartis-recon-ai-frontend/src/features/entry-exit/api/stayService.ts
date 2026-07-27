@@ -4,10 +4,9 @@ import type {
   CheckInResponse,
   CheckOutRequest,
   CheckOutResponse,
-} from '@/types/stay'
+} from '../types/stay'
 
-const STAY_SERVICE_URL =
-  import.meta.env.VITE_STAY_SERVICE_URL || '/v1/stays'
+const STAY_SERVICE_URL = import.meta.env.VITE_STAY_SERVICE_URL || '/v1/stays'
 
 export const stayService = {
   async checkIn(payload: CheckInRequest): Promise<CheckInResponse> {

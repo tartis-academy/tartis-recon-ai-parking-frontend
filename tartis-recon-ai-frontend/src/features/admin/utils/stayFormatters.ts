@@ -49,8 +49,8 @@ export function formatTotal(value: number | null, status: StayStatus): string {
   return nullLabels.totalNotApplicable
 }
 
-export function formatTariff(name: string, rate: number): string {
-  return `${name} (${rateFormatter.format(rate)}/min)`
+export function formatTariff(tariffId: string, rate?: number): string {
+  return rate !== undefined ? `${tariffId} (${rateFormatter.format(rate)}/min)` : tariffId
 }
 
 export function resolveStatusLabel(status: StayStatus): string {
@@ -61,9 +61,9 @@ export function resolveStatusLabel(status: StayStatus): string {
 }
 
 export function resolveVehicleTypeLabel(type: VehicleType): string {
-  return adminLabels.stays.vehicleTypes[type]
+  return adminLabels.stays.vehicleTypes[type] || type
 }
 
 export function hasTicket(stay: Stay): boolean {
-  return Boolean(stay.ticket?.id || stay.entryTicket?.id)
+  return stay.status === 'FINISHED' || stay.status === 'PAID'
 }

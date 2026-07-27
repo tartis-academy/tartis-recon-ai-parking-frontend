@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { stayService } from '@/services/stayService'
-import type {
-  CheckInResponse,
-  CheckOutResponse,
-  VehicleType,
-} from '@/types/stay'
+import {
+  stayService,
+  type CheckInResponse,
+  type CheckOutResponse,
+  type VehicleType,
+} from '@/features/entry-exit'
 
 type ApiError = {
   response?: {
@@ -37,10 +37,11 @@ export function TotemPage() {
     setErrorMsg(null)
     setCheckInResult(null)
 
+    const plateUpper = licensePlate.trim().toUpperCase()
+
     try {
-      const plateUpper = licensePlate.trim().toUpperCase()
       const response = await stayService.checkIn({
-        licensePlate: plateUpper,
+        plate: plateUpper,
         vehicleType,
       })
       setCheckInResult(response)
@@ -69,9 +70,10 @@ export function TotemPage() {
     setCheckOutResult(null)
 
     try {
-      const response = await stayService.checkOut({
-        ticketIdOrPlate: ticketIdOrPlate.trim(),
-      })
+      const inputVal = ticketIdOrPlate.trim()
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(inputVal)
+      const payload = isUuid ? { entryTicketId: inputVal } : { plate: inputVal.toUpperCase() }
+      const response = await stayService.checkOut(payload)
       setCheckOutResult(response)
     } catch (err: unknown) {
       console.error('Error during check-out:', err)
@@ -85,6 +87,8 @@ export function TotemPage() {
       setIsLoading(false)
     }
   }
+
+  const checkInDateStr = checkInResult?.entryTicket?.issuedAt || checkInResult?.checkIn
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center p-4 sm:p-6">
@@ -264,14 +268,14 @@ export function TotemPage() {
                   </span>
                 </div>
                 <span className="text-xs text-slate-500 font-mono">
-                  {new Date(checkInResult.issuedAt).toLocaleTimeString()}
+                  {checkInDateStr ? new Date(checkInDateStr).toLocaleTimeString() : ''}
                 </span>
               </div>
 
               <div className="space-y-3 font-mono text-sm">
                 <div className="flex justify-between py-1 border-b border-slate-900">
                   <span className="text-slate-400">ID Ticket:</span>
-                  <span className="text-white font-bold">{checkInResult.entryTicketId}</span>
+                  <span className="text-white font-bold">{checkInResult.entryTicket?.ticketId || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-900">
                   <span className="text-slate-400">ID Estancia (Stay):</span>
@@ -279,20 +283,22 @@ export function TotemPage() {
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-900">
                   <span className="text-slate-400">Matrícula:</span>
-                  <span className="text-emerald-400 font-bold text-base tracking-widest">{checkInResult.licensePlate}</span>
+                  <span className="text-emerald-400 font-bold text-base tracking-widest">{checkInResult.plate}</span>
                 </div>
                 <div className="flex justify-between py-1">
                   <span className="text-slate-400">Fecha / Hora:</span>
-                  <span className="text-slate-300">{new Date(checkInResult.issuedAt).toLocaleString()}</span>
+                  <span className="text-slate-300">
+                    {checkInDateStr ? new Date(checkInDateStr).toLocaleString() : 'N/A'}
+                  </span>
                 </div>
               </div>
 
               {/* Barcode Mock */}
               <div className="mt-6 pt-4 border-t border-dashed border-slate-800 text-center">
                 <div className="inline-block bg-white text-black p-3 rounded font-mono font-bold tracking-widest text-lg shadow-inner">
-                  ||| | |||| | || ||| || ||| |
+                  {checkInResult.entryTicket?.barCode || '||| | |||| | || ||| || ||| |'}
                 </div>
-                <p className="text-xs text-slate-500 mt-1 font-mono">{checkInResult.barcode || checkInResult.entryTicketId}</p>
+                <p className="text-xs text-slate-500 mt-1 font-mono">{checkInResult.entryTicket?.barCode || checkInResult.entryTicket?.ticketId || checkInResult.stayId}</p>
               </div>
             </div>
           )}
@@ -308,27 +314,27 @@ export function TotemPage() {
                   </span>
                 </div>
                 <span className="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  {checkOutResult.paid ? 'PAGADO' : 'PENDIENTE'}
+                  {checkOutResult.status || 'FINISHED'}
                 </span>
               </div>
 
               <div className="space-y-3 font-mono text-sm">
                 <div className="flex justify-between py-1 border-b border-slate-900">
                   <span className="text-slate-400">Matrícula:</span>
-                  <span className="text-indigo-400 font-bold text-base tracking-widest">{checkOutResult.licensePlate}</span>
+                  <span className="text-indigo-400 font-bold text-base tracking-widest">{checkOutResult.plate}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-900">
                   <span className="text-slate-400">Entrada:</span>
-                  <span className="text-slate-300">{new Date(checkOutResult.entryTime).toLocaleTimeString()}</span>
+                  <span className="text-slate-300">{new Date(checkOutResult.checkIn).toLocaleTimeString()}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-900">
                   <span className="text-slate-400">Salida:</span>
-                  <span className="text-slate-300">{new Date(checkOutResult.exitTime).toLocaleTimeString()}</span>
+                  <span className="text-slate-300">{new Date(checkOutResult.checkOut).toLocaleTimeString()}</span>
                 </div>
                 <div className="flex justify-between py-2 items-center">
                   <span className="text-slate-300 font-bold">Total a Cobrar:</span>
                   <span className="text-2xl font-extrabold text-white">
-                    {checkOutResult.totalAmount.toFixed(2)} {checkOutResult.currency}
+                    {checkOutResult.amount ? checkOutResult.amount.toFixed(2) : '0.00'} EUR
                   </span>
                 </div>
               </div>

@@ -23,7 +23,7 @@ export function TariffForm({ onClose, onSubmit, isPending }: TariffFormProps) {
     resolver: zodResolver(tariffSchema),
     defaultValues: {
       name: '',
-      vehicleType: 'CAR',
+      type: 'CAR',
       basePrice: 1.50,
       pricePerMinute: 0.05,
       active: true,
@@ -72,13 +72,13 @@ export function TariffForm({ onClose, onSubmit, isPending }: TariffFormProps) {
 
           {/* Tipo de Vehículo */}
           <div>
-            <label htmlFor="vehicleType" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <label htmlFor="type" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
               {form.vehicleType} <span className="text-brand-500">*</span>
             </label>
             <Select
-              id="vehicleType"
-              {...register('vehicleType')}
-              error={errors.vehicleType?.message}
+              id="type"
+              {...register('type')}
+              error={errors.type?.message}
             >
               <option value="CAR">{form.types.car}</option>
               <option value="CAR_PMR">{form.types.carPmr}</option>
