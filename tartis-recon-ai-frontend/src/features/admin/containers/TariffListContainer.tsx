@@ -38,7 +38,7 @@ export function TariffListContainer() {
 
       <TariffTable
         tariffs={tariffs ?? []}
-        onToggleStatus={(id) => toggleStatus(id)}
+        onToggleStatus={(id, active) => toggleStatus({ id, active })}
         onDelete={(id) => deleteTariff(id)}
         isToggling={isToggling}
         isDeleting={isDeleting}
@@ -49,7 +49,7 @@ export function TariffListContainer() {
           onClose={() => setIsModalOpen(false)} 
           onSubmit={(data) => {
             createTariff({ ...data, active: true }, {
-              onSuccess: () => setIsModalOpen(false)
+              onSuccess: () => setIsModalOpen(false),
             })
           }}
           isPending={isCreating}
