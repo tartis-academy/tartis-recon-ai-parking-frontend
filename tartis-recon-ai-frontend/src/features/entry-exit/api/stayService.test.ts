@@ -12,13 +12,15 @@ vi.mock('@/lib/api-client', () => ({
   },
 }))
 
+const STAY_SERVICE_URL = import.meta.env.VITE_STAY_SERVICE_URL || '/v1/stays'
+
 describe('stayService', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   describe('checkIn', () => {
-    it('should call POST /v1/stays/check-in with correct payload and return response data', async () => {
+    it('should call POST check-in endpoint with correct payload and return response data', async () => {
       const mockResponse: CheckInResponse = {
         stayId: 'STAY-999',
         plate: '1234ABC',
@@ -39,7 +41,7 @@ describe('stayService', () => {
       })
 
       expect(apiClient.post).toHaveBeenCalledTimes(1)
-      expect(apiClient.post).toHaveBeenCalledWith('/v1/stays/check-in', {
+      expect(apiClient.post).toHaveBeenCalledWith(`${STAY_SERVICE_URL}/check-in`, {
         plate: '1234ABC',
         vehicleType: 'CAR',
       })
@@ -57,7 +59,7 @@ describe('stayService', () => {
   })
 
   describe('checkOut', () => {
-    it('should call POST /v1/stays/check-out with correct payload and return response data', async () => {
+    it('should call POST check-out endpoint with correct payload and return response data', async () => {
       const mockResponse: CheckOutResponse = {
         stayId: 'STAY-999',
         plate: '1234ABC',
@@ -75,7 +77,7 @@ describe('stayService', () => {
       })
 
       expect(apiClient.post).toHaveBeenCalledTimes(1)
-      expect(apiClient.post).toHaveBeenCalledWith('/v1/stays/check-out', {
+      expect(apiClient.post).toHaveBeenCalledWith(`${STAY_SERVICE_URL}/check-out`, {
         plate: '1234ABC',
       })
       expect(result).toEqual(mockResponse)

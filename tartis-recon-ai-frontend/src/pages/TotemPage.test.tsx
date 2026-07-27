@@ -119,6 +119,7 @@ describe('TotemPage Component', () => {
   it('renders real API error message on check-in failure without issuing fake ticket', async () => {
     const user = userEvent.setup()
     const apiError = {
+      isAxiosError: true,
       response: {
         data: {
           message: 'No hay plazas disponibles para este tipo de vehículo (RN-01)',
@@ -184,6 +185,7 @@ describe('TotemPage Component', () => {
   it('renders real API error message on check-out failure', async () => {
     const user = userEvent.setup()
     const apiError = {
+      isAxiosError: true,
       response: {
         data: {
           message: 'Ticket no encontrado o ya procesado',
