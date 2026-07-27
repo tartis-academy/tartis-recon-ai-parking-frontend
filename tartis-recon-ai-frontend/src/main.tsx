@@ -22,3 +22,5 @@ enableMocking().then(() => {
     </StrictMode>,
   )
 })
+
+const __ciGateCheck: number = "esto-no-es-un-numero";
