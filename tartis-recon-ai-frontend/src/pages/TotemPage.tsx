@@ -1,7 +1,11 @@
 import { useState } from 'react'
-import { stayService, type CheckInResponse, type CheckOutResponse, type VehicleType } from '@/features/entry-exit'
-import { createVehicle } from '@/features/admin/api/vehicles'
-import type { CreateVehicleInput } from '@/features/admin/types/vehicle'
+import axios from 'axios'
+import {
+  stayService,
+  type CheckInResponse,
+  type CheckOutResponse,
+  type VehicleType,
+} from '@/features/entry-exit'
 
 export function TotemPage() {
   const [activeTab, setActiveTab] = useState<'checkin' | 'checkout'>('checkin')
@@ -28,24 +32,6 @@ export function TotemPage() {
     const plateUpper = licensePlate.trim().toUpperCase()
 
     try {
-      // Auto-register vehicle in backend DB so it shows up in Admin Panel
-      try {
-        const payload = {
-          plate: plateUpper,
-          type: vehicleType,
-          brand: 'SENSOR_AUTO',
-          model: 'UNKNOWN',
-          color: 'UNKNOWN',
-          ...(vehicleType === 'MOTORBIKE' 
-            ? { numDoors: 0, hasSidecar: false } 
-            : { numDoors: 5, hasSidecar: false }),
-        } as CreateVehicleInput
-        
-        await createVehicle(payload)
-      } catch (autoRegErr) {
-        console.warn('Could not auto-register vehicle (it might already exist):', autoRegErr)
-      }
-
       const response = await stayService.checkIn({
         plate: plateUpper,
         vehicleType,
@@ -53,20 +39,17 @@ export function TotemPage() {
       setCheckInResult(response)
     } catch (err: unknown) {
       console.error('Error during check-in:', err)
-      // Fallback response for simulator preview if backend service is unreachable
-      const mockTicketId = `TICK-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
-      const mockResult: CheckInResponse = {
-        stayId: `STAY-${Date.now()}`,
-        plate: plateUpper,
-        checkIn: new Date().toISOString(),
-        status: 'IN_PROGRESS',
-        entryTicket: {
-          ticketId: mockTicketId,
-          barCode: `*${plateUpper}-${Date.now()}*`,
-          issuedAt: new Date().toISOString(),
-        },
+      if (axios.isAxiosError(err)) {
+        setErrorMsg(
+          err.response?.data?.message ||
+            err.message ||
+            'Error al realizar el check-in.',
+        )
+      } else if (err instanceof Error) {
+        setErrorMsg(err.message)
+      } else {
+        setErrorMsg('Error al realizar el check-in.')
       }
-      setCheckInResult(mockResult)
     } finally {
       setIsLoading(false)
     }
@@ -86,24 +69,23 @@ export function TotemPage() {
     try {
       const inputVal = ticketIdOrPlate.trim()
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(inputVal)
-      const payload = isUuid ? { entryTicketId: inputVal } : { plate: inputVal.toUpperCase() }
+      const isTicketId = isUuid || /^TICK-/i.test(inputVal) || inputVal.length > 15
+      const payload = isTicketId ? { entryTicketId: inputVal } : { plate: inputVal.toUpperCase() }
       const response = await stayService.checkOut(payload)
       setCheckOutResult(response)
     } catch (err: unknown) {
       console.error('Error during check-out:', err)
-      // Fallback response for simulator preview if backend is unreachable
-      const now = new Date()
-      const entryTime = new Date(now.getTime() - 1000 * 60 * 75) // 75 mins ago
-      const mockResult: CheckOutResponse = {
-        stayId: `STAY-${Date.now()}`,
-        plate: ticketIdOrPlate.trim().toUpperCase(),
-        checkIn: entryTime.toISOString(),
-        checkOut: now.toISOString(),
-        totalMinutes: 75,
-        amount: 15.5,
-        status: 'FINISHED',
+      if (axios.isAxiosError(err)) {
+        setErrorMsg(
+          err.response?.data?.message ||
+            err.message ||
+            'Error al realizar el check-out.',
+        )
+      } else if (err instanceof Error) {
+        setErrorMsg(err.message)
+      } else {
+        setErrorMsg('Error al realizar el check-out.')
       }
-      setCheckOutResult(mockResult)
     } finally {
       setIsLoading(false)
     }
@@ -138,6 +120,8 @@ export function TotemPage() {
             onClick={() => {
               setActiveTab('checkin')
               setErrorMsg(null)
+              setCheckInResult(null)
+              setCheckOutResult(null)
             }}
             className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
               activeTab === 'checkin'
@@ -155,6 +139,8 @@ export function TotemPage() {
             onClick={() => {
               setActiveTab('checkout')
               setErrorMsg(null)
+              setCheckInResult(null)
+              setCheckOutResult(null)
             }}
             className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
               activeTab === 'checkout'
@@ -172,7 +158,7 @@ export function TotemPage() {
         {/* Content Body */}
         <div className="p-6 sm:p-8 space-y-6">
           {errorMsg && (
-            <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 p-4 rounded-xl text-sm flex items-center gap-3">
+            <div role="alert" className="bg-rose-500/10 border border-rose-500/30 text-rose-300 p-4 rounded-xl text-sm flex items-center gap-3">
               <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
