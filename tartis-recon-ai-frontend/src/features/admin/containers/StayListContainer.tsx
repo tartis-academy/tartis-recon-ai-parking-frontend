@@ -63,10 +63,10 @@ export function StayListContainer() {
         subtitle={adminLabels.stays.pageSubtitle}
       />
       <StayTable
-        stays={data?.data ?? []}
-        total={data?.total ?? 0}
+        stays={data?.content ?? []}
+        total={data?.totalElements ?? 0}
         page={data?.page ?? page}
-        pageSize={data?.pageSize ?? pageSize}
+        pageSize={data?.size ?? pageSize}
         search={search}
         status={status}
         vehicleType={vehicleType}

@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const tariffSchema = z.object({
   name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres'),
-  vehicleType: z.enum(['CAR', 'CAR_PMR', 'MOTORBIKE']),
+  type: z.enum(['CAR', 'CAR_PMR', 'MOTORBIKE']),
   basePrice: z
     .number({ message: 'El precio base debe ser un número válido' })
     .min(0, 'El precio base debe ser mayor o igual a 0 €'),
@@ -13,4 +13,3 @@ export const tariffSchema = z.object({
 })
 
 export type TariffFormData = z.infer<typeof tariffSchema>
-

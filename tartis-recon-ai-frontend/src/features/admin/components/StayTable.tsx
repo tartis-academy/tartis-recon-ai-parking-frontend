@@ -117,12 +117,12 @@ export function StayTable({
           </thead>
           <tbody className="divide-y divide-border-subtle">
             {stays.map((stay) => (
-              <tr key={stay.id} className="hover:bg-surface-row-hover/50 transition-colors duration-200 text-sm">
-                <td className="p-3 xl:p-4 2xl:p-5 font-bold text-gray-200">{stay.vehicle.plate}</td>
-                <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">{stay.spot.code}</td>
+              <tr key={stay.stayId} className="hover:bg-surface-row-hover/50 transition-colors duration-200 text-sm">
+                <td className="p-3 xl:p-4 2xl:p-5 font-bold text-gray-200">{stay.plate}</td>
+                <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">{stay.spotId}</td>
                 <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">
                   <span className="inline-flex px-3 py-1 rounded-md text-xs font-medium bg-surface-panel border border-border-default text-gray-300 truncate max-w-[180px]">
-                    {stay.tariff.name}
+                    {formatTariff(stay.tariffId)}
                   </span>
                 </td>
                 <td className="p-3 xl:p-4 2xl:p-5 text-gray-400">{formatCheckIn(stay.checkIn)}</td>
@@ -151,11 +151,11 @@ export function StayTable({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {stays.map((stay) => (
                 <StayCard
-                  key={stay.id}
-                  plate={stay.vehicle.plate}
-                  spot={stay.spot.code}
-                  vehicleTypeLabel={resolveVehicleTypeLabel(stay.vehicle.type)}
-                  tariff={formatTariff(stay.tariff.name, stay.tariff.rate)}
+                  key={stay.stayId}
+                  plate={stay.plate}
+                  spot={stay.spotId}
+                  vehicleTypeLabel={stay.vehicleType ? resolveVehicleTypeLabel(stay.vehicleType) : stay.vehicleId}
+                  tariff={formatTariff(stay.tariffId)}
                   checkIn={formatCheckIn(stay.checkIn)}
                   checkOut={formatCheckOut(stay.checkOut, stay.status)}
                   total={formatTotal(stay.totalAmount, stay.status)}
@@ -171,7 +171,7 @@ export function StayTable({
                     viewTicket: labels.viewTicket,
                     viewTicketUnavailable: labels.viewTicketUnavailable,
                   }}
-                  onViewTicket={onViewTicket ? () => onViewTicket(stay.id) : undefined}
+                  onViewTicket={onViewTicket ? () => onViewTicket(stay.stayId) : undefined}
                 />
               ))}
             </div>
