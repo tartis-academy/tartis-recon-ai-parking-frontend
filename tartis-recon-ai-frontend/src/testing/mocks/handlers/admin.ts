@@ -367,7 +367,6 @@ export const adminHandlers = [
     mockTariffs.push(newTariff)
     return HttpResponse.json(newTariff, { status: 201 })
   }),
-<<<<<<< HEAD
   http.put('*/v1/tariffs/:id', async ({ params, request }) => {
     const { id } = params
     const body = (await request.json()) as UpdateTariffInput
@@ -378,10 +377,7 @@ export const adminHandlers = [
     mockTariffs[index] = { ...mockTariffs[index], ...body }
     return HttpResponse.json(mockTariffs[index])
   }),
-  http.patch('*/v1/tariffs/:id/status', ({ params }) => {
-=======
   http.patch('*/v1/tariffs/:id/status', async ({ params, request }) => {
->>>>>>> c74913f5efda8835e4925648ab12dc999f6dc89e
     const { id } = params
     const tariff = mockTariffs.find((t) => t.id === id)
     if (!tariff) {
