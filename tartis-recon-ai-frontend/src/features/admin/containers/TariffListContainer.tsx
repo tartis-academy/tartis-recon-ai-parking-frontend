@@ -28,10 +28,29 @@ export function TariffListContainer() {
     setEditingTariff(null)
   }
 
+  const handleOpenCreateModal = () => {
+    setEditingTariff(null)
+    setIsModalOpen(true)
+  }
+
+  const handleOpenEditModal = (tariff: Tariff) => {
+    setIsModalOpen(false)
+    setEditingTariff(tariff)
+  }
+
   const handleSubmit = (data: TariffFormData) => {
     if (editingTariff) {
       updateTariff(
-        { id: editingTariff.id, data },
+        {
+          id: editingTariff.id,
+          data: {
+            name: data.name,
+            type: data.type,
+            basePrice: data.basePrice,
+            pricePerMinute: data.pricePerMinute,
+            active: editingTariff.active,
+          },
+        },
         {
           onSuccess: handleCloseModal,
         },
@@ -49,6 +68,9 @@ export function TariffListContainer() {
   if (isLoading) return <LoadingSpinner />
   if (isError) return <ErrorMessage>{labels.error}</ErrorMessage>
 
+  const isFormVisible = isModalOpen || Boolean(editingTariff)
+  const formKey = editingTariff?.id ?? (isModalOpen ? 'create-new-tariff' : 'idle')
+
   return (
     <div className="max-w-[1400px] mx-auto animate-fade-in">
       <PageHeader
@@ -57,10 +79,7 @@ export function TariffListContainer() {
         action={
           <Button
             variant="primary"
-            onClick={() => {
-              setEditingTariff(null)
-              setIsModalOpen(true)
-            }}
+            onClick={handleOpenCreateModal}
             icon={<Icon name="plus" className="w-4 h-4" />}
           >
             {labels.createTariff}
@@ -70,15 +89,16 @@ export function TariffListContainer() {
 
       <TariffTable
         tariffs={tariffs ?? []}
-        onEdit={(tariff) => setEditingTariff(tariff)}
+        onEdit={handleOpenEditModal}
         onToggleStatus={(id, active) => toggleStatus({ id, active })}
         onDelete={(id) => deleteTariff(id)}
         isToggling={isToggling}
         isDeleting={isDeleting}
       />
 
-      {(isModalOpen || Boolean(editingTariff)) && (
+      {isFormVisible && (
         <TariffForm
+          key={formKey}
           tariffToEdit={editingTariff}
           onClose={handleCloseModal}
           onSubmit={handleSubmit}
