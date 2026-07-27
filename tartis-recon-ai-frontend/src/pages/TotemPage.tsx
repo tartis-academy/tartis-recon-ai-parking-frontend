@@ -6,7 +6,7 @@ import type {
   VehicleType,
 } from '@/types/stay'
 
-interface ApiError {
+type ApiError = {
   response?: {
     data?: {
       message?: string
