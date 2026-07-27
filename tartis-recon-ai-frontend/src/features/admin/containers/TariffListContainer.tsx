@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTariffs } from '../hooks/useTariffs'
 import { useToggleTariffStatus } from '../hooks/useToggleTariffStatus'
 import { useDeleteTariff } from '../hooks/useDeleteTariff'
+import { useCreateTariff } from '../hooks/useCreateTariff'
 import { TariffTable } from '../components/TariffTable'
 import { TariffForm } from '../components/TariffForm'
 import { adminLabels } from '../labels'
@@ -12,6 +13,7 @@ export function TariffListContainer() {
   const { data: tariffs, isLoading, isError } = useTariffs()
   const { mutate: toggleStatus, isPending: isToggling } = useToggleTariffStatus()
   const { mutate: deleteTariff, isPending: isDeleting } = useDeleteTariff()
+  const { mutate: createTariff, isPending: isCreating } = useCreateTariff()
 
   const { tariffs: labels } = adminLabels
 
@@ -42,7 +44,17 @@ export function TariffListContainer() {
         isDeleting={isDeleting}
       />
 
-      {isModalOpen && <TariffForm onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && (
+        <TariffForm 
+          onClose={() => setIsModalOpen(false)} 
+          onSubmit={(data) => {
+            createTariff({ ...data, active: true }, {
+              onSuccess: () => setIsModalOpen(false)
+            })
+          }}
+          isPending={isCreating}
+        />
+      )}
     </div>
   )
 }

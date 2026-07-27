@@ -1,25 +1,31 @@
 import { Link, useLocation } from '@tanstack/react-router'
+import { useState } from 'react'
 import { adminLabels } from '../labels'
-import { DEFAULT_TOTAL_VEHICLES } from '../constants'
 import { Icon } from '@/shared/ui'
 
 interface AdminSidebarProps {
   isSidebarOpen: boolean
   toggleSidebar: () => void
-  occupiedSpots?: number
-  totalSpots?: number
-  totalRegisteredVehicles?: number
 }
 
 export function AdminSidebar({ 
   isSidebarOpen, 
   toggleSidebar, 
-  occupiedSpots = 0, 
-  totalSpots = 0, 
-  totalRegisteredVehicles = DEFAULT_TOTAL_VEHICLES, 
 }: AdminSidebarProps) {
   const location = useLocation()
   const { layout } = adminLabels
+
+  const [useMocks, setUseMocks] = useState(() => {
+    const stored = localStorage.getItem('VITE_USE_MOCKS')
+    return stored !== null ? stored === 'true' : import.meta.env.VITE_USE_MOCKS === 'true'
+  })
+
+  const toggleMocks = () => {
+    const newValue = !useMocks
+    localStorage.setItem('VITE_USE_MOCKS', String(newValue))
+    setUseMocks(newValue)
+    window.location.reload()
+  }
 
   const isVehiclesActive = location.pathname.includes('/vehicles')
   const isSpotsActive = location.pathname.includes('/spots')
@@ -68,12 +74,7 @@ export function AdminSidebar({
           >
             <Icon name="search" className="w-5 h-5 flex-shrink-0" />
             {isSidebarOpen && (
-              <div className="flex items-center justify-between flex-1 overflow-hidden">
-                <span className="font-medium whitespace-nowrap">{layout.vehicles}</span>
-                <span className="text-[10px] font-bold bg-surface-panel text-gray-400 px-2 py-0.5 rounded-full border border-border-default">
-                  {occupiedSpots}/{totalRegisteredVehicles || DEFAULT_TOTAL_VEHICLES}
-                </span>
-              </div>
+              <span className="font-medium whitespace-nowrap">{layout.vehicles}</span>
             )}
           </Link>
 
@@ -88,12 +89,7 @@ export function AdminSidebar({
           >
             <Icon name="grid" className="w-5 h-5 flex-shrink-0" />
             {isSidebarOpen && (
-              <div className="flex items-center justify-between flex-1 overflow-hidden">
-                <span className="font-medium whitespace-nowrap">{layout.spots}</span>
-                <span className="text-[10px] font-bold bg-surface-panel text-gray-400 px-2 py-0.5 rounded-full border border-border-default">
-                  {occupiedSpots}/{totalSpots}
-                </span>
-              </div>
+              <span className="font-medium whitespace-nowrap">{layout.spots}</span>
             )}
           </Link>
 
@@ -108,9 +104,7 @@ export function AdminSidebar({
           >
             <Icon name="document" className="w-5 h-5 flex-shrink-0" />
             {isSidebarOpen && (
-              <div className="flex items-center justify-between flex-1 overflow-hidden">
-                <span className="font-medium whitespace-nowrap">{layout.tariffs}</span>
-              </div>
+              <span className="font-medium whitespace-nowrap">{layout.tariffs}</span>
             )}
           </Link>
 
@@ -151,10 +145,19 @@ export function AdminSidebar({
           {layout.adminName.split(' ').map(n => n[0]).join('')}
         </div>
         {isSidebarOpen && (
-          <div className="flex flex-col whitespace-nowrap overflow-hidden">
-            <span className="font-semibold text-sm">{layout.adminName}</span>
-            <span className="text-xs text-gray-500">{layout.adminRole}</span>
-          </div>
+          <>
+            <div className="flex flex-col whitespace-nowrap overflow-hidden flex-1">
+              <span className="font-semibold text-sm">{layout.adminName}</span>
+              <span className="text-xs text-gray-500">{layout.adminRole}</span>
+            </div>
+            <button 
+              onClick={toggleMocks}
+              title={useMocks ? 'Mocks Activos - Click para usar backend real' : 'Mocks Inactivos - Click para usar datos falsos'}
+              className={`p-2 rounded-lg transition-colors flex-shrink-0 ${useMocks ? 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30' : 'bg-surface-card text-gray-400 hover:bg-surface-row-hover hover:text-white border border-border-default'}`}
+            >
+              <Icon name="server" className="w-4 h-4" />
+            </button>
+          </>
         )}
       </div>
     </aside>

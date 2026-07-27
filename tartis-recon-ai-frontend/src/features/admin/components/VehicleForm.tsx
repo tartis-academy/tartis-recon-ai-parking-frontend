@@ -24,7 +24,7 @@ export function VehicleForm({ onSubmit, onClose, isPending }: VehicleFormProps) 
     defaultValues: {
       type: 'CAR',
       numDoors: 4,
-      hasSideCar: false,
+      hasSidecar: false,
     },
   })
 
@@ -137,7 +137,7 @@ export function VehicleForm({ onSubmit, onClose, isPending }: VehicleFormProps) 
               <label className="flex items-center gap-3 cursor-pointer mt-4">
                 <input
                   type="checkbox"
-                  {...register('hasSideCar')}
+                  {...register('hasSidecar')}
                   className="w-4 h-4 rounded border-border-default bg-surface-app text-brand-500 focus:ring-brand-500 focus:ring-offset-surface-app"
                 />
                 <span className="text-sm text-gray-300">{form.hasSideCar}</span>

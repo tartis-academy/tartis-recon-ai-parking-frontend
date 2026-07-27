@@ -54,7 +54,7 @@ describe('VehicleForm', () => {
     expect(screen.getByLabelText(/puertas/i)).toBeInTheDocument()
   })
 
-  it('shows hasSideCar field when type is MOTORBIKE', async () => {
+  it('shows hasSidecar field when type is MOTORBIKE', async () => {
     const user = userEvent.setup()
     renderForm()
     

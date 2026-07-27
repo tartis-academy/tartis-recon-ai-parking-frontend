@@ -10,13 +10,13 @@ const baseSchema = z.object({
 const carSchema = baseSchema.extend({
   type: z.enum(['CAR', 'CAR_PMR']),
   numDoors: z.number().min(2, 'Minimum 2 doors').max(5, 'Maximum 5 doors'),
-  hasSideCar: z.literal(false),
+  hasSidecar: z.literal(false),
 })
 
 const motorbikeSchema = baseSchema.extend({
   type: z.literal('MOTORBIKE'),
   numDoors: z.literal(0),
-  hasSideCar: z.boolean(),
+  hasSidecar: z.boolean(),
 })
 
 export const vehicleSchema = z.discriminatedUnion('type', [

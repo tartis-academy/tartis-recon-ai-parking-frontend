@@ -2,17 +2,16 @@ import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createPortal } from 'react-dom'
 import { tariffSchema, type TariffFormData } from '../validation/tariffSchema'
-import { useCreateTariff } from '../hooks/useCreateTariff'
 import { adminLabels } from '../labels'
 import { TextInput, Select, Button, Icon } from '@/shared/ui'
 
 interface TariffFormProps {
   onClose: () => void
-  onSuccess?: () => void
+  onSubmit: (data: TariffFormData) => void
+  isPending: boolean
 }
 
-export function TariffForm({ onClose, onSuccess }: TariffFormProps) {
-  const { mutate, isPending } = useCreateTariff()
+export function TariffForm({ onClose, onSubmit, isPending }: TariffFormProps) {
   const { form } = adminLabels.tariffs
 
   const {
@@ -36,18 +35,6 @@ export function TariffForm({ onClose, onSuccess }: TariffFormProps) {
     typeof pricePerMinute === 'number' && !isNaN(pricePerMinute)
       ? (pricePerMinute * 60).toFixed(2)
       : '0.00'
-
-  const onSubmit = (data: TariffFormData) => {
-    mutate(
-      { ...data, active: true },
-      {
-        onSuccess: () => {
-          onSuccess?.()
-          onClose()
-        },
-      },
-    )
-  }
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-app/80 backdrop-blur-sm p-4 animate-fade-in">
