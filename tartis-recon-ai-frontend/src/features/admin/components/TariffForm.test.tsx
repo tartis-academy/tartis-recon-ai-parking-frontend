@@ -71,11 +71,11 @@ describe('TariffForm', () => {
       expect(onSubmitMock).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'Tarifa VIP Coche',
-          vehicleType: 'CAR',
+          type: 'CAR',
           basePrice: 2.00,
           pricePerMinute: 0.10,
         }),
-        expect.anything()
+        expect.anything(),
       )
     })
   })

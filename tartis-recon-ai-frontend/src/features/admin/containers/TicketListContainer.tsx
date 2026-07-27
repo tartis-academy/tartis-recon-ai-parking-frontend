@@ -74,10 +74,10 @@ export function TicketListContainer() {
         subtitle={adminLabels.tickets.pageSubtitle}
       />
       <TicketTable
-        tickets={data?.data ?? []}
-        total={data?.total ?? 0}
+        tickets={data?.content ?? []}
+        total={data?.totalElements ?? 0}
         page={data?.page ?? page}
-        pageSize={data?.pageSize ?? pageSize}
+        pageSize={data?.size ?? pageSize}
         search={search}
         dateFrom={dateFrom}
         dateTo={dateTo}
