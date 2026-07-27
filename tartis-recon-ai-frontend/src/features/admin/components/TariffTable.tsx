@@ -5,6 +5,7 @@ import { adminLabels } from '../labels'
 
 interface TariffTableProps {
   tariffs: Tariff[]
+  onEdit?: (tariff: Tariff) => void
   onToggleStatus: (id: string, active: boolean) => void
   onDelete: (id: string) => void
   isToggling?: boolean
@@ -13,6 +14,7 @@ interface TariffTableProps {
 
 export function TariffTable({
   tariffs,
+  onEdit,
   onToggleStatus,
   onDelete,
   isToggling = false,
@@ -89,6 +91,17 @@ export function TariffTable({
                 </td>
                 <td className="p-5 text-center">
                   <div className="flex items-center justify-center gap-2">
+                    {/* Botón Editar */}
+                    {onEdit && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => onEdit(tariff)}
+                      >
+                        {actions.edit}
+                      </Button>
+                    )}
+
                     {/* Botón Activar / Desactivar */}
                     <Button
                       variant={tariff.active ? 'secondary' : 'primary'}

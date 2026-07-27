@@ -47,6 +47,25 @@ describe('TariffTable', () => {
     expect(screen.getByText('Inactiva')).toBeInTheDocument()
   })
 
+  it('calls onEdit when edit button is clicked', async () => {
+    const user = userEvent.setup()
+    const onEditMock = vi.fn()
+
+    render(
+      <TariffTable
+        tariffs={sampleTariffs}
+        onEdit={onEditMock}
+        onToggleStatus={vi.fn()}
+        onDelete={vi.fn()}
+      />,
+    )
+
+    const editButtons = screen.getAllByRole('button', { name: /editar/i })
+    await user.click(editButtons[0])
+
+    expect(onEditMock).toHaveBeenCalledWith(sampleTariffs[0])
+  })
+
   it('calls onToggleStatus when status toggle button is clicked', async () => {
     const user = userEvent.setup()
     const onToggleStatusMock = vi.fn()

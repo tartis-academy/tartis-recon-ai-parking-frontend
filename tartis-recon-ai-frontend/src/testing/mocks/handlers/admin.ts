@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import type { CreateVehicleInput } from '@/features/admin/types/vehicle'
-import type { Tariff, CreateTariffInput } from '@/features/admin/types/tariff'
+import type { Tariff, CreateTariffInput, UpdateTariffInput } from '@/features/admin/types/tariff'
 import type { PaginatedResponse, Stay } from '@/features/admin/types/stay'
 import type { Ticket } from '@/features/admin/types/ticket'
 
@@ -367,6 +367,16 @@ export const adminHandlers = [
     mockTariffs.push(newTariff)
     return HttpResponse.json(newTariff, { status: 201 })
   }),
+  http.put('*/v1/tariffs/:id', async ({ params, request }) => {
+    const { id } = params
+    const body = (await request.json()) as UpdateTariffInput
+    const index = mockTariffs.findIndex((t) => t.id === id)
+    if (index === -1) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    mockTariffs[index] = { ...mockTariffs[index], ...body }
+    return HttpResponse.json(mockTariffs[index])
+  }),
   http.patch('*/v1/tariffs/:id/status', async ({ params, request }) => {
     const { id } = params
     const tariff = mockTariffs.find((t) => t.id === id)
@@ -385,7 +395,7 @@ export const adminHandlers = [
     }
     return HttpResponse.json(tariff)
   }),
-  http.delete('/v1/tariffs/:id', ({ params }) => {
+  http.delete('*/v1/tariffs/:id', ({ params }) => {
     const { id } = params
     const index = mockTariffs.findIndex((t) => t.id === id)
     if (index !== -1) {
