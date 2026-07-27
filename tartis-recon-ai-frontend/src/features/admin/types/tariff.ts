@@ -10,4 +10,6 @@ export interface Tariff {
 }
 
 export type CreateTariffInput = Omit<Tariff, 'id'>
+export type UpdateTariffInput = Partial<CreateTariffInput>
+
 

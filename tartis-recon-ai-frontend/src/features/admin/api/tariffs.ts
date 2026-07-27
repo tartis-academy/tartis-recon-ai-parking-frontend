@@ -1,5 +1,5 @@
 import apiClient from '@/lib/api-client'
-import type { Tariff, CreateTariffInput } from '../types/tariff'
+import type { Tariff, CreateTariffInput, UpdateTariffInput } from '../types/tariff'
 
 export const getTariffs = async (): Promise<Tariff[]> => {
   const response = await apiClient.get<Tariff[]>('/v1/tariffs')
@@ -11,7 +11,13 @@ export const createTariff = async (data: CreateTariffInput): Promise<Tariff> => 
   return response.data
 }
 
+export const updateTariff = async (id: string, data: UpdateTariffInput): Promise<Tariff> => {
+  const response = await apiClient.put<Tariff>(`/v1/tariffs/${id}`, data)
+  return response.data
+}
+
 export const toggleTariffStatus = async (id: string): Promise<Tariff> => {
+
   const response = await apiClient.patch<Tariff>(`/v1/tariffs/${id}/status`)
   return response.data
 }
