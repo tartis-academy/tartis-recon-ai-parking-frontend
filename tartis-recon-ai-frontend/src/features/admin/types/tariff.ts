@@ -1,4 +1,4 @@
-export type VehicleType = 'CAR' | 'CAR_PMR' | 'MOTORBIKE'
+export type VehicleType = 'CAR' | 'CAR_PMR' | 'MOTORBIKE' | (string & {})
 
 export interface Tariff {
   id: string
