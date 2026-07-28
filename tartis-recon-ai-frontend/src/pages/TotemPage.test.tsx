@@ -177,9 +177,37 @@ describe('TotemPage Component', () => {
       plate: '9999ZZZ',
     })
 
-    expect(screen.getByText(/resumen de salida/i)).toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: /ticket de salida/i })).toBeInTheDocument()
+    expect(screen.getByText('9999ZZZ')).toBeInTheDocument()
     expect(screen.getByText('18.75 EUR')).toBeInTheDocument()
-    expect(screen.getByText('FINISHED')).toBeInTheDocument()
+    expect(screen.getByText('Pendiente')).toBeInTheDocument()
+  })
+
+  it('closes the exit ticket modal and returns to the check-out form', async () => {
+    const user = userEvent.setup()
+    const mockCheckOutResponse: CheckOutResponse = {
+      stayId: 'STAY-4321',
+      plate: '9999ZZZ',
+      checkIn: '2026-07-27T12:00:00.000Z',
+      checkOut: '2026-07-27T14:00:00.000Z',
+      amount: 18.75,
+      status: 'PAID',
+    }
+
+    vi.mocked(stayService.checkOut).mockResolvedValueOnce(mockCheckOutResponse)
+
+    render(<TotemPage />)
+
+    await user.click(screen.getByRole('button', { name: /salida \(check-out\)/i }))
+    await user.type(screen.getByLabelText(/id de ticket o matrícula/i), '9999ZZZ')
+    await user.click(screen.getByRole('button', { name: /procesar salida/i }))
+
+    const dialog = await screen.findByRole('dialog', { name: /ticket de salida/i })
+    expect(screen.getByText('Pagado')).toBeInTheDocument()
+
+    await user.click(screen.getAllByRole('button', { name: /cerrar/i })[0])
+
+    expect(dialog).not.toBeInTheDocument()
   })
 
   it('renders real API error message on check-out failure', async () => {
