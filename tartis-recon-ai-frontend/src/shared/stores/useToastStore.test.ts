@@ -1,11 +1,16 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { useToastStore } from './useToastStore'
 import apiClient from '@/lib/api-client'
 import type { AxiosError } from 'axios'
 
 describe('useToastStore', () => {
   beforeEach(() => {
+    vi.useFakeTimers()
     useToastStore.getState().clearToasts()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('adds a toast correctly', () => {
@@ -16,6 +21,24 @@ describe('useToastStore', () => {
     expect(toasts[0].message).toBe('Test toast')
     expect(toasts[0].type).toBe('info')
     expect(toasts[0].id).toBeDefined()
+  })
+
+  it('deduplicates toasts with identical messages', () => {
+    useToastStore.getState().addToast({ message: 'Error duplicado', type: 'error' })
+    useToastStore.getState().addToast({ message: 'Error duplicado', type: 'error' })
+
+    const toasts = useToastStore.getState().toasts
+    expect(toasts).toHaveLength(1)
+  })
+
+  it('automatically removes toast after duration (default 5000ms)', () => {
+    useToastStore.getState().addToast({ message: 'Auto dismiss toast' })
+
+    expect(useToastStore.getState().toasts).toHaveLength(1)
+
+    vi.advanceTimersByTime(5000)
+
+    expect(useToastStore.getState().toasts).toHaveLength(0)
   })
 
   it('removes a toast by id', () => {
@@ -39,7 +62,6 @@ describe('useToastStore', () => {
   })
 
   it('pushes error toast when response interceptor receives an API error', async () => {
-    // Accedemos al handler rechazado registrado en el interceptor de Axios
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const responseInterceptor = (apiClient.interceptors.response as any).handlers[0]
 
