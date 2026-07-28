@@ -71,6 +71,7 @@ export const adminLabels = {
       confirmMessage: '¿Estás seguro de que deseas marcar esta plaza como NO DISPONIBLE? No se podrán aparcar vehículos en ella hasta que se restaure.',
       restoreTitle: '¿Restaurar plaza?',
       restoreMessage: '¿Deseas marcar esta plaza como LIBRE nuevamente?',
+      selectedSpot: 'Plaza seleccionada:',
       cancel: 'Cancelar',
       confirm: 'Confirmar',
       processing: 'Procesando...',

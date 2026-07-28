@@ -43,7 +43,7 @@ export function SpotMaintenanceModal({
 
         {/* Spot Info */}
         <div className="px-6 py-4 bg-surface-app/50 border-b border-border-subtle flex justify-between items-center">
-          <span className="text-sm font-semibold text-gray-400">Plaza seleccionada:</span>
+          <span className="text-sm font-semibold text-gray-400">{maintenance.selectedSpot}</span>
           <span className="px-3 py-1 bg-surface-panel rounded border border-border-default font-mono text-sm text-gray-200">
             {spot.id}
           </span>
