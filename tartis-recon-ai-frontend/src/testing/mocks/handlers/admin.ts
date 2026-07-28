@@ -255,6 +255,16 @@ export const adminHandlers = [
   http.get('*/v1/spots', () => {
     return HttpResponse.json(mockSpots)
   }),
+  http.patch('*/v1/spots/:id/status', async ({ params, request }) => {
+    const { id } = params
+    const spot = mockSpots.find((s) => s.id === id)
+    if (!spot) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    const body = (await request.json()) as { status: string }
+    spot.status = body.status
+    return HttpResponse.json(spot)
+  }),
   http.get('*/v1/tariffs', () => {
     return HttpResponse.json(mockTariffs)
   }),
