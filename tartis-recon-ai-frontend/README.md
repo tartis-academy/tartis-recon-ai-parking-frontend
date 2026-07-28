@@ -73,3 +73,14 @@ export default defineConfig([
 ])
 
 ```
+
+## Escaneo de imagen (Trivy)
+
+El job `docker-scan` de la CI construye la imagen final del Dockerfile (build
+de Vite servido por nginx) y la escanea con [Trivy](https://trivy.dev/). El
+informe completo (`CRITICAL` + `HIGH`) se publica siempre en la pestaña
+**Security** del repo; solo una vulnerabilidad `CRITICAL` hace fallar el job.
+
+Si una `CRITICAL` no tiene fix disponible todavía y hay que aceptar el riesgo
+de forma consciente, se ignora explícitamente añadiendo su CVE a un
+`.trivyignore` en la raíz del repo (no existe ninguno hoy).

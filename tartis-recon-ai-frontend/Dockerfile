@@ -15,7 +15,9 @@ ENV VITE_API_BASE_URL=""
 RUN npm run build
 
 # --- runtime ---
-FROM nginx:1.27-alpine AS runtime
+# RECON-813: 1.27-alpine trae CVE-2026-31789 (CRITICAL, OpenSSL heap
+# overflow) ya con fix en Alpine; 1.29-alpine la incorpora.
+FROM nginx:1.29-alpine AS runtime
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /build/dist /usr/share/nginx/html
 
