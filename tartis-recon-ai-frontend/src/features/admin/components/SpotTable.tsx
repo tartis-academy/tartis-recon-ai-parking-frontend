@@ -1,5 +1,5 @@
 import type { Spot } from '../types/spot'
-import { Card, CardHeader, CardBody, StatusBadge, EmptyState } from '@/shared/ui'
+import { Card, CardHeader, CardBody, StatusBadge, EmptyState, Icon } from '@/shared/ui'
 import { adminLabels } from '../labels'
 
 interface SpotTableProps {

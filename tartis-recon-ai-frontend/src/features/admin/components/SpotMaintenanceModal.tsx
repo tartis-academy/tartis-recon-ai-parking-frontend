@@ -71,6 +71,6 @@ export function SpotMaintenanceModal({
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   )
 }

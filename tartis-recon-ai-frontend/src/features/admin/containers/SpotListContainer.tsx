@@ -18,7 +18,7 @@ export function SpotListContainer() {
     const newStatus = spotToConfirm.status === 'AVAILABLE' ? 'UNAVAILABLE' : 'AVAILABLE'
     updateSpot(
       { id: spotToConfirm.id, status: newStatus },
-      { onSuccess: () => setSpotToConfirm(null) }
+      { onSuccess: () => setSpotToConfirm(null) },
     )
   }
 
