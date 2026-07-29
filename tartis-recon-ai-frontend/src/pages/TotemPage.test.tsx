@@ -4,25 +4,30 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { TotemPage } from './TotemPage'
 import { stayService } from '@/features/entry-exit'
 import type { CheckInResponse, CheckOutResponse } from '@/features/entry-exit'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import type { ReactNode } from 'react'
 
-vi.mock('@/features/entry-exit', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/features/entry-exit')>()
-  return {
-    ...actual,
-    stayService: {
-      checkIn: vi.fn(),
-      checkOut: vi.fn(),
-    },
-  }
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+    mutations: { retry: false },
+  },
 })
+
+const wrapper = ({ children }: { children: ReactNode }) => (
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+)
 
 describe('TotemPage Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    queryClient.clear()
+    vi.spyOn(stayService, 'checkIn')
+    vi.spyOn(stayService, 'checkOut')
   })
 
   it('renders initial check-in tab and form controls', () => {
-    render(<TotemPage />)
+    render(<TotemPage />, { wrapper })
 
     expect(
       screen.getByRole('heading', { name: /simulador de entrada \/ salida/i }),
@@ -43,7 +48,7 @@ describe('TotemPage Component', () => {
 
   it('switches between check-in and check-out tabs', async () => {
     const user = userEvent.setup()
-    render(<TotemPage />)
+    render(<TotemPage />, { wrapper })
 
     const checkoutTabBtn = screen.getByRole('button', {
       name: /salida \(check-out\)/i,
@@ -51,7 +56,7 @@ describe('TotemPage Component', () => {
     await user.click(checkoutTabBtn)
 
     expect(
-      screen.getByLabelText(/id de ticket o matrícula/i),
+      screen.getByLabelText(/matrícula del vehículo/i),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /procesar salida/i }),
@@ -67,7 +72,7 @@ describe('TotemPage Component', () => {
 
   it('shows error validation if license plate is empty on check-in', async () => {
     const user = userEvent.setup()
-    render(<TotemPage />)
+    render(<TotemPage />, { wrapper })
 
     const plateInput = screen.getByLabelText(/matrícula del vehículo/i)
     await user.type(plateInput, '   ')
@@ -97,7 +102,7 @@ describe('TotemPage Component', () => {
 
     vi.mocked(stayService.checkIn).mockResolvedValueOnce(mockCheckInResponse)
 
-    render(<TotemPage />)
+    render(<TotemPage />, { wrapper })
 
     const plateInput = screen.getByLabelText(/matrícula del vehículo/i)
     await user.type(plateInput, '5678def')
@@ -105,12 +110,15 @@ describe('TotemPage Component', () => {
     const submitBtn = screen.getByRole('button', { name: /emitir entryticket/i })
     await user.click(submitBtn)
 
-    expect(stayService.checkIn).toHaveBeenCalledWith({
-      plate: '5678DEF',
-      vehicleType: 'CAR',
-    })
+    expect(stayService.checkIn).toHaveBeenCalledWith(
+      {
+        plate: '5678DEF',
+        vehicleType: 'CAR',
+      },
+      { skipToast: true }
+    )
 
-    expect(screen.getByText(/ticket emitido exitosamente/i)).toBeInTheDocument()
+    expect(await screen.findByText(/ticket emitido exitosamente/i)).toBeInTheDocument()
     expect(screen.getByText('TICK-9876')).toBeInTheDocument()
     expect(screen.getByText('STAY-1234')).toBeInTheDocument()
     expect(screen.getByText('5678DEF')).toBeInTheDocument()
@@ -129,7 +137,7 @@ describe('TotemPage Component', () => {
 
     vi.mocked(stayService.checkIn).mockRejectedValueOnce(apiError)
 
-    render(<TotemPage />)
+    render(<TotemPage />, { wrapper })
 
     const plateInput = screen.getByLabelText(/matrícula del vehículo/i)
     await user.type(plateInput, '1234ABC')
@@ -138,7 +146,7 @@ describe('TotemPage Component', () => {
     await user.click(submitBtn)
 
     expect(
-      screen.getByText(
+      await screen.findByText(
         /no hay plazas disponibles para este tipo de vehículo \(rn-01\)/i,
       ),
     ).toBeInTheDocument()
@@ -160,24 +168,27 @@ describe('TotemPage Component', () => {
 
     vi.mocked(stayService.checkOut).mockResolvedValueOnce(mockCheckOutResponse)
 
-    render(<TotemPage />)
+    render(<TotemPage />, { wrapper })
 
     const checkoutTabBtn = screen.getByRole('button', {
       name: /salida \(check-out\)/i,
     })
     await user.click(checkoutTabBtn)
 
-    const ticketInput = screen.getByLabelText(/id de ticket o matrícula/i)
+    const ticketInput = screen.getAllByLabelText(/matrícula del vehículo/i)[0]
     await user.type(ticketInput, '9999ZZZ')
 
     const submitBtn = screen.getByRole('button', { name: /procesar salida/i })
     await user.click(submitBtn)
 
-    expect(stayService.checkOut).toHaveBeenCalledWith({
-      plate: '9999ZZZ',
-    })
+    expect(stayService.checkOut).toHaveBeenCalledWith(
+      {
+        plate: '9999ZZZ',
+      },
+      { skipToast: true }
+    )
 
-    expect(screen.getByRole('dialog', { name: /ticket de salida/i })).toBeInTheDocument()
+    expect(await screen.findByRole('dialog', { name: /ticket de salida/i })).toBeInTheDocument()
     expect(screen.getByText('9999ZZZ')).toBeInTheDocument()
     expect(screen.getByText('18.75 EUR')).toBeInTheDocument()
     expect(screen.getByText('Pendiente')).toBeInTheDocument()
@@ -196,10 +207,10 @@ describe('TotemPage Component', () => {
 
     vi.mocked(stayService.checkOut).mockResolvedValueOnce(mockCheckOutResponse)
 
-    render(<TotemPage />)
+    render(<TotemPage />, { wrapper })
 
     await user.click(screen.getByRole('button', { name: /salida \(check-out\)/i }))
-    await user.type(screen.getByLabelText(/id de ticket o matrícula/i), '9999ZZZ')
+    await user.type(screen.getAllByLabelText(/matrícula del vehículo/i)[0], '9999ZZZ')
     await user.click(screen.getByRole('button', { name: /procesar salida/i }))
 
     const dialog = await screen.findByRole('dialog', { name: /ticket de salida/i })
@@ -223,21 +234,21 @@ describe('TotemPage Component', () => {
 
     vi.mocked(stayService.checkOut).mockRejectedValueOnce(apiError)
 
-    render(<TotemPage />)
+    render(<TotemPage />, { wrapper })
 
     const checkoutTabBtn = screen.getByRole('button', {
       name: /salida \(check-out\)/i,
     })
     await user.click(checkoutTabBtn)
 
-    const ticketInput = screen.getByLabelText(/id de ticket o matrícula/i)
+    const ticketInput = screen.getAllByLabelText(/matrícula del vehículo/i)[0]
     await user.type(ticketInput, 'INVALID')
 
     const submitBtn = screen.getByRole('button', { name: /procesar salida/i })
     await user.click(submitBtn)
 
     expect(
-      screen.getByText(/ticket no encontrado o ya procesado/i),
+      await screen.findByText(/ticket no encontrado o ya procesado/i),
     ).toBeInTheDocument()
     expect(screen.queryByText(/resumen de salida/i)).not.toBeInTheDocument()
   })

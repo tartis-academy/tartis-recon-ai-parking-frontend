@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import axios from 'axios'
 import {
-  stayService,
+  useCheckIn,
+  useCheckOut,
   ExitTicketModal,
-  type CheckInResponse,
-  type CheckOutResponse,
   type VehicleType,
 } from '@/features/entry-exit'
 
@@ -12,12 +11,12 @@ export function TotemPage() {
   const [activeTab, setActiveTab] = useState<'checkin' | 'checkout'>('checkin')
   const [licensePlate, setLicensePlate] = useState('')
   const [vehicleType, setVehicleType] = useState<VehicleType>('CAR')
-  const [ticketIdOrPlate, setTicketIdOrPlate] = useState('')
+  const [checkOutPlate, setCheckOutPlate] = useState('')
 
-  const [isLoading, setIsLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
-  const [checkInResult, setCheckInResult] = useState<CheckInResponse | null>(null)
-  const [checkOutResult, setCheckOutResult] = useState<CheckOutResponse | null>(null)
+
+  const checkInMutation = useCheckIn()
+  const checkOutMutation = useCheckOut()
 
   const handleCheckIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,73 +25,63 @@ export function TotemPage() {
       return
     }
 
-    setIsLoading(true)
     setErrorMsg(null)
-    setCheckInResult(null)
+    checkInMutation.reset()
 
     const plateUpper = licensePlate.trim().toUpperCase()
 
-    try {
-      const response = await stayService.checkIn({
-        plate: plateUpper,
-        vehicleType,
-      })
-      setCheckInResult(response)
-    } catch (err: unknown) {
-      console.error('Error during check-in:', err)
-      if (axios.isAxiosError(err)) {
-        setErrorMsg(
-          err.response?.data?.message ||
-            err.message ||
-            'Error al realizar el check-in.',
-        )
-      } else if (err instanceof Error) {
-        setErrorMsg(err.message)
-      } else {
-        setErrorMsg('Error al realizar el check-in.')
+    checkInMutation.mutate(
+      { plate: plateUpper, vehicleType },
+      {
+        onError: (err: any) => {
+          console.error('Error during check-in:', err)
+          if (axios.isAxiosError(err)) {
+            setErrorMsg(
+              err.response?.data?.message ||
+                err.message ||
+                'Error al realizar el check-in.',
+            )
+          } else {
+            setErrorMsg(err.message || 'Error al realizar el check-in.')
+          }
+        },
       }
-    } finally {
-      setIsLoading(false)
-    }
+    )
   }
 
   const handleCheckOut = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!ticketIdOrPlate.trim()) {
-      setErrorMsg('Por favor ingrese el ID del ticket o la matrícula.')
+    if (!checkOutPlate.trim()) {
+      setErrorMsg('Por favor ingrese la matrícula.')
       return
     }
 
-    setIsLoading(true)
     setErrorMsg(null)
-    setCheckOutResult(null)
+    checkOutMutation.reset()
 
-    try {
-      const inputVal = ticketIdOrPlate.trim()
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(inputVal)
-      const isTicketId = isUuid || /^TICK-/i.test(inputVal) || inputVal.length > 15
-      const payload = isTicketId ? { entryTicketId: inputVal } : { plate: inputVal.toUpperCase() }
-      const response = await stayService.checkOut(payload)
-      setCheckOutResult(response)
-    } catch (err: unknown) {
-      console.error('Error during check-out:', err)
-      if (axios.isAxiosError(err)) {
-        setErrorMsg(
-          err.response?.data?.message ||
-            err.message ||
-            'Error al realizar el check-out.',
-        )
-      } else if (err instanceof Error) {
-        setErrorMsg(err.message)
-      } else {
-        setErrorMsg('Error al realizar el check-out.')
+    checkOutMutation.mutate(
+      { plate: checkOutPlate.trim().toUpperCase() },
+      {
+        onError: (err: any) => {
+          console.error('Error during check-out:', err)
+          if (axios.isAxiosError(err)) {
+            setErrorMsg(
+              err.response?.data?.message ||
+                err.message ||
+                'Error al realizar el check-out.'
+            )
+          } else {
+            setErrorMsg(err.message || 'Error al realizar el check-out.')
+          }
+        },
       }
-    } finally {
-      setIsLoading(false)
-    }
+    )
   }
 
+  const checkInResult = checkInMutation.data
+  const checkOutResult = checkOutMutation.data
   const checkInDateStr = checkInResult?.entryTicket?.issuedAt || checkInResult?.checkIn
+  const isLoading = checkInMutation.isPending || checkOutMutation.isPending
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center p-4 sm:p-6">
@@ -121,8 +110,8 @@ export function TotemPage() {
             onClick={() => {
               setActiveTab('checkin')
               setErrorMsg(null)
-              setCheckInResult(null)
-              setCheckOutResult(null)
+              checkInMutation.reset()
+              checkOutMutation.reset()
             }}
             className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
               activeTab === 'checkin'
@@ -140,8 +129,8 @@ export function TotemPage() {
             onClick={() => {
               setActiveTab('checkout')
               setErrorMsg(null)
-              setCheckInResult(null)
-              setCheckOutResult(null)
+              checkInMutation.reset()
+              checkOutMutation.reset()
             }}
             className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
               activeTab === 'checkout'
@@ -226,16 +215,16 @@ export function TotemPage() {
           ) : (
             <form onSubmit={handleCheckOut} className="space-y-6">
               <div>
-                <label htmlFor="ticketIdOrPlate" className="block text-sm font-medium text-slate-300 mb-2">
-                  ID de Ticket o Matrícula *
+                <label htmlFor="checkOutPlate" className="block text-sm font-medium text-slate-300 mb-2">
+                  Matrícula del Vehículo *
                 </label>
                 <input
-                  id="ticketIdOrPlate"
+                  id="checkOutPlate"
                   type="text"
-                  placeholder="Ingrese número de ticket o matrícula"
-                  value={ticketIdOrPlate}
-                  onChange={(e) => setTicketIdOrPlate(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-lg font-mono text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all tracking-wider"
+                  placeholder="Ingrese matrícula"
+                  value={checkOutPlate}
+                  onChange={(e) => setCheckOutPlate(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-lg font-mono text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all tracking-wider uppercase"
                   required
                 />
               </div>
@@ -315,7 +304,7 @@ export function TotemPage() {
       </div>
 
       {checkOutResult && (
-        <ExitTicketModal ticket={checkOutResult} onClose={() => setCheckOutResult(null)} />
+        <ExitTicketModal ticket={checkOutResult} onClose={() => checkOutMutation.reset()} />
       )}
     </div>
   )

@@ -41,10 +41,13 @@ describe('stayService', () => {
       })
 
       expect(apiClient.post).toHaveBeenCalledTimes(1)
-      expect(apiClient.post).toHaveBeenCalledWith(`${STAY_SERVICE_URL}/check-in`, {
-        plate: '1234ABC',
-        vehicleType: 'CAR',
-      })
+      expect(apiClient.post).toHaveBeenCalledWith(
+        `${STAY_SERVICE_URL}/check-in`,
+        {
+          plate: '1234ABC',
+          vehicleType: 'CAR',
+        }
+      )
       expect(result).toEqual(mockResponse)
     })
 
@@ -77,19 +80,22 @@ describe('stayService', () => {
       })
 
       expect(apiClient.post).toHaveBeenCalledTimes(1)
-      expect(apiClient.post).toHaveBeenCalledWith(`${STAY_SERVICE_URL}/check-out`, {
-        plate: '1234ABC',
-      })
+      expect(apiClient.post).toHaveBeenCalledWith(
+        `${STAY_SERVICE_URL}/check-out`,
+        {
+          plate: '1234ABC',
+        }
+      )
       expect(result).toEqual(mockResponse)
     })
 
     it('should propagate API errors when checkOut fails', async () => {
-      const apiError = new Error('Ticket no encontrado')
+      const apiError = new Error('Estancia no encontrada')
       vi.mocked(apiClient.post).mockRejectedValueOnce(apiError)
 
       await expect(
-        stayService.checkOut({ entryTicketId: 'INVALID' }),
-      ).rejects.toThrow('Ticket no encontrado')
+        stayService.checkOut({ plate: 'INVALID' }),
+      ).rejects.toThrow('Estancia no encontrada')
     })
   })
 })
