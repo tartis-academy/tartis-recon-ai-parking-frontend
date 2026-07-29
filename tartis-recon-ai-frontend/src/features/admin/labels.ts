@@ -75,6 +75,7 @@ export const adminLabels = {
       cancel: 'Cancelar',
       confirm: 'Confirmar',
       processing: 'Procesando...',
+      errorUpdate: 'Error al cambiar el estado de la plaza.',
     },
     emptyState: 'No hay plazas registradas en el sistema.',
     error: 'Ha ocurrido un error al cargar las plazas. Por favor, inténtalo de nuevo.',

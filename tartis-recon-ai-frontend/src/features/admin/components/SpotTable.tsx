@@ -66,8 +66,9 @@ export function SpotTable({ spots, onToggleMaintenance }: SpotTableProps) {
                       onClick={() => onToggleMaintenance(spot)}
                       className="text-gray-500 hover:text-white p-2 rounded-md transition-colors hover:bg-surface-panel"
                       title={spot.status === 'AVAILABLE' ? maintenance.action : maintenance.restoreAction}
+                      aria-label={spot.status === 'AVAILABLE' ? maintenance.action : maintenance.restoreAction}
                     >
-                      <Icon name="alert" className="w-4 h-4" />
+                      <Icon name={spot.status === 'AVAILABLE' ? 'alert' : 'refresh'} className="w-4 h-4" />
                     </button>
                   )}
                 </td>

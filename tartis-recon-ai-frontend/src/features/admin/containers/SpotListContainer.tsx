@@ -4,6 +4,7 @@ import { useUpdateSpotStatus } from '../hooks/useUpdateSpotStatus'
 import { SpotTable } from '../components/SpotTable'
 import { SpotMaintenanceModal } from '../components/SpotMaintenanceModal'
 import { PageHeader, LoadingSpinner, ErrorMessage } from '@/shared/ui'
+import { useToastStore } from '@/shared/stores/useToastStore'
 import { adminLabels } from '../labels'
 import type { Spot } from '../types/spot'
 
@@ -12,13 +13,17 @@ export function SpotListContainer() {
   
   const { data: spots, isLoading, isError } = useSpots()
   const { mutate: updateSpot, isPending } = useUpdateSpotStatus()
+  const { addToast } = useToastStore()
 
   const handleConfirm = () => {
     if (!spotToConfirm) return
     const newStatus = spotToConfirm.status === 'AVAILABLE' ? 'UNAVAILABLE' : 'AVAILABLE'
     updateSpot(
       { id: spotToConfirm.id, status: newStatus },
-      { onSuccess: () => setSpotToConfirm(null) },
+      { 
+        onSuccess: () => setSpotToConfirm(null),
+        onError: () => addToast({ type: 'error', message: adminLabels.spots.maintenance.errorUpdate })
+      },
     )
   }
 
