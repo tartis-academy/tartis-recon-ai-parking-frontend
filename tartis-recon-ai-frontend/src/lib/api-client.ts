@@ -1,6 +1,12 @@
 import axios from 'axios'
 import { useToastStore } from '@/shared/stores/useToastStore'
 
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    skipToast?: boolean
+  }
+}
+
 export interface BackendErrorPayload {
   timestamp?: string
   status?: number
@@ -44,15 +50,16 @@ apiClient.interceptors.response.use(
       path: responseData?.path,
     }
 
-    useToastStore.getState().addToast({
-      message: parsedError.message,
-      type: 'error',
-    })
+    if (!error?.config?.skipToast) {
+      useToastStore.getState().addToast({
+        message: parsedError.message,
+        type: 'error',
+      })
+    }
 
     return Promise.reject(parsedError)
   },
 )
 
 export default apiClient
-
 

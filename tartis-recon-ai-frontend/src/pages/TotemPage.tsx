@@ -2,6 +2,7 @@ import { useState } from 'react'
 import axios from 'axios'
 import {
   stayService,
+  ExitTicketModal,
   type CheckInResponse,
   type CheckOutResponse,
   type VehicleType,
@@ -310,45 +311,12 @@ export function TotemPage() {
             </div>
           )}
 
-          {/* Checkout Visualizer Result */}
-          {checkOutResult && (
-            <div className="mt-8 bg-slate-950 border border-indigo-500/40 rounded-2xl p-6 relative overflow-hidden shadow-2xl animate-fade-in">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-indigo-500 animate-ping" />
-                  <span className="text-indigo-400 font-bold text-sm uppercase tracking-wide">
-                    Resumen de Salida (Check-out)
-                  </span>
-                </div>
-                <span className="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  {checkOutResult.status || 'FINISHED'}
-                </span>
-              </div>
-
-              <div className="space-y-3 font-mono text-sm">
-                <div className="flex justify-between py-1 border-b border-slate-900">
-                  <span className="text-slate-400">Matrícula:</span>
-                  <span className="text-indigo-400 font-bold text-base tracking-widest">{checkOutResult.plate}</span>
-                </div>
-                <div className="flex justify-between py-1 border-b border-slate-900">
-                  <span className="text-slate-400">Entrada:</span>
-                  <span className="text-slate-300">{new Date(checkOutResult.checkIn).toLocaleTimeString()}</span>
-                </div>
-                <div className="flex justify-between py-1 border-b border-slate-900">
-                  <span className="text-slate-400">Salida:</span>
-                  <span className="text-slate-300">{new Date(checkOutResult.checkOut).toLocaleTimeString()}</span>
-                </div>
-                <div className="flex justify-between py-2 items-center">
-                  <span className="text-slate-300 font-bold">Total a Cobrar:</span>
-                  <span className="text-2xl font-extrabold text-white">
-                    {checkOutResult.amount ? checkOutResult.amount.toFixed(2) : '0.00'} EUR
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
+
+      {checkOutResult && (
+        <ExitTicketModal ticket={checkOutResult} onClose={() => setCheckOutResult(null)} />
+      )}
     </div>
   )
 }

@@ -7,3 +7,10 @@ export interface Spot {
   type: VehicleType;
   status: SpotStatus;
 }
+
+export interface SpotAvailability {
+  type: VehicleType;
+  available: boolean;
+  availableCount: number;
+  totalCount: number;
+}

@@ -230,6 +230,24 @@ describe('apiClient Response Interceptor', () => {
     }
   })
 
+  it('debe ignorar el toast de error si skipToast es true en la configuración', async () => {
+    server.use(
+      http.get('http://localhost/test-skip-toast', () => {
+        return HttpResponse.json({ message: 'Error omitido' }, { status: 400 })
+      }),
+    )
+
+    try {
+      await apiClient.get('/test-skip-toast', { skipToast: true })
+      expect.fail('Debe rechazar')
+    } catch (err) {
+      const parsedError = err as ParsedApiError
+      expect(parsedError.message).toBe('Error omitido')
+    }
+
+    expect(useToastStore.getState().toasts).toHaveLength(0)
+  })
+
   it('debe usar el mensaje por defecto "Error en la petición" si no existe mensaje ni en responseData ni en error', async () => {
     const interceptors = (apiClient.interceptors.response as unknown as {
       handlers: Array<{ rejected: (error: unknown) => Promise<never> }>
