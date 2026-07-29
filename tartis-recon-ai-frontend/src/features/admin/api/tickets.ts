@@ -7,10 +7,21 @@ export const getTickets = async (
   filters: TicketFilters,
 ): Promise<PaginatedResponse<Ticket>> => {
   const backendPage = Math.max(0, page - 1)
-  const response = await apiClient.get<PaginatedResponse<Ticket>>('/v1/tickets', {
+  const response = await apiClient.get<unknown>('/v1/tickets', {
     params: { page: backendPage, size: pageSize, ...filters },
   })
-  const data = response.data || {}
+  
+  if (Array.isArray(response.data)) {
+    return {
+      content: response.data,
+      page: 1,
+      size: pageSize,
+      totalElements: response.data.length,
+      totalPages: 1,
+    }
+  }
+
+  const data = (response.data || {}) as PaginatedResponse<Ticket>
   return {
     ...data,
     content: data.content ?? [],
