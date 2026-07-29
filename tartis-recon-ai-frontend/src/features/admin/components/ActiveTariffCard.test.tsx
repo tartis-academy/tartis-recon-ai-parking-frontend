@@ -25,7 +25,7 @@ describe('ActiveTariffCard', () => {
       data: [mockActiveTariff],
       isLoading: false,
       isError: false,
-    } as any)
+    } as unknown as ReturnType<typeof useTariffs>)
   })
 
   it('renders active tariff card with data correctly', () => {
@@ -33,7 +33,7 @@ describe('ActiveTariffCard', () => {
       data: mockActiveTariff,
       isLoading: false,
       isError: false,
-    } as any)
+    } as unknown as ReturnType<typeof useTariffs>)
 
     render(<ActiveTariffCard />)
 
@@ -49,7 +49,7 @@ describe('ActiveTariffCard', () => {
       data: undefined,
       isLoading: true,
       isError: false,
-    } as any)
+    } as unknown as ReturnType<typeof useTariffs>)
 
     render(<ActiveTariffCard />)
 
@@ -61,7 +61,7 @@ describe('ActiveTariffCard', () => {
       data: null,
       isLoading: false,
       isError: false,
-    } as any)
+    } as unknown as ReturnType<typeof useTariffs>)
 
     render(<ActiveTariffCard />)
 
@@ -73,7 +73,7 @@ describe('ActiveTariffCard', () => {
       data: undefined,
       isLoading: false,
       isError: true,
-    } as any)
+    } as unknown as ReturnType<typeof useTariffs>)
 
     render(<ActiveTariffCard />)
 
@@ -86,7 +86,7 @@ describe('ActiveTariffCard', () => {
       data: mockActiveTariff,
       isLoading: false,
       isError: false,
-    } as any)
+    } as unknown as ReturnType<typeof useTariffs>)
 
     render(<ActiveTariffCard />)
 
@@ -101,12 +101,12 @@ describe('ActiveTariffCard', () => {
       data: [
         { id: '1', name: 'Truck', type: 'TRUCK', basePrice: 5, pricePerMinute: 0.1, active: true },
       ],
-    } as any)
+    } as unknown as ReturnType<typeof useTariffs>)
     vi.mocked(useActiveTariff).mockReturnValue({
       data: null,
       isLoading: false,
       isError: false,
-    } as any)
+    } as unknown as ReturnType<typeof useTariffs>)
 
     render(<ActiveTariffCard />)
 
