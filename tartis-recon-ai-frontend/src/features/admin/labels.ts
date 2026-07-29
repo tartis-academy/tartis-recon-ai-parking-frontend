@@ -30,6 +30,9 @@ export const adminLabels = {
       actions: 'Acciones',
     },
     actions: {
+      edit: 'EDITAR',
+      alta: 'ALTA',
+      baja: 'BAJA',
       deactivate: 'Dar de baja',
       activate: 'Reactivar',
       confirmDeactivateTitle: '¿Dar de baja vehículo?',

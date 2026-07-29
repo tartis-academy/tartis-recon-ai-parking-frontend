@@ -9,9 +9,10 @@ interface VehicleFormProps {
   onSubmit: (data: VehicleFormData) => void
   onClose: () => void
   isPending: boolean
+  initialValues?: Vehicle | null
 }
 
-export function VehicleForm({ onSubmit, onClose, isPending }: VehicleFormProps) {
+export function VehicleForm({ onSubmit, onClose, isPending, initialValues }: VehicleFormProps) {
   const { form } = adminLabels
 
   const {
@@ -21,7 +22,15 @@ export function VehicleForm({ onSubmit, onClose, isPending }: VehicleFormProps) 
     formState: { errors },
   } = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
-    defaultValues: {
+    defaultValues: initialValues ? {
+      plate: initialValues.plate,
+      brand: initialValues.brand,
+      model: initialValues.model,
+      color: initialValues.color || '',
+      type: initialValues.type,
+      numDoors: initialValues.type === 'CAR' || initialValues.type === 'CAR_PMR' ? initialValues.numDoors : 4,
+      hasSidecar: initialValues.type === 'MOTORBIKE' ? initialValues.hasSidecar : false,
+    } : {
       type: 'CAR',
       numDoors: 4,
       hasSidecar: false,
@@ -38,8 +47,12 @@ export function VehicleForm({ onSubmit, onClose, isPending }: VehicleFormProps) 
         {/* Header */}
         <div className="p-6 border-b border-border-subtle flex justify-between items-start bg-surface-card">
           <div>
-            <h2 className="text-xl font-bold text-white mb-1">{form.title}</h2>
-            <p className="text-xs text-gray-400">{form.subtitle}</p>
+            <h2 className="text-xl font-bold text-white mb-1">
+              {initialValues ? 'Editar vehículo' : form.title}
+            </h2>
+            <p className="text-xs text-gray-400">
+              {initialValues ? `Modificar datos del vehículo ${initialValues.plate}` : form.subtitle}
+            </p>
           </div>
           <button
             type="button"
@@ -162,7 +175,7 @@ export function VehicleForm({ onSubmit, onClose, isPending }: VehicleFormProps) 
                 disabled={isPending}
                 icon={!isPending ? <Icon name="check" className="w-4 h-4" /> : undefined}
               >
-                {isPending ? form.processing : form.submit}
+                {isPending ? form.processing : initialValues ? 'Guardar cambios' : form.submit}
               </Button>
             </div>
           </div>
