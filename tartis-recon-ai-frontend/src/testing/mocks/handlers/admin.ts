@@ -221,31 +221,31 @@ const mockTariffs: Tariff[] = [
 
 const mockTickets: Ticket[] = [
   {
-    id: 'tk-1001',
+    uniqueId: 'tk-1001',
     stayId: '2',
     issuedAt: '2026-07-21T14:30:00.000Z',
     totalAmount: 12.5,
   },
   {
-    id: 'tk-1002',
+    uniqueId: 'tk-1002',
     stayId: '5',
     issuedAt: '2026-07-19T13:45:00.000Z',
     totalAmount: 4.05,
   },
   {
-    id: 'tk-1003',
+    uniqueId: 'tk-1003',
     stayId: '6',
     issuedAt: '2026-07-18T12:00:00.000Z',
     totalAmount: 15.0,
   },
   {
-    id: 'tk-1004',
+    uniqueId: 'tk-1004',
     stayId: '9',
     issuedAt: '2026-07-16T10:00:00.000Z',
     totalAmount: 6.0,
   },
   {
-    id: 'tk-1005',
+    uniqueId: 'tk-1005',
     stayId: '11',
     issuedAt: '2026-07-15T11:30:00.000Z',
     totalAmount: 6.0,
@@ -329,7 +329,7 @@ export const adminHandlers = [
     const search = url.searchParams.get('search')?.toLowerCase() ?? ''
     const dateFrom = url.searchParams.get('dateFrom')
     const dateTo = url.searchParams.get('dateTo')
-    const sortBy = url.searchParams.get('sortBy') as 'id' | 'stayId' | 'issuedAt' | 'totalAmount' | null
+    const sortBy = url.searchParams.get('sortBy') as 'uniqueId' | 'stayId' | 'issuedAt' | 'totalAmount' | null
     const sortOrder = (url.searchParams.get('sortOrder') ?? 'asc') as 'asc' | 'desc'
 
     let filtered = [...mockTickets]
@@ -337,7 +337,7 @@ export const adminHandlers = [
     if (search) {
       filtered = filtered.filter(
         (t) =>
-          t.id.toLowerCase().includes(search) ||
+          t.uniqueId.toLowerCase().includes(search) ||
           t.stayId.toLowerCase().includes(search),
       )
     }

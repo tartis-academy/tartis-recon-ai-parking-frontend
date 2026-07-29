@@ -6,13 +6,13 @@ import type { Ticket } from '../types/ticket'
 
 const mockTickets: Ticket[] = [
   {
-    id: 'tk-1001',
+    uniqueId: 'tk-1001',
     stayId: 'stay-001',
     issuedAt: '2026-07-21T14:30:00.000Z',
     totalAmount: 12.5,
   },
   {
-    id: 'tk-1002',
+    uniqueId: 'tk-1002',
     stayId: 'stay-002',
     issuedAt: '2026-07-19T13:45:00.000Z',
     totalAmount: 4.05,
@@ -55,7 +55,7 @@ describe('TicketTable', () => {
   })
 
   it('shows clear filters button when sortBy is active', () => {
-    render(<TicketTable {...defaultProps} sortBy="id" sortOrder="asc" />)
+    render(<TicketTable {...defaultProps} sortBy="uniqueId" sortOrder="asc" />)
 
     expect(screen.getByRole('button', { name: /Limpiar filtros/i })).toBeInTheDocument()
   })
