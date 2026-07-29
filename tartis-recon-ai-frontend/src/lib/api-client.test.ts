@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll, vi } from 'vitest'
+import axios from 'axios'
 import { http, HttpResponse } from 'msw'
 import { server } from '@/testing/mocks/server'
 import { apiClient, type ParsedApiError, type BackendErrorPayload } from './api-client'
@@ -54,8 +55,10 @@ describe('apiClient Response Interceptor', () => {
     try {
       await apiClient.get('/test-400')
       expect.fail('La promesa debería haber sido rechazada')
-    } catch (err) {
-      const parsedError = err as ParsedApiError
+    } catch (err: unknown) {
+      expect(axios.isAxiosError(err)).toBe(true)
+      expect(err instanceof Error).toBe(true)
+      const parsedError = (err as { parsedError: ParsedApiError }).parsedError
       expect(parsedError).toEqual({
         timestamp: '2026-07-29T10:00:00Z',
         status: 400,
@@ -89,8 +92,9 @@ describe('apiClient Response Interceptor', () => {
     try {
       await apiClient.get('/test-404')
       expect.fail('La promesa debería haber sido rechazada')
-    } catch (err) {
-      const parsedError = err as ParsedApiError
+    } catch (err: unknown) {
+      expect(axios.isAxiosError(err)).toBe(true)
+      const parsedError = (err as { parsedError: ParsedApiError }).parsedError
       expect(parsedError).toEqual({
         timestamp: '2026-07-29T10:05:00Z',
         status: 404,
@@ -123,8 +127,9 @@ describe('apiClient Response Interceptor', () => {
     try {
       await apiClient.post('/test-409', {})
       expect.fail('La promesa debería haber sido rechazada')
-    } catch (err) {
-      const parsedError = err as ParsedApiError
+    } catch (err: unknown) {
+      expect(axios.isAxiosError(err)).toBe(true)
+      const parsedError = (err as { parsedError: ParsedApiError }).parsedError
       expect(parsedError).toEqual({
         timestamp: '2026-07-29T10:10:00Z',
         status: 409,
@@ -157,8 +162,9 @@ describe('apiClient Response Interceptor', () => {
     try {
       await apiClient.post('/test-422', {})
       expect.fail('La promesa debería haber sido rechazada')
-    } catch (err) {
-      const parsedError = err as ParsedApiError
+    } catch (err: unknown) {
+      expect(axios.isAxiosError(err)).toBe(true)
+      const parsedError = (err as { parsedError: ParsedApiError }).parsedError
       expect(parsedError).toEqual({
         timestamp: '2026-07-29T10:15:00Z',
         status: 422,

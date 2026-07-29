@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { useToastStore } from '@/shared/stores/useToastStore'
 
 declare module 'axios' {
@@ -23,6 +23,10 @@ export interface ParsedApiError {
   path?: string
 }
 
+export type ApiClientError = AxiosError<BackendErrorPayload> & ParsedApiError & {
+  parsedError: ParsedApiError
+}
+
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? '',
   headers: {
@@ -32,8 +36,8 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    const responseData = error?.response?.data as BackendErrorPayload | undefined
+  (error: AxiosError<BackendErrorPayload>) => {
+    const responseData = error?.response?.data
     const responseStatus = error?.response?.status
 
     const message =
@@ -44,7 +48,7 @@ apiClient.interceptors.response.use(
 
     const parsedError: ParsedApiError = {
       timestamp: responseData?.timestamp,
-      status: responseData?.status ?? responseStatus ?? 500,
+      status: responseStatus ?? responseData?.status ?? 500,
       error: responseData?.error || error?.name || 'Error',
       message,
       path: responseData?.path,
@@ -57,9 +61,12 @@ apiClient.interceptors.response.use(
       })
     }
 
-    return Promise.reject(parsedError)
+    const enrichedError = Object.assign(error ?? new Error(message), parsedError, { parsedError })
+
+    return Promise.reject(enrichedError)
   },
 )
 
 export default apiClient
+
 
