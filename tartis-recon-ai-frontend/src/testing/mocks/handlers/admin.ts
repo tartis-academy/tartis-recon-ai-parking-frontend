@@ -252,6 +252,15 @@ export const adminHandlers = [
     mockVehicles.push(newVehicle)
     return HttpResponse.json(newVehicle, { status: 201 })
   }),
+  http.patch('*/v1/vehicles/:id/status', ({ params }) => {
+    const { id } = params
+    const vehicle = mockVehicles.find((v) => v.uniqueId === id)
+    if (!vehicle) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    vehicle.active = !vehicle.active
+    return HttpResponse.json(vehicle)
+  }),
   http.get('*/v1/spots', () => {
     return HttpResponse.json(mockSpots)
   }),
