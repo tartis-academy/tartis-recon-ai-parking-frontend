@@ -119,6 +119,16 @@ export const adminLabels = {
         motorbike: 'Moto',
       },
     },
+    activeTariffLookup: {
+      title: 'Tarifa Activa por Tipo de Vehículo',
+      selectLabel: 'Seleccionar tipo:',
+      activeBadge: 'Tarifa Vigente',
+      basePrice: 'Precio Base',
+      pricePerMinute: 'Precio / Minuto',
+      loading: 'Consultando tarifa activa...',
+      notFound: 'No hay una tarifa activa configurada para este tipo de vehículo.',
+      error: 'Error al consultar la tarifa activa.',
+    },
   },
   stays: {
     pageTitle: 'Estancias',
