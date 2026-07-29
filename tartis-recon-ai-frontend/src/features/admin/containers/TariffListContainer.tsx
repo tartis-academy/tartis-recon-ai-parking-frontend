@@ -6,6 +6,7 @@ import { useCreateTariff } from '../hooks/useCreateTariff'
 import { useUpdateTariff } from '../hooks/useUpdateTariff'
 import { TariffTable } from '../components/TariffTable'
 import { TariffForm } from '../components/TariffForm'
+import { ActiveTariffCard } from '../components/ActiveTariffCard'
 import { adminLabels } from '../labels'
 import type { Tariff } from '../types/tariff'
 import type { TariffFormData } from '../validation/tariffSchema'
@@ -85,6 +86,8 @@ export function TariffListContainer() {
           </Button>
         }
       />
+
+      <ActiveTariffCard />
 
       <TariffTable
         tariffs={tariffs ?? []}

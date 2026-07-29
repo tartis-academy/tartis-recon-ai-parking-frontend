@@ -1,6 +1,12 @@
 import axios from 'axios'
 import { useToastStore } from '@/shared/stores/useToastStore'
 
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    skipToast?: boolean
+  }
+}
+
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? '',
   headers: {
@@ -11,6 +17,10 @@ export const apiClient = axios.create({
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.config?.skipToast) {
+      return Promise.reject(error)
+    }
+
     const message =
       error.response?.data?.message ||
       error.response?.data?.error ||
@@ -27,4 +37,3 @@ apiClient.interceptors.response.use(
 )
 
 export default apiClient
-
