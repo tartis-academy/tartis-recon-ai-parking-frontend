@@ -9,11 +9,11 @@ interface AdminLayoutProps {
 }
 
 const statusConfig: Record<ConnectionStatus, { label: string; colorClass: string; bgClass: string; animate?: boolean }> = {
-  unconfigured: { label: 'Live updates unavailable', colorClass: 'text-gray-400', bgClass: 'bg-gray-400' },
-  connecting: { label: 'Connecting...', colorClass: 'text-amber-400', bgClass: 'bg-amber-400', animate: true },
-  connected: { label: 'Live updates active', colorClass: 'text-green-400', bgClass: 'bg-green-400' },
-  reconnecting: { label: 'Reconnecting...', colorClass: 'text-amber-400', bgClass: 'bg-amber-400', animate: true },
-  error: { label: 'Live updates unavailable', colorClass: 'text-red-400', bgClass: 'bg-red-400' },
+  unconfigured: { label: 'Live updates unavailable', colorClass: 'text-state-unavailable', bgClass: 'bg-state-unavailable' },
+  connecting: { label: 'Connecting...', colorClass: 'text-state-warn', bgClass: 'bg-state-warn', animate: true },
+  connected: { label: 'Live updates active', colorClass: 'text-brand-400', bgClass: 'bg-brand-500' },
+  reconnecting: { label: 'Reconnecting...', colorClass: 'text-state-warn', bgClass: 'bg-state-warn', animate: true },
+  error: { label: 'Live updates unavailable', colorClass: 'text-state-error', bgClass: 'bg-state-error' },
 }
 
 export function AdminLayout({ 
