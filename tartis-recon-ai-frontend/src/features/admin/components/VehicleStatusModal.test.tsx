@@ -15,6 +15,8 @@ const mockActiveVehicle: Vehicle = {
   type: 'CAR',
   isParked: false,
   active: true,
+  numDoors: 5,
+  hasSidecar: false,
 }
 
 const mockInactiveVehicle: Vehicle = {

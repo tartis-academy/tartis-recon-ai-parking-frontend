@@ -35,7 +35,7 @@ export const getVehicles = async (): Promise<Vehicle[]> => {
 
   return vehicles.map((v) => ({
     ...v,
-    isParked: parkedPlates.has(v.plate) || (v.uniqueId && parkedIds.has(v.uniqueId)) || (v.id && parkedIds.has(v.id)),
+    isParked: Boolean(parkedPlates.has(v.plate) || (v.uniqueId && parkedIds.has(v.uniqueId)) || (v.id && parkedIds.has(v.id))),
   }))
 }
 

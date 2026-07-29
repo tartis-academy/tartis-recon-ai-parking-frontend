@@ -115,14 +115,14 @@ export function TicketTable({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-panel border-b border-border-subtle text-xs font-semibold text-gray-400 uppercase tracking-wider select-none">
-                <th className="py-3.5 px-5" aria-sort={getAriaSort('id')}>
+                <th className="py-3.5 px-5" aria-sort={getAriaSort('uniqueId')}>
                   <button
                     type="button"
-                    onClick={() => onSortChange('id')}
+                    onClick={() => onSortChange('uniqueId')}
                     className="flex items-center gap-2 group hover:text-white"
                   >
                     <span>{labels.tableHeaders.uniqueId}</span>
-                    {renderSortIcon('id')}
+                    {renderSortIcon('uniqueId')}
                   </button>
                 </th>
                 <th className="py-3.5 px-5" aria-sort={getAriaSort('stayId')}>
@@ -160,11 +160,11 @@ export function TicketTable({
             <tbody className="divide-y divide-border-subtle text-sm text-gray-200">
               {tickets.map((ticket) => (
                 <tr
-                  key={ticket.id}
+                  key={ticket.uniqueId}
                   className="hover:bg-surface-row-hover transition-colors"
                 >
                   <td className="py-4 px-5 font-mono text-brand-400 font-semibold">
-                    {ticket.id}
+                    {ticket.uniqueId}
                   </td>
                   <td className="py-4 px-5 font-mono text-gray-300">
                     {ticket.stayId}
