@@ -268,6 +268,15 @@ export const adminHandlers = [
   http.get('*/v1/tariffs', () => {
     return HttpResponse.json(mockTariffs)
   }),
+  http.get('*/v1/tariffs/active', ({ request }) => {
+    const url = new URL(request.url)
+    const type = url.searchParams.get('type')
+    const tariff = mockTariffs.find((t) => t.active && (!type || t.type === type))
+    if (!tariff) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    return HttpResponse.json(tariff)
+  }),
   http.get('*/v1/tickets', ({ request }) => {
     const url = new URL(request.url)
     const pageParam = url.searchParams.get('page')
