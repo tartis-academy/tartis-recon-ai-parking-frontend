@@ -33,7 +33,7 @@ export function TotemPage() {
     checkInMutation.mutate(
       { plate: plateUpper, vehicleType },
       {
-        onError: (err: any) => {
+        onError: (err: unknown) => {
           console.error('Error during check-in:', err)
           if (axios.isAxiosError(err)) {
             setErrorMsg(
@@ -41,11 +41,13 @@ export function TotemPage() {
                 err.message ||
                 'Error al realizar el check-in.',
             )
-          } else {
+          } else if (err instanceof Error) {
             setErrorMsg(err.message || 'Error al realizar el check-in.')
+          } else {
+            setErrorMsg('Error al realizar el check-in.')
           }
         },
-      }
+      },
     )
   }
 
@@ -62,19 +64,21 @@ export function TotemPage() {
     checkOutMutation.mutate(
       { plate: checkOutPlate.trim().toUpperCase() },
       {
-        onError: (err: any) => {
+        onError: (err: unknown) => {
           console.error('Error during check-out:', err)
           if (axios.isAxiosError(err)) {
             setErrorMsg(
               err.response?.data?.message ||
                 err.message ||
-                'Error al realizar el check-out.'
+                'Error al realizar el check-out.',
             )
-          } else {
+          } else if (err instanceof Error) {
             setErrorMsg(err.message || 'Error al realizar el check-out.')
+          } else {
+            setErrorMsg('Error al realizar el check-out.')
           }
         },
-      }
+      },
     )
   }
 
