@@ -3,7 +3,7 @@ import type { VehicleType } from '../types/tariff'
 
 export const DEFAULT_VEHICLE_TYPES: VehicleType[] = ['CAR', 'CAR_PMR', 'MOTORBIKE']
 
-export function getVehicleTypeLabel(type: VehicleType): string {
+export function getVehicleTypeLabel(type: VehicleType | string): string {
   const { form } = adminLabels.tariffs
   switch (type) {
     case 'CAR':

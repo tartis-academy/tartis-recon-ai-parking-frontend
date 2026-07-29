@@ -1,17 +1,11 @@
+import axios from 'axios'
 import apiClient from '@/lib/api-client'
 import type { Tariff, CreateTariffInput, UpdateTariffInput, VehicleType } from '../types/tariff'
 
-const mapTariffDtoToModel = (rawInput: any): Tariff => {
+const mapTariffDtoToModel = (rawInput: any): Tariff | null => {
   const raw = Array.isArray(rawInput) ? rawInput[0] : rawInput
-  if (!raw) {
-    return {
-      id: '',
-      name: '',
-      type: 'CAR',
-      basePrice: 0,
-      pricePerMinute: 0,
-      active: false,
-    }
+  if (!raw || (!raw.id && !raw.name)) {
+    return null
   }
   return {
     id: String(raw.id ?? ''),
@@ -25,33 +19,46 @@ const mapTariffDtoToModel = (rawInput: any): Tariff => {
 
 export const getTariffs = async (): Promise<Tariff[]> => {
   const response = await apiClient.get<any[]>('/v1/tariffs')
-  return (response.data ?? []).map(mapTariffDtoToModel)
+  const mapped = (response.data ?? []).map(mapTariffDtoToModel)
+  return mapped.filter((item): item is Tariff => item !== null)
 }
 
-export const getActiveTariff = async (type: VehicleType): Promise<Tariff> => {
-  const response = await apiClient.get<any>('/v1/tariffs/active', {
-    params: { type },
-  })
-  const data = Array.isArray(response.data) ? response.data[0] : response.data
-  return mapTariffDtoToModel(data)
+export const getActiveTariff = async (type: VehicleType): Promise<Tariff | null> => {
+  try {
+    const response = await apiClient.get<any>('/v1/tariffs/active', {
+      params: { type },
+    })
+    const data = Array.isArray(response.data) ? response.data[0] : response.data
+    return mapTariffDtoToModel(data)
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return null
+    }
+    throw error
+  }
 }
 
 export const createTariff = async (data: CreateTariffInput): Promise<Tariff> => {
   const response = await apiClient.post<any>('/v1/tariffs', data)
-  return mapTariffDtoToModel(response.data)
+  const mapped = mapTariffDtoToModel(response.data)
+  if (!mapped) throw new Error('Error al procesar la respuesta de la tarifa')
+  return mapped
 }
 
 export const updateTariff = async (id: string, data: UpdateTariffInput): Promise<Tariff> => {
   const response = await apiClient.put<any>(`/v1/tariffs/${id}`, data)
-  return mapTariffDtoToModel(response.data)
+  const mapped = mapTariffDtoToModel(response.data)
+  if (!mapped) throw new Error('Error al procesar la respuesta de la tarifa')
+  return mapped
 }
 
 export const toggleTariffStatus = async (id: string, active: boolean): Promise<Tariff> => {
   const response = await apiClient.patch<any>(`/v1/tariffs/${id}/status`, { active })
-  return mapTariffDtoToModel(response.data)
+  const mapped = mapTariffDtoToModel(response.data)
+  if (!mapped) throw new Error('Error al procesar la respuesta de la tarifa')
+  return mapped
 }
 
 export const deleteTariff = async (id: string): Promise<void> => {
   await apiClient.delete(`/v1/tariffs/${id}`)
 }
-

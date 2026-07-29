@@ -82,11 +82,20 @@ describe('tariffs API client', () => {
       expect(result).toEqual(mockTariff)
     })
 
-    it('should propagate API errors when getActiveTariff fails', async () => {
-      const error = new Error('Active tariff not found')
+    it('should return null when getActiveTariff receives 404 Axios error', async () => {
+      const axiosError = { isAxiosError: true, response: { status: 404 } }
+      vi.mocked(apiClient.get).mockRejectedValueOnce(axiosError)
+
+      const result = await getActiveTariff('CAR_PMR')
+
+      expect(result).toBeNull()
+    })
+
+    it('should propagate API errors when getActiveTariff fails with non-404 error', async () => {
+      const error = new Error('Server Error')
       vi.mocked(apiClient.get).mockRejectedValueOnce(error)
 
-      await expect(getActiveTariff('CAR')).rejects.toThrow('Active tariff not found')
+      await expect(getActiveTariff('CAR')).rejects.toThrow('Server Error')
     })
   })
 
