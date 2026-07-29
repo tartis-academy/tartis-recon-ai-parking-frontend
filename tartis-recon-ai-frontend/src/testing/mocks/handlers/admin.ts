@@ -4,6 +4,21 @@ import type { Tariff, CreateTariffInput, UpdateTariffInput } from '@/features/ad
 import type { PaginatedResponse, Stay } from '@/features/admin/types/stay'
 import type { Ticket } from '@/features/admin/types/ticket'
 
+const sseClients = new Set<ReadableStreamDefaultController>()
+
+function emitEvent(event: string, data: Record<string, unknown> | unknown[] = {}) {
+  const encoder = new TextEncoder()
+  const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`
+  const encoded = encoder.encode(message)
+  sseClients.forEach((controller) => {
+    try {
+      controller.enqueue(encoded)
+    } catch {
+      sseClients.delete(controller)
+    }
+  })
+}
+
 const mockVehicles = [
   {
     uniqueId: '1',
@@ -206,31 +221,31 @@ const mockTariffs: Tariff[] = [
 
 const mockTickets: Ticket[] = [
   {
-    id: 'tk-1001',
+    uniqueId: 'tk-1001',
     stayId: '2',
     issuedAt: '2026-07-21T14:30:00.000Z',
     totalAmount: 12.5,
   },
   {
-    id: 'tk-1002',
+    uniqueId: 'tk-1002',
     stayId: '5',
     issuedAt: '2026-07-19T13:45:00.000Z',
     totalAmount: 4.05,
   },
   {
-    id: 'tk-1003',
+    uniqueId: 'tk-1003',
     stayId: '6',
     issuedAt: '2026-07-18T12:00:00.000Z',
     totalAmount: 15.0,
   },
   {
-    id: 'tk-1004',
+    uniqueId: 'tk-1004',
     stayId: '9',
     issuedAt: '2026-07-16T10:00:00.000Z',
     totalAmount: 6.0,
   },
   {
-    id: 'tk-1005',
+    uniqueId: 'tk-1005',
     stayId: '11',
     issuedAt: '2026-07-15T11:30:00.000Z',
     totalAmount: 6.0,
@@ -238,6 +253,23 @@ const mockTickets: Ticket[] = [
 ]
 
 export const adminHandlers = [
+  http.get('*/v1/events/stream', () => {
+    const stream = new ReadableStream({
+      start(controller) {
+        sseClients.add(controller)
+      },
+      cancel(controller) {
+        sseClients.delete(controller)
+      },
+    })
+    return new HttpResponse(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+      },
+    })
+  }),
   http.get('*/v1/vehicles', () => {
     return HttpResponse.json(mockVehicles)
   }),
@@ -250,10 +282,32 @@ export const adminHandlers = [
       isParked: true,
     }
     mockVehicles.push(newVehicle)
+    emitEvent('vehicle_updated', newVehicle)
     return HttpResponse.json(newVehicle, { status: 201 })
+  }),
+  http.patch('*/v1/vehicles/:id/status', ({ params }) => {
+    const { id } = params
+    const vehicle = mockVehicles.find((v) => v.uniqueId === id)
+    if (!vehicle) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    vehicle.active = !vehicle.active
+    emitEvent('vehicle_updated', vehicle)
+    return HttpResponse.json(vehicle)
   }),
   http.get('*/v1/spots', () => {
     return HttpResponse.json(mockSpots)
+  }),
+  http.patch('*/v1/spots/:id/status', async ({ params, request }) => {
+    const { id } = params
+    const spot = mockSpots.find((s) => s.id === id)
+    if (!spot) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    const body = (await request.json()) as { status: string }
+    spot.status = body.status
+    emitEvent('spot_updated', spot)
+    return HttpResponse.json(spot)
   }),
   http.get('*/v1/tariffs', () => {
     return HttpResponse.json(mockTariffs)
@@ -275,7 +329,7 @@ export const adminHandlers = [
     const search = url.searchParams.get('search')?.toLowerCase() ?? ''
     const dateFrom = url.searchParams.get('dateFrom')
     const dateTo = url.searchParams.get('dateTo')
-    const sortBy = url.searchParams.get('sortBy') as 'id' | 'stayId' | 'issuedAt' | 'totalAmount' | null
+    const sortBy = url.searchParams.get('sortBy') as 'uniqueId' | 'stayId' | 'issuedAt' | 'totalAmount' | null
     const sortOrder = (url.searchParams.get('sortOrder') ?? 'asc') as 'asc' | 'desc'
 
     let filtered = [...mockTickets]
@@ -283,7 +337,7 @@ export const adminHandlers = [
     if (search) {
       filtered = filtered.filter(
         (t) =>
-          t.id.toLowerCase().includes(search) ||
+          t.uniqueId.toLowerCase().includes(search) ||
           t.stayId.toLowerCase().includes(search),
       )
     }

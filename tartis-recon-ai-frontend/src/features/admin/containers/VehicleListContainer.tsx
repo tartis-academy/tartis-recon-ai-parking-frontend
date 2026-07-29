@@ -1,16 +1,30 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useVehicles } from '../hooks/useVehicles'
+import { useToggleVehicleStatus } from '../hooks/useToggleVehicleStatus'
 import { VehicleTable } from '../components/VehicleTable'
+import { VehicleStatusModal } from '../components/VehicleStatusModal'
 import { PageHeader, LoadingSpinner, ErrorMessage, Button, Icon } from '@/shared/ui'
+import { useToastStore } from '@/shared/stores/useToastStore'
 import { adminLabels } from '../labels'
-import type { StatusFilter } from '../types/vehicle'
+import type { StatusFilter, Vehicle } from '../types/vehicle'
 
 export function VehicleListContainer() {
   const { data: vehicles, isLoading, isError } = useVehicles()
+  const { mutate: toggleVehicle, isPending } = useToggleVehicleStatus()
+  const { addToast } = useToastStore()
   
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL')
+  const [vehicleToConfirm, setVehicleToConfirm] = useState<Vehicle | null>(null)
+
+  const handleConfirm = () => {
+    if (!vehicleToConfirm || !vehicleToConfirm.uniqueId) return
+    toggleVehicle(vehicleToConfirm.uniqueId, {
+      onSuccess: () => setVehicleToConfirm(null),
+      onError: () => addToast({ type: 'error', message: adminLabels.vehicles.actions.errorUpdate }),
+    })
+  }
 
   if (isLoading) {
     return <LoadingSpinner />
@@ -51,6 +65,15 @@ export function VehicleListContainer() {
         onSearchChange={setSearchQuery}
         statusFilter={statusFilter}
         onFilterChange={setStatusFilter}
+        onToggleStatus={setVehicleToConfirm}
+      />
+      
+      <VehicleStatusModal
+        isOpen={!!vehicleToConfirm}
+        vehicle={vehicleToConfirm}
+        onConfirm={handleConfirm}
+        onCancel={() => setVehicleToConfirm(null)}
+        isPending={isPending}
       />
     </div>
   )

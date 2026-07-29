@@ -1,13 +1,14 @@
 import type { Spot } from '../types/spot'
-import { Card, CardHeader, CardBody, StatusBadge, EmptyState } from '@/shared/ui'
+import { Card, CardHeader, CardBody, StatusBadge, EmptyState, Icon } from '@/shared/ui'
 import { adminLabels } from '../labels'
 
 interface SpotTableProps {
   spots: Spot[];
+  onToggleMaintenance: (spot: Spot) => void;
 }
 
-export function SpotTable({ spots }: SpotTableProps) {
-  const { tableHeaders, types, status, emptyState, records, legend } = adminLabels.spots
+export function SpotTable({ spots, onToggleMaintenance }: SpotTableProps) {
+  const { tableHeaders, types, status, emptyState, records, legend, maintenance } = adminLabels.spots
 
   return (
     <Card>
@@ -35,6 +36,7 @@ export function SpotTable({ spots }: SpotTableProps) {
               <th className="p-5">{tableHeaders.idNumber}</th>
               <th className="p-5">{tableHeaders.type}</th>
               <th className="p-5 text-center">{tableHeaders.status}</th>
+              <th className="p-5 text-right w-16"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-subtle">
@@ -57,10 +59,23 @@ export function SpotTable({ spots }: SpotTableProps) {
                      spot.status === 'OCCUPIED' ? status.occupied : status.unavailable}
                   </StatusBadge>
                 </td>
+                <td className="p-5 text-right">
+                  {spot.status !== 'OCCUPIED' && (
+                    <button
+                      type="button"
+                      onClick={() => onToggleMaintenance(spot)}
+                      className="text-gray-500 hover:text-white p-2 rounded-md transition-colors hover:bg-surface-panel"
+                      title={spot.status === 'AVAILABLE' ? maintenance.action : maintenance.restoreAction}
+                      aria-label={spot.status === 'AVAILABLE' ? maintenance.action : maintenance.restoreAction}
+                    >
+                      <Icon name={spot.status === 'AVAILABLE' ? 'alert' : 'refresh'} className="w-4 h-4" />
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
             {spots.length === 0 && (
-              <EmptyState colSpan={3}>{emptyState}</EmptyState>
+              <EmptyState colSpan={4}>{emptyState}</EmptyState>
             )}
           </tbody>
         </table>

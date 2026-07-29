@@ -9,6 +9,7 @@ interface VehicleTableProps {
   onSearchChange: (val: string) => void
   statusFilter: StatusFilter
   onFilterChange: (val: StatusFilter) => void
+  onToggleStatus: (vehicle: Vehicle) => void
 }
 
 export function VehicleTable({ 
@@ -17,6 +18,7 @@ export function VehicleTable({
   onSearchChange, 
   statusFilter, 
   onFilterChange,
+  onToggleStatus,
 }: VehicleTableProps) {
   const { 
     tableHeaders, 
@@ -26,6 +28,7 @@ export function VehicleTable({
     records, 
     searchPlaceholder,
     filterAll,
+    actions,
   } = adminLabels.vehicles
 
   return (
@@ -71,6 +74,7 @@ export function VehicleTable({
               <th className="p-5">{tableHeaders.brandModel}</th>
               <th className="p-5">{tableHeaders.type}</th>
               <th className="p-5 text-center">{tableHeaders.status}</th>
+              <th className="p-5 text-right w-16">{tableHeaders.actions}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-subtle">
@@ -90,11 +94,31 @@ export function VehicleTable({
                   ) : (
                     <StatusBadge variant="outside">{status.outside}</StatusBadge>
                   )}
+                  {!vehicle.active && (
+                    <span className="ml-2 inline-block">
+                      <StatusBadge variant="unavailable">{actions.inactive}</StatusBadge>
+                    </span>
+                  )}
+                </td>
+                <td className="p-5 text-right">
+                  {!vehicle.isParked && (
+                    <button
+                      type="button"
+                      onClick={() => onToggleStatus(vehicle)}
+                      className={`p-2 rounded-md transition-colors hover:bg-surface-panel ${
+                        vehicle.active ? 'text-state-error hover:text-red-400' : 'text-brand-500 hover:text-brand-400'
+                      }`}
+                      title={vehicle.active ? actions.deactivate : actions.activate}
+                      aria-label={vehicle.active ? actions.deactivate : actions.activate}
+                    >
+                      <Icon name={vehicle.active ? 'alert' : 'check'} className="w-4 h-4" />
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
             {vehicles.length === 0 && (
-              <EmptyState colSpan={5}>{emptyState}</EmptyState>
+              <EmptyState colSpan={6}>{emptyState}</EmptyState>
             )}
           </tbody>
         </table>
