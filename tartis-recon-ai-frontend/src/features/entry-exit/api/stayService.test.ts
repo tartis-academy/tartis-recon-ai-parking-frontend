@@ -46,8 +46,7 @@ describe('stayService', () => {
         {
           plate: '1234ABC',
           vehicleType: 'CAR',
-        },
-        undefined,
+        }
       )
       expect(result).toEqual(mockResponse)
     })
@@ -85,8 +84,7 @@ describe('stayService', () => {
         `${STAY_SERVICE_URL}/check-out`,
         {
           plate: '1234ABC',
-        },
-        undefined,
+        }
       )
       expect(result).toEqual(mockResponse)
     })

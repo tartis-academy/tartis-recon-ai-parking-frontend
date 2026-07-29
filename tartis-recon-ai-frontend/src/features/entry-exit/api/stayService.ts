@@ -14,7 +14,7 @@ export const stayService = {
     const response = await apiClient.post<CheckInResponse>(
       `${STAY_SERVICE_URL}/check-in`,
       payload,
-      config,
+      ...(config ? [config] : []),
     )
     return response.data
   },
@@ -23,7 +23,7 @@ export const stayService = {
     const response = await apiClient.post<CheckOutResponse>(
       `${STAY_SERVICE_URL}/check-out`,
       payload,
-      config,
+      ...(config ? [config] : []),
     )
     return response.data
   },
