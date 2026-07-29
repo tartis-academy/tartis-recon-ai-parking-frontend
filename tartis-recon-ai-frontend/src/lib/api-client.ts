@@ -1,10 +1,30 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { useToastStore } from '@/shared/stores/useToastStore'
 
 declare module 'axios' {
   export interface AxiosRequestConfig {
     skipToast?: boolean
   }
+}
+
+export interface BackendErrorPayload {
+  timestamp?: string
+  status?: number
+  error?: string
+  message?: string
+  path?: string
+}
+
+export interface ParsedApiError {
+  timestamp?: string
+  status: number
+  error: string
+  message: string
+  path?: string
+}
+
+export type ApiClientError = AxiosError<BackendErrorPayload> & ParsedApiError & {
+  parsedError: ParsedApiError
 }
 
 export const apiClient = axios.create({
@@ -16,24 +36,37 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.config?.skipToast) {
-      return Promise.reject(error)
-    }
+  (error: AxiosError<BackendErrorPayload>) => {
+    const responseData = error?.response?.data
+    const responseStatus = error?.response?.status
 
     const message =
-      error.response?.data?.message ||
-      error.response?.data?.error ||
-      error.message ||
+      responseData?.message ||
+      responseData?.error ||
+      error?.message ||
       'Error en la petición'
 
-    useToastStore.getState().addToast({
+    const parsedError: ParsedApiError = {
+      timestamp: responseData?.timestamp,
+      status: responseStatus ?? responseData?.status ?? 500,
+      error: responseData?.error || error?.name || 'Error',
       message,
-      type: 'error',
-    })
+      path: responseData?.path,
+    }
 
-    return Promise.reject(error)
+    if (!error?.config?.skipToast) {
+      useToastStore.getState().addToast({
+        message: parsedError.message,
+        type: 'error',
+      })
+    }
+
+    const enrichedError = Object.assign(error ?? new Error(message), parsedError, { parsedError })
+
+    return Promise.reject(enrichedError)
   },
 )
 
 export default apiClient
+
+
