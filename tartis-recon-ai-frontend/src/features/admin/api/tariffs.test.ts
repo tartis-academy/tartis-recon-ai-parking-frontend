@@ -70,6 +70,7 @@ describe('tariffs API client', () => {
       expect(apiClient.get).toHaveBeenCalledTimes(1)
       expect(apiClient.get).toHaveBeenCalledWith('/v1/tariffs/active', {
         params: { type: 'CAR' },
+        skipToast: true,
       })
       expect(result).toEqual(mockTariff)
     })

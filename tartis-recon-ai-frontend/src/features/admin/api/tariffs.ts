@@ -27,6 +27,7 @@ export const getActiveTariff = async (type: VehicleType): Promise<Tariff | null>
   try {
     const response = await apiClient.get<any>('/v1/tariffs/active', {
       params: { type },
+      skipToast: true,
     })
     const data = Array.isArray(response.data) ? response.data[0] : response.data
     return mapTariffDtoToModel(data)
