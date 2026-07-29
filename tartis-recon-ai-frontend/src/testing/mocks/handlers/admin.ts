@@ -4,6 +4,21 @@ import type { Tariff, CreateTariffInput, UpdateTariffInput } from '@/features/ad
 import type { PaginatedResponse, Stay } from '@/features/admin/types/stay'
 import type { Ticket } from '@/features/admin/types/ticket'
 
+const sseClients = new Set<ReadableStreamDefaultController>()
+
+function emitEvent(event: string, data: Record<string, unknown> | unknown[] = {}) {
+  const encoder = new TextEncoder()
+  const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`
+  const encoded = encoder.encode(message)
+  sseClients.forEach((controller) => {
+    try {
+      controller.enqueue(encoded)
+    } catch {
+      sseClients.delete(controller)
+    }
+  })
+}
+
 const mockVehicles = [
   {
     uniqueId: '1',
@@ -238,6 +253,23 @@ const mockTickets: Ticket[] = [
 ]
 
 export const adminHandlers = [
+  http.get('*/v1/events/stream', () => {
+    const stream = new ReadableStream({
+      start(controller) {
+        sseClients.add(controller)
+      },
+      cancel(controller) {
+        sseClients.delete(controller)
+      },
+    })
+    return new HttpResponse(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+      },
+    })
+  }),
   http.get('*/v1/vehicles', () => {
     return HttpResponse.json(mockVehicles)
   }),
@@ -250,6 +282,7 @@ export const adminHandlers = [
       isParked: true,
     }
     mockVehicles.push(newVehicle)
+    emitEvent('vehicle_updated', newVehicle)
     return HttpResponse.json(newVehicle, { status: 201 })
   }),
   http.patch('*/v1/vehicles/:id/status', ({ params }) => {
@@ -259,6 +292,7 @@ export const adminHandlers = [
       return new HttpResponse(null, { status: 404 })
     }
     vehicle.active = !vehicle.active
+    emitEvent('vehicle_updated', vehicle)
     return HttpResponse.json(vehicle)
   }),
   http.get('*/v1/spots', () => {
@@ -272,6 +306,7 @@ export const adminHandlers = [
     }
     const body = (await request.json()) as { status: string }
     spot.status = body.status
+    emitEvent('spot_updated', spot)
     return HttpResponse.json(spot)
   }),
   http.get('*/v1/tariffs', () => {

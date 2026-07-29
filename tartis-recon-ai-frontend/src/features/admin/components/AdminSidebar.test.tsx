@@ -10,7 +10,7 @@ import type { ReactNode } from 'react'
 vi.mock('@tanstack/react-router', () => ({
   useLocation: () => ({ pathname: '/admin/vehicles' }),
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  Link: ({ children, to, className, 'aria-current': ariaCurrent }: { children: ReactNode; to: string; className?: string; 'aria-current'?: string }) => (
+  Link: ({ children, to, className, 'aria-current': ariaCurrent }: { children: ReactNode; to: string; className?: string; 'aria-current'?: 'page' | 'step' | 'location' | 'date' | 'time' | 'true' | 'false' | boolean }) => (
     <a href={to} className={className} aria-current={ariaCurrent}>
       {children}
     </a>
