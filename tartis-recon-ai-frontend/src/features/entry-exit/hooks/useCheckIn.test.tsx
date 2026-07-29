@@ -27,6 +27,7 @@ describe('useCheckIn', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     queryClient.clear()
+    vi.spyOn(queryClient, 'invalidateQueries')
   })
 
   it('should call stayService.checkIn and return the response successfully', async () => {
@@ -47,8 +48,12 @@ describe('useCheckIn', () => {
       expect(result.current.isSuccess).toBe(true)
     })
 
-    expect(stayService.checkIn).toHaveBeenCalledWith({ plate: '1234ABC', vehicleType: 'CAR' })
+    expect(stayService.checkIn).toHaveBeenCalledWith({ plate: '1234ABC', vehicleType: 'CAR' }, { skipToast: true })
     expect(result.current.data).toEqual(mockResponse)
+
+    // Verify cache invalidation
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['stays'] })
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['spots'] })
   })
 
   it('should throw "No hay plazas libres" when API returns 409 error', async () => {

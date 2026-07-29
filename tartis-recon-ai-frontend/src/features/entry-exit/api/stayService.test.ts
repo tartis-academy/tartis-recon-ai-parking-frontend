@@ -41,10 +41,14 @@ describe('stayService', () => {
       })
 
       expect(apiClient.post).toHaveBeenCalledTimes(1)
-      expect(apiClient.post).toHaveBeenCalledWith(`${STAY_SERVICE_URL}/check-in`, {
-        plate: '1234ABC',
-        vehicleType: 'CAR',
-      })
+      expect(apiClient.post).toHaveBeenCalledWith(
+        `${STAY_SERVICE_URL}/check-in`,
+        {
+          plate: '1234ABC',
+          vehicleType: 'CAR',
+        },
+        undefined,
+      )
       expect(result).toEqual(mockResponse)
     })
 
@@ -77,9 +81,13 @@ describe('stayService', () => {
       })
 
       expect(apiClient.post).toHaveBeenCalledTimes(1)
-      expect(apiClient.post).toHaveBeenCalledWith(`${STAY_SERVICE_URL}/check-out`, {
-        plate: '1234ABC',
-      })
+      expect(apiClient.post).toHaveBeenCalledWith(
+        `${STAY_SERVICE_URL}/check-out`,
+        {
+          plate: '1234ABC',
+        },
+        undefined,
+      )
       expect(result).toEqual(mockResponse)
     })
 
