@@ -84,12 +84,12 @@ describe('stayService', () => {
     })
 
     it('should propagate API errors when checkOut fails', async () => {
-      const apiError = new Error('Ticket no encontrado')
+      const apiError = new Error('Estancia no encontrada')
       vi.mocked(apiClient.post).mockRejectedValueOnce(apiError)
 
       await expect(
-        stayService.checkOut({ entryTicketId: 'INVALID' }),
-      ).rejects.toThrow('Ticket no encontrado')
+        stayService.checkOut({ plate: 'INVALID' }),
+      ).rejects.toThrow('Estancia no encontrada')
     })
   })
 })
