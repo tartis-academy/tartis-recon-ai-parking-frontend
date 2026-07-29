@@ -5,12 +5,14 @@ import { useToggleVehicleStatus } from '../hooks/useToggleVehicleStatus'
 import { VehicleTable } from '../components/VehicleTable'
 import { VehicleStatusModal } from '../components/VehicleStatusModal'
 import { PageHeader, LoadingSpinner, ErrorMessage, Button, Icon } from '@/shared/ui'
+import { useToastStore } from '@/shared/stores/useToastStore'
 import { adminLabels } from '../labels'
 import type { StatusFilter, Vehicle } from '../types/vehicle'
 
 export function VehicleListContainer() {
   const { data: vehicles, isLoading, isError } = useVehicles()
   const { mutate: toggleVehicle, isPending } = useToggleVehicleStatus()
+  const { addToast } = useToastStore()
   
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL')
@@ -20,6 +22,7 @@ export function VehicleListContainer() {
     if (!vehicleToConfirm || !vehicleToConfirm.uniqueId) return
     toggleVehicle(vehicleToConfirm.uniqueId, {
       onSuccess: () => setVehicleToConfirm(null),
+      onError: () => addToast({ type: 'error', message: adminLabels.vehicles.actions.errorUpdate }),
     })
   }
 

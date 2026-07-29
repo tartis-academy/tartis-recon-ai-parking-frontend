@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { Button, Icon } from '@/shared/ui'
 import { adminLabels } from '../labels'
@@ -18,13 +19,25 @@ export function VehicleStatusModal({
   onCancel,
   isPending,
 }: VehicleStatusModalProps) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isPending) {
+        onCancel()
+      }
+    }
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown)
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, isPending, onCancel])
+
   if (!isOpen || !vehicle) return null
 
   const { actions } = adminLabels.vehicles
   const isActive = vehicle.active
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-app/80 backdrop-blur-sm p-4 animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-app/80 backdrop-blur-sm p-4 animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div className="bg-surface-card border border-border-subtle rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
         {/* Header */}
         <div className="p-6 border-b border-border-subtle flex items-start gap-4 bg-surface-card">
@@ -32,7 +45,7 @@ export function VehicleStatusModal({
             <Icon name={isActive ? 'alert' : 'check'} className="w-6 h-6" />
           </div>
           <div className="flex-1 pt-1">
-            <h2 className="text-xl font-bold text-white mb-2">
+            <h2 id="modal-title" className="text-xl font-bold text-white mb-2">
               {isActive ? actions.confirmDeactivateTitle : actions.confirmActivateTitle}
             </h2>
             <p className="text-sm text-gray-400 leading-relaxed">

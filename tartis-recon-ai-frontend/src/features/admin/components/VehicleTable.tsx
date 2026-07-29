@@ -109,6 +109,7 @@ export function VehicleTable({
                         vehicle.active ? 'text-state-error hover:text-red-400' : 'text-brand-500 hover:text-brand-400'
                       }`}
                       title={vehicle.active ? actions.deactivate : actions.activate}
+                      aria-label={vehicle.active ? actions.deactivate : actions.activate}
                     >
                       <Icon name={vehicle.active ? 'alert' : 'check'} className="w-4 h-4" />
                     </button>

@@ -1,27 +1,33 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
-import { SpotMaintenanceModal } from './SpotMaintenanceModal'
+import { VehicleStatusModal } from './VehicleStatusModal'
 import { adminLabels } from '../labels'
-import type { Spot } from '../types/spot'
+import type { Vehicle } from '../types/vehicle'
 
-const mockSpot: Spot = {
-  id: 'A-01',
+const mockActiveVehicle: Vehicle = {
+  id: 'v1',
+  uniqueId: '1234',
+  plate: '1234ABC',
+  brand: 'Seat',
+  model: 'León',
+  color: 'Blanco',
   type: 'CAR',
-  status: 'AVAILABLE',
+  isParked: false,
+  active: true,
 }
 
-const mockUnavailableSpot: Spot = {
-  ...mockSpot,
-  status: 'UNAVAILABLE',
+const mockInactiveVehicle: Vehicle = {
+  ...mockActiveVehicle,
+  active: false,
 }
 
-describe('SpotMaintenanceModal', () => {
+describe('VehicleStatusModal', () => {
   it('does not render when isOpen is false', () => {
     render(
-      <SpotMaintenanceModal
+      <VehicleStatusModal
         isOpen={false}
-        spot={mockSpot}
+        vehicle={mockActiveVehicle}
         onConfirm={vi.fn()}
         onCancel={vi.fn()}
         isPending={false}
@@ -30,11 +36,11 @@ describe('SpotMaintenanceModal', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
-  it('renders correctly for available spot (put into maintenance)', () => {
+  it('renders correctly for active vehicle (deactivate)', () => {
     render(
-      <SpotMaintenanceModal
+      <VehicleStatusModal
         isOpen={true}
-        spot={mockSpot}
+        vehicle={mockActiveVehicle}
         onConfirm={vi.fn()}
         onCancel={vi.fn()}
         isPending={false}
@@ -42,16 +48,16 @@ describe('SpotMaintenanceModal', () => {
     )
     
     expect(screen.getByRole('dialog')).toBeInTheDocument()
-    expect(screen.getByText(adminLabels.spots.maintenance.confirmTitle)).toBeInTheDocument()
-    expect(screen.getByText(adminLabels.spots.maintenance.confirmMessage)).toBeInTheDocument()
-    expect(screen.getByText(mockSpot.id)).toBeInTheDocument()
+    expect(screen.getByText(adminLabels.vehicles.actions.confirmDeactivateTitle)).toBeInTheDocument()
+    expect(screen.getByText(adminLabels.vehicles.actions.confirmDeactivateMessage)).toBeInTheDocument()
+    expect(screen.getByText(mockActiveVehicle.plate)).toBeInTheDocument()
   })
 
-  it('renders correctly for unavailable spot (restore)', () => {
+  it('renders correctly for inactive vehicle (activate)', () => {
     render(
-      <SpotMaintenanceModal
+      <VehicleStatusModal
         isOpen={true}
-        spot={mockUnavailableSpot}
+        vehicle={mockInactiveVehicle}
         onConfirm={vi.fn()}
         onCancel={vi.fn()}
         isPending={false}
@@ -59,24 +65,24 @@ describe('SpotMaintenanceModal', () => {
     )
     
     expect(screen.getByRole('dialog')).toBeInTheDocument()
-    expect(screen.getByText(adminLabels.spots.maintenance.restoreTitle)).toBeInTheDocument()
-    expect(screen.getByText(adminLabels.spots.maintenance.restoreMessage)).toBeInTheDocument()
+    expect(screen.getByText(adminLabels.vehicles.actions.confirmActivateTitle)).toBeInTheDocument()
+    expect(screen.getByText(adminLabels.vehicles.actions.confirmActivateMessage)).toBeInTheDocument()
   })
 
   it('calls onConfirm when confirm button is clicked', async () => {
     const onConfirm = vi.fn()
     const user = userEvent.setup()
     render(
-      <SpotMaintenanceModal
+      <VehicleStatusModal
         isOpen={true}
-        spot={mockSpot}
+        vehicle={mockActiveVehicle}
         onConfirm={onConfirm}
         onCancel={vi.fn()}
         isPending={false}
       />,
     )
     
-    await user.click(screen.getByRole('button', { name: adminLabels.spots.maintenance.confirm }))
+    await user.click(screen.getByRole('button', { name: adminLabels.vehicles.actions.confirm }))
     expect(onConfirm).toHaveBeenCalledTimes(1)
   })
 
@@ -84,16 +90,16 @@ describe('SpotMaintenanceModal', () => {
     const onCancel = vi.fn()
     const user = userEvent.setup()
     render(
-      <SpotMaintenanceModal
+      <VehicleStatusModal
         isOpen={true}
-        spot={mockSpot}
+        vehicle={mockActiveVehicle}
         onConfirm={vi.fn()}
         onCancel={onCancel}
         isPending={false}
       />,
     )
     
-    await user.click(screen.getByRole('button', { name: adminLabels.spots.maintenance.cancel }))
+    await user.click(screen.getByRole('button', { name: adminLabels.vehicles.actions.cancel }))
     expect(onCancel).toHaveBeenCalledTimes(1)
   })
 
@@ -101,9 +107,9 @@ describe('SpotMaintenanceModal', () => {
     const onCancel = vi.fn()
     const user = userEvent.setup()
     render(
-      <SpotMaintenanceModal
+      <VehicleStatusModal
         isOpen={true}
-        spot={mockSpot}
+        vehicle={mockActiveVehicle}
         onConfirm={vi.fn()}
         onCancel={onCancel}
         isPending={false}
@@ -116,16 +122,16 @@ describe('SpotMaintenanceModal', () => {
 
   it('disables buttons and shows processing text when isPending is true', () => {
     render(
-      <SpotMaintenanceModal
+      <VehicleStatusModal
         isOpen={true}
-        spot={mockSpot}
+        vehicle={mockActiveVehicle}
         onConfirm={vi.fn()}
         onCancel={vi.fn()}
         isPending={true}
       />,
     )
     
-    expect(screen.getByRole('button', { name: adminLabels.spots.maintenance.cancel })).toBeDisabled()
-    expect(screen.getByRole('button', { name: adminLabels.spots.maintenance.processing })).toBeDisabled()
+    expect(screen.getByRole('button', { name: adminLabels.vehicles.actions.cancel })).toBeDisabled()
+    expect(screen.getByRole('button', { name: adminLabels.vehicles.actions.processing })).toBeDisabled()
   })
 })

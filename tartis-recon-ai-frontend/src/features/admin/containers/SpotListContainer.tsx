@@ -22,7 +22,7 @@ export function SpotListContainer() {
       { id: spotToConfirm.id, status: newStatus },
       { 
         onSuccess: () => setSpotToConfirm(null),
-        onError: () => addToast({ type: 'error', message: adminLabels.spots.maintenance.errorUpdate })
+        onError: () => addToast({ type: 'error', message: adminLabels.spots.maintenance.errorUpdate }),
       },
     )
   }

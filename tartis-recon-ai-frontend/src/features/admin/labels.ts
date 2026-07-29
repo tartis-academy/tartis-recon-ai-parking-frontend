@@ -39,6 +39,7 @@ export const adminLabels = {
       cancel: 'Cancelar',
       confirm: 'Confirmar',
       processing: 'Procesando...',
+      errorUpdate: 'Error al cambiar el estado del vehículo.',
       selectedVehicle: 'Vehículo seleccionado:',
       active: 'Activo',
       inactive: 'Inactivo',
