@@ -8,12 +8,12 @@ interface AdminLayoutProps {
   realtimeStatus: ConnectionStatus;
 }
 
-const statusConfig: Record<ConnectionStatus, { label: string; colorClass: string; animate?: boolean }> = {
-  unconfigured: { label: 'Live updates unavailable', colorClass: 'text-gray-400' },
-  connecting: { label: 'Connecting...', colorClass: 'text-amber-400', animate: true },
-  connected: { label: 'Live updates active', colorClass: 'text-green-400' },
-  reconnecting: { label: 'Reconnecting...', colorClass: 'text-amber-400', animate: true },
-  error: { label: 'Live updates unavailable', colorClass: 'text-red-400' },
+const statusConfig: Record<ConnectionStatus, { label: string; colorClass: string; bgClass: string; animate?: boolean }> = {
+  unconfigured: { label: 'Live updates unavailable', colorClass: 'text-gray-400', bgClass: 'bg-gray-400' },
+  connecting: { label: 'Connecting...', colorClass: 'text-amber-400', bgClass: 'bg-amber-400', animate: true },
+  connected: { label: 'Live updates active', colorClass: 'text-green-400', bgClass: 'bg-green-400' },
+  reconnecting: { label: 'Reconnecting...', colorClass: 'text-amber-400', bgClass: 'bg-amber-400', animate: true },
+  error: { label: 'Live updates unavailable', colorClass: 'text-red-400', bgClass: 'bg-red-400' },
 }
 
 export function AdminLayout({ 
@@ -21,7 +21,7 @@ export function AdminLayout({
   toggleSidebar, 
   realtimeStatus,
 }: AdminLayoutProps) {
-  const { label, colorClass, animate } = statusConfig[realtimeStatus]
+  const { label, colorClass, bgClass, animate } = statusConfig[realtimeStatus]
 
   return (
     <div className="flex h-screen bg-surface-app text-gray-100 overflow-hidden font-sans">
@@ -36,7 +36,7 @@ export function AdminLayout({
             aria-live="polite"
           >
             <span
-              className={`w-2 h-2 rounded-full mr-2 ${colorClass.replace('text-', 'bg-')} ${animate ? 'animate-pulse' : ''}`}
+              className={`w-2 h-2 rounded-full mr-2 ${bgClass} ${animate ? 'animate-pulse' : ''}`}
             />
             {label}
           </span>
