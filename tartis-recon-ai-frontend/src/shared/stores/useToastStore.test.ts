@@ -76,7 +76,12 @@ describe('useToastStore', () => {
       },
     } as AxiosError
 
-    await expect(responseInterceptor.rejected(mockAxiosError)).rejects.toEqual(mockAxiosError)
+    await expect(responseInterceptor.rejected(mockAxiosError)).rejects.toEqual(
+      expect.objectContaining({
+        message: 'Error de servidor simulado',
+        status: 500,
+      }),
+    )
 
     const toasts = useToastStore.getState().toasts
     expect(toasts).toHaveLength(1)
