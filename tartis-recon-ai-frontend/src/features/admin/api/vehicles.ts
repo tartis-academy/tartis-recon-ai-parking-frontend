@@ -23,8 +23,8 @@ export const getVehicles = async (): Promise<Vehicle[]> => {
   const [vehiclesRes, staysRes] = await Promise.all([
     apiClient.get<unknown>('/v1/vehicles'),
     apiClient.get<PaginatedResponse<Stay>>('/v1/stays', { 
-      params: { status: 'IN_PROGRESS', size: 1000 } 
-    }).catch(() => ({ data: { content: [] } as unknown as PaginatedResponse<Stay> }))
+      params: { status: 'IN_PROGRESS', size: 1000 }, 
+    }).catch(() => ({ data: { content: [] } as unknown as PaginatedResponse<Stay> })),
   ])
   
   const vehicles = toVehicleList(vehiclesRes.data)
@@ -35,7 +35,7 @@ export const getVehicles = async (): Promise<Vehicle[]> => {
 
   return vehicles.map((v) => ({
     ...v,
-    isParked: parkedPlates.has(v.plate) || (v.uniqueId && parkedIds.has(v.uniqueId)) || (v.id && parkedIds.has(v.id))
+    isParked: parkedPlates.has(v.plate) || (v.uniqueId && parkedIds.has(v.uniqueId)) || (v.id && parkedIds.has(v.id)),
   }))
 }
 
