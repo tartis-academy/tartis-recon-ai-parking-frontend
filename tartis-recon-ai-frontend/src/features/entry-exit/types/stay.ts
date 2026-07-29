@@ -21,8 +21,7 @@ export interface CheckInResponse {
 }
 
 export interface CheckOutRequest {
-  plate?: string
-  entryTicketId?: string
+  plate: string
 }
 
 export interface CheckOutResponse {
