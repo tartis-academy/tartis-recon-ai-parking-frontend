@@ -4,21 +4,10 @@ import {
   createRoute,
   Outlet,
 } from '@tanstack/react-router'
-import AdminHomePage from '@/features/admin/pages/AdminHomePage'
-
-import { AdminLayoutContainer } from '@/features/admin/containers/AdminLayoutContainer'
-import { VehicleListContainer } from '@/features/admin/containers/VehicleListContainer'
-import { SpotListContainer } from '@/features/admin/containers/SpotListContainer'
-import { StayListContainer } from '@/features/admin/containers/StayListContainer'
-import { VehicleFormContainer } from '@/features/admin/containers/VehicleFormContainer'
-import { TicketListContainer } from '@/features/admin/containers/TicketListContainer'
-import { TariffListPage } from '@/features/admin'
-
-import { TotemPage } from '@/pages/TotemPage'
 
 const rootRoute = createRootRoute({
   component: () => (
-    <div>
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       <Outlet />
     </div>
   ),
@@ -27,72 +16,24 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: AdminHomePage,
-})
-
-const totemRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/totem',
-  component: TotemPage,
-})
-
-const adminRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/admin',
-  component: AdminLayoutContainer,
-})
-
-const vehiclesRoute = createRoute({
-  getParentRoute: () => adminRoute,
-  path: '/vehicles',
   component: () => (
-    <>
-      <VehicleListContainer />
-      <Outlet />
-    </>
+    <div className="p-8 max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">
+        TARTIS Recon-AI Shell Host
+      </h1>
+      <p className="text-slate-600 text-base">
+        Aplicación raíz/shell lista para la composición de módulos remotos de microfrontends.
+      </p>
+    </div>
   ),
 })
 
-const vehicleNewRoute = createRoute({
-  getParentRoute: () => vehiclesRoute,
-  path: '/new',
-  component: VehicleFormContainer,
-})
-
-const spotsRoute = createRoute({
-  getParentRoute: () => adminRoute,
-  path: '/spots',
-  component: SpotListContainer,
-})
-
-const tariffsRoute = createRoute({
-  getParentRoute: () => adminRoute,
-  path: '/tariffs',
-  component: TariffListPage,
-})
-
-const staysRoute = createRoute({
-  getParentRoute: () => adminRoute,
-  path: '/stays',
-  component: StayListContainer,
-})
-
-const ticketsRoute = createRoute({
-  getParentRoute: () => adminRoute,
-  path: '/tickets',
-  component: TicketListContainer,
-})
-
-const routeTree = rootRoute.addChildren([
-  indexRoute,
-  totemRoute,
-  adminRoute.addChildren([
-    vehiclesRoute.addChildren([vehicleNewRoute]),
-    spotsRoute,
-    tariffsRoute,
-    staysRoute,
-    ticketsRoute,
-  ]),
-])
+const routeTree = rootRoute.addChildren([indexRoute])
 
 export const router = createRouter({ routeTree })
+
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router
+  }
+}
