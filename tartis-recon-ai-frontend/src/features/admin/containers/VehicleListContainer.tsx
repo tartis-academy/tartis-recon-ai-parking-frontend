@@ -9,17 +9,16 @@ import { VehicleForm } from '../components/VehicleForm'
 import { PageHeader, LoadingSpinner, ErrorMessage, Button, Icon } from '@/shared/ui'
 import { useToastStore } from '@/shared/stores/useToastStore'
 import { adminLabels } from '../labels'
-import type { StatusFilter, Vehicle } from '../types/vehicle'
+import type { Vehicle } from '../types/vehicle'
 import type { VehicleFormData } from '../validation/vehicleSchema'
 
 export function VehicleListContainer() {
   const { data: vehicles, isLoading, isError } = useVehicles()
   const { mutate: toggleVehicle, isPending: isToggling } = useToggleVehicleStatus()
   const { mutate: updateVehicle, isPending: isUpdating } = useUpdateVehicle()
-  const { addToast } = useToastStore()
+  const addToast = useToastStore((s) => s.addToast)
   
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL')
   const [vehicleToConfirm, setVehicleToConfirm] = useState<Vehicle | null>(null)
   const [vehicleToEdit, setVehicleToEdit] = useState<Vehicle | null>(null)
 
@@ -72,15 +71,7 @@ export function VehicleListContainer() {
   // TODO: Migrar filtrado a query params del router / backend cuando crezca el dataset
   const vehicleList = Array.isArray(vehicles) ? vehicles : []
   const filteredVehicles = vehicleList
-    .filter((v) => {
-      const matchesSearch = v.plate.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesStatus =
-        statusFilter === 'ALL' ? true :
-        statusFilter === 'PARKED' ? v.isParked === true :
-        v.isParked === false
-
-      return matchesSearch && matchesStatus
-    })
+    .filter((v) => v.plate.toLowerCase().includes(searchQuery.toLowerCase()))
     .sort((a, b) => a.plate.localeCompare(b.plate, undefined, { numeric: true, sensitivity: 'base' }))
 
   return (
@@ -96,12 +87,10 @@ export function VehicleListContainer() {
           </Link>
         }
       />
-      <VehicleTable 
+      <VehicleTable
         vehicles={filteredVehicles}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        statusFilter={statusFilter}
-        onFilterChange={setStatusFilter}
         onToggleStatus={setVehicleToConfirm}
         onEdit={(vehicle) => setVehicleToEdit(vehicle)}
       />

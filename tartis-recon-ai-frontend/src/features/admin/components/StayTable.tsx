@@ -121,7 +121,7 @@ export function StayTable({
                   <CopyBadge value={stay.spotId} />
                 </td>
                 <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">
-                  <CopyBadge value={stay.tariffId} displayValue={formatTariff(stay.tariffId)} />
+                  <CopyBadge value={stay.tariffId} />
                 </td>
                 <td className="p-3 xl:p-4 2xl:p-5 text-gray-400">{formatCheckIn(stay.checkIn)}</td>
                 <td className="p-3 xl:p-4 2xl:p-5 text-gray-400">{formatCheckOut(stay.checkOut, stay.status)}</td>

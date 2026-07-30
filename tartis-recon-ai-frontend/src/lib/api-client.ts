@@ -35,6 +35,7 @@ export const apiClient = axios.create({
 })
 
 let cachedToken: { token: string; expiresAt: number } | null = null
+let authFailed = false
 
 async function getDevToken(): Promise<string | null> {
   const stored = localStorage.getItem('access_token')
@@ -44,8 +45,13 @@ async function getDevToken(): Promise<string | null> {
     return cachedToken.token
   }
 
-  const username = import.meta.env.VITE_DEV_USER || 'admin.test'
-  const password = import.meta.env.VITE_DEV_PASSWORD || 'Admin.123!'
+  const username = import.meta.env.VITE_DEV_USER
+  const password = import.meta.env.VITE_DEV_PASSWORD
+
+  if (!username || !password) {
+    console.error('VITE_DEV_USER / VITE_DEV_PASSWORD no configurados: define un .env.local (ver .env.example) para usar el atajo de login de desarrollo.')
+    return null
+  }
 
   try {
     const params = new URLSearchParams()
@@ -80,7 +86,8 @@ apiClient.interceptors.request.use((config) => {
       const storedToken = localStorage.getItem('access_token')
       if (storedToken) {
         config.headers.Authorization = `Bearer ${storedToken}`
-      } else {
+      } else if (import.meta.env.DEV && !authFailed) {
+        // Atajo solo para desarrollo local: en producción no hay login real todavía (ver SEC-XX).
         const devToken = await getDevToken()
         if (devToken) {
           config.headers.Authorization = `Bearer ${devToken}`
@@ -99,6 +106,7 @@ apiClient.interceptors.response.use(
 
     if (responseStatus === 401) {
       localStorage.removeItem('access_token')
+      authFailed = true
     }
 
     const message =
