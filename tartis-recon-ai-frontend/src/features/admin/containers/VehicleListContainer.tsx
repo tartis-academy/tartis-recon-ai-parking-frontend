@@ -33,7 +33,7 @@ export function VehicleListContainer() {
           type: 'success', 
           message: isDeactivating 
             ? adminLabels.vehicles.actions.deactivateSuccess 
-            : adminLabels.vehicles.actions.activateSuccess 
+            : adminLabels.vehicles.actions.activateSuccess, 
         })
       },
       onError: () => addToast({ type: 'error', message: adminLabels.vehicles.actions.errorUpdate }),
@@ -51,7 +51,7 @@ export function VehicleListContainer() {
           setVehicleToEdit(null)
           addToast({ 
             type: 'success', 
-            message: `${adminLabels.vehicles.pageTitle.slice(0, -1)} ${data.plate} ${adminLabels.vehicles.actions.updateSuccess}` 
+            message: `${adminLabels.vehicles.pageTitle.slice(0, -1)} ${data.plate} ${adminLabels.vehicles.actions.updateSuccess}`, 
           })
         },
         onError: () => {
