@@ -62,6 +62,7 @@ export function StayTable({
   const labels = adminLabels.stays
   const hasActiveFilters = Boolean(search) || status !== 'ALL' || vehicleType !== 'ALL'
 
+  // Removed early returns for isLoading and isError to keep the toolbar mounted
   return (
     <Card>
       <CardHeader>

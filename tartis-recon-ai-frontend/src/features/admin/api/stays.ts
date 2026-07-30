@@ -67,7 +67,7 @@ export const getStays = async (
   return {
     ...data,
     content,
-    page: (data?.page ?? 0) + 1,
+    page: ((data as Record<string, unknown>)?.number as number ?? data?.page ?? 0) + 1,
     size: data?.size ?? pageSize,
     totalElements: data?.totalElements ?? 0,
   }
