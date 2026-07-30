@@ -75,14 +75,16 @@ describe('VehicleTable Component', () => {
     const onToggleStatus = vi.fn()
     render(<VehicleTable vehicles={mockVehicles} {...defaultProps} onToggleStatus={onToggleStatus} />)
 
-    // Vehicle 1 is parked, button should not render.
-    // Vehicle 2 is inactive, button is activate.
-    // Vehicle 3 is active, button is deactivate.
+    // Vehicle 1 is parked, toggle status button should not render.
+    // Vehicle 2 is inactive, button is ALTA.
+    // Vehicle 3 is active, button is BAJA.
     const activateButton = screen.getByTitle(adminLabels.vehicles.actions.activate)
     const deactivateButton = screen.getByTitle(adminLabels.vehicles.actions.deactivate)
 
     expect(activateButton).toBeInTheDocument()
     expect(deactivateButton).toBeInTheDocument()
+    expect(screen.getByText('ALTA')).toBeInTheDocument()
+    expect(screen.getAllByText('BAJA').length).toBeGreaterThan(0)
 
     fireEvent.click(activateButton)
     expect(onToggleStatus).toHaveBeenCalledWith(mockVehicles[1])
@@ -91,11 +93,15 @@ describe('VehicleTable Component', () => {
     expect(onToggleStatus).toHaveBeenCalledWith(mockVehicles[2])
   })
 
-  it('does not render toggle button for parked vehicles', () => {
-    render(<VehicleTable vehicles={mockVehicles} {...defaultProps} />)
+  it('renders EDITAR button and calls onEdit when clicked', () => {
+    const onEdit = vi.fn()
+    render(<VehicleTable vehicles={mockVehicles} {...defaultProps} onEdit={onEdit} />)
 
-    // Only 2 buttons should render (for vehicle 2 and 3)
-    const buttons = screen.getAllByRole('button').filter(b => b.hasAttribute('title'))
-    expect(buttons).toHaveLength(2)
+    const editButtons = screen.getAllByTitle(adminLabels.vehicles.actions.edit)
+    expect(editButtons).toHaveLength(3)
+    expect(screen.getAllByText('EDITAR')).toHaveLength(3)
+
+    fireEvent.click(editButtons[0])
+    expect(onEdit).toHaveBeenCalledWith(mockVehicles[0])
   })
 })
