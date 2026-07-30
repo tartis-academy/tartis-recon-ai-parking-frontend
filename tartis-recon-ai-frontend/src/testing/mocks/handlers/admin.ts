@@ -1,8 +1,23 @@
 import { http, HttpResponse } from 'msw'
 import type { CreateVehicleInput } from '@/features/admin/types/vehicle'
-import type { Tariff, CreateTariffInput } from '@/features/admin/types/tariff'
+import type { Tariff, CreateTariffInput, UpdateTariffInput } from '@/features/admin/types/tariff'
 import type { PaginatedResponse, Stay } from '@/features/admin/types/stay'
 import type { Ticket } from '@/features/admin/types/ticket'
+
+const sseClients = new Set<ReadableStreamDefaultController>()
+
+function emitEvent(event: string, data: Record<string, unknown> | unknown[] = {}) {
+  const encoder = new TextEncoder()
+  const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`
+  const encoded = encoder.encode(message)
+  sseClients.forEach((controller) => {
+    try {
+      controller.enqueue(encoded)
+    } catch {
+      sseClients.delete(controller)
+    }
+  })
+}
 
 const mockVehicles = [
   {
@@ -52,169 +67,136 @@ const mockSpots = [
 
 const mockStays: Stay[] = [
   {
-    id: '1',
+    stayId: '1',
+    plate: '1234ABC',
     vehicleId: '1',
-    spotId: '1',
-    tariffId: '1',
+    spotId: 'A-01',
+    tariffId: 'trf-e8a3b000-1111-2222-3333-444455556666',
     checkIn: '2026-07-22T08:30:00.000Z',
     checkOut: null,
     totalAmount: null,
     status: 'IN_PROGRESS',
-    vehicle: { plate: '1234ABC', type: 'CAR' },
-    spot: { code: 'A-01' },
-    tariff: { name: 'Tarifa Coche', rate: 0.05 },
-    entryTicket: { id: 'et-1' },
-    ticket: null,
+    vehicleType: 'CAR',
   },
   {
-    id: '2',
+    stayId: '2',
+    plate: '5678DEF',
     vehicleId: '2',
-    spotId: '2',
-    tariffId: '2',
+    spotId: 'B-02',
+    tariffId: 'trf-m7b9c111-3333-4444-5555-666677778888',
     checkIn: '2026-07-21T10:00:00.000Z',
     checkOut: '2026-07-21T14:30:00.000Z',
     totalAmount: 12.5,
     status: 'FINISHED',
-    vehicle: { plate: '5678DEF', type: 'CAR_PMR' },
-    spot: { code: 'B-02' },
-    tariff: { name: 'Tarifa Moto', rate: 0.03 },
-    entryTicket: { id: 'et-2' },
-    ticket: { id: 'tk-2', totalAmount: 12.5 },
+    vehicleType: 'CAR_PMR',
   },
   {
-    id: '3',
+    stayId: '3',
+    plate: '9012GHI',
     vehicleId: '3',
-    spotId: '3',
-    tariffId: '1',
+    spotId: 'C-03',
+    tariffId: 'trf-e8a3b000-1111-2222-3333-444455556666',
     checkIn: '2026-07-20T09:00:00.000Z',
     checkOut: null,
     totalAmount: null,
     status: 'CANCELLED',
-    vehicle: { plate: '9012GHI', type: 'MOTORBIKE' },
-    spot: { code: 'C-03' },
-    tariff: { name: 'Tarifa Coche', rate: 0.05 },
-    entryTicket: null,
-    ticket: null,
+    vehicleType: 'MOTORBIKE',
   },
   {
-    id: '4',
-    vehicleId: '4',
-    spotId: '4',
-    tariffId: '1',
+    stayId: '4',
+    plate: '3456JKL',
+    vehicleId: 'veh-3456jkl',
+    spotId: 'A-04',
+    tariffId: 'trf-e8a3b000-1111-2222-3333-444455556666',
     checkIn: '2026-07-22T09:15:00.000Z',
     checkOut: null,
     totalAmount: null,
     status: 'IN_PROGRESS',
-    vehicle: { plate: '3456JKL', type: 'CAR' },
-    spot: { code: 'A-04' },
-    tariff: { name: 'Tarifa Coche', rate: 0.05 },
-    entryTicket: { id: 'et-4' },
-    ticket: null,
+    vehicleType: 'CAR',
   },
   {
-    id: '5',
-    vehicleId: '5',
-    spotId: '5',
-    tariffId: '2',
+    stayId: '5',
+    plate: '7890MNO',
+    vehicleId: 'veh-7890mno',
+    spotId: 'B-05',
+    tariffId: 'trf-m7b9c111-3333-4444-5555-666677778888',
     checkIn: '2026-07-19T11:30:00.000Z',
     checkOut: '2026-07-19T13:45:00.000Z',
     totalAmount: 4.05,
     status: 'FINISHED',
-    vehicle: { plate: '7890MNO', type: 'MOTORBIKE' },
-    spot: { code: 'B-05' },
-    tariff: { name: 'Tarifa Moto', rate: 0.03 },
-    entryTicket: { id: 'et-5' },
-    ticket: { id: 'tk-5', totalAmount: 4.05 },
+    vehicleType: 'MOTORBIKE',
   },
   {
-    id: '6',
-    vehicleId: '6',
-    spotId: '6',
-    tariffId: '1',
+    stayId: '6',
+    plate: 'ABCD123',
+    vehicleId: 'veh-abcd123',
+    spotId: 'A-06',
+    tariffId: 'trf-e8a3b000-1111-2222-3333-444455556666',
     checkIn: '2026-07-18T07:00:00.000Z',
     checkOut: '2026-07-18T12:00:00.000Z',
     totalAmount: 15.0,
     status: 'FINISHED',
-    vehicle: { plate: 'ABCD123', type: 'CAR' },
-    spot: { code: 'A-06' },
-    tariff: { name: 'Tarifa Coche', rate: 0.05 },
-    entryTicket: { id: 'et-6' },
-    ticket: { id: 'tk-6', totalAmount: 15.0 },
+    vehicleType: 'CAR',
   },
   {
-    id: '7',
-    vehicleId: '7',
-    spotId: '7',
-    tariffId: '2',
+    stayId: '7',
+    plate: 'EFGH456',
+    vehicleId: 'veh-efgh456',
+    spotId: 'B-07',
+    tariffId: 'trf-m7b9c111-3333-4444-5555-666677778888',
     checkIn: '2026-07-22T10:00:00.000Z',
     checkOut: null,
     totalAmount: null,
     status: 'IN_PROGRESS',
-    vehicle: { plate: 'EFGH456', type: 'MOTORBIKE' },
-    spot: { code: 'B-07' },
-    tariff: { name: 'Tarifa Moto', rate: 0.03 },
-    entryTicket: { id: 'et-7' },
-    ticket: null,
+    vehicleType: 'MOTORBIKE',
   },
   {
-    id: '8',
-    vehicleId: '8',
-    spotId: '8',
-    tariffId: '1',
+    stayId: '8',
+    plate: 'IJKL789',
+    vehicleId: 'veh-ijkl789',
+    spotId: 'C-08',
+    tariffId: 'trf-e8a3b000-1111-2222-3333-444455556666',
     checkIn: '2026-07-17T16:00:00.000Z',
     checkOut: '2026-07-17T18:30:00.000Z',
     totalAmount: 7.5,
     status: 'CANCELLED',
-    vehicle: { plate: 'IJKL789', type: 'CAR_PMR' },
-    spot: { code: 'C-08' },
-    tariff: { name: 'Tarifa Coche', rate: 0.05 },
-    entryTicket: null,
-    ticket: null,
+    vehicleType: 'CAR_PMR',
   },
   {
-    id: '9',
-    vehicleId: '9',
-    spotId: '9',
-    tariffId: '1',
+    stayId: '9',
+    plate: 'MNOP000',
+    vehicleId: 'veh-mnop000',
+    spotId: 'A-09',
+    tariffId: 'trf-e8a3b000-1111-2222-3333-444455556666',
     checkIn: '2026-07-16T08:00:00.000Z',
     checkOut: '2026-07-16T10:00:00.000Z',
     totalAmount: 6.0,
     status: 'FINISHED',
-    vehicle: { plate: 'MNOP000', type: 'CAR' },
-    spot: { code: 'A-09' },
-    tariff: { name: 'Tarifa Coche', rate: 0.05 },
-    entryTicket: { id: 'et-9' },
-    ticket: { id: 'tk-9', totalAmount: 6.0 },
+    vehicleType: 'CAR',
   },
   {
-    id: '10',
-    vehicleId: '10',
-    spotId: '10',
-    tariffId: '2',
+    stayId: '10',
+    plate: 'QRST111',
+    vehicleId: 'veh-qrst111',
+    spotId: 'B-10',
+    tariffId: 'trf-m7b9c111-3333-4444-5555-666677778888',
     checkIn: '2026-07-22T11:00:00.000Z',
     checkOut: null,
     totalAmount: null,
     status: 'IN_PROGRESS',
-    vehicle: { plate: 'QRST111', type: 'MOTORBIKE' },
-    spot: { code: 'B-10' },
-    tariff: { name: 'Tarifa Moto', rate: 0.03 },
-    entryTicket: { id: 'et-10' },
-    ticket: null,
+    vehicleType: 'MOTORBIKE',
   },
   {
-    id: '11',
-    vehicleId: '11',
-    spotId: '11',
-    tariffId: '1',
+    stayId: '11',
+    plate: 'UVWX222',
+    vehicleId: 'veh-uvwx222',
+    spotId: 'A-11',
+    tariffId: 'trf-e8a3b000-1111-2222-3333-444455556666',
     checkIn: '2026-07-15T09:30:00.000Z',
     checkOut: '2026-07-15T11:30:00.000Z',
     totalAmount: 6.0,
     status: 'FINISHED',
-    vehicle: { plate: 'UVWX222', type: 'CAR' },
-    spot: { code: 'A-11' },
-    tariff: { name: 'Tarifa Coche', rate: 0.05 },
-    entryTicket: { id: 'et-11' },
-    ticket: { id: 'tk-11', totalAmount: 6.0 },
+    vehicleType: 'CAR',
   },
 ]
 
@@ -222,7 +204,7 @@ const mockTariffs: Tariff[] = [
   {
     id: '1',
     name: 'Tarifa Coche Estándar',
-    vehicleType: 'CAR',
+    type: 'CAR',
     basePrice: 1.50,
     pricePerMinute: 0.05,
     active: true,
@@ -230,7 +212,7 @@ const mockTariffs: Tariff[] = [
   {
     id: '2',
     name: 'Tarifa Moto Económica',
-    vehicleType: 'MOTORBIKE',
+    type: 'MOTORBIKE',
     basePrice: 0.80,
     pricePerMinute: 0.03,
     active: true,
@@ -271,6 +253,23 @@ const mockTickets: Ticket[] = [
 ]
 
 export const adminHandlers = [
+  http.get('*/v1/events/stream', () => {
+    const stream = new ReadableStream({
+      start(controller) {
+        sseClients.add(controller)
+      },
+      cancel(controller) {
+        sseClients.delete(controller)
+      },
+    })
+    return new HttpResponse(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+      },
+    })
+  }),
   http.get('*/v1/vehicles', () => {
     return HttpResponse.json(mockVehicles)
   }),
@@ -283,18 +282,50 @@ export const adminHandlers = [
       isParked: true,
     }
     mockVehicles.push(newVehicle)
+    emitEvent('vehicle_updated', newVehicle)
     return HttpResponse.json(newVehicle, { status: 201 })
+  }),
+  http.patch('*/v1/vehicles/:id/status', ({ params }) => {
+    const { id } = params
+    const vehicle = mockVehicles.find((v) => v.uniqueId === id)
+    if (!vehicle) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    vehicle.active = !vehicle.active
+    emitEvent('vehicle_updated', vehicle)
+    return HttpResponse.json(vehicle)
   }),
   http.get('*/v1/spots', () => {
     return HttpResponse.json(mockSpots)
   }),
+  http.patch('*/v1/spots/:id/status', async ({ params, request }) => {
+    const { id } = params
+    const spot = mockSpots.find((s) => s.id === id)
+    if (!spot) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    const body = (await request.json()) as { status: string }
+    spot.status = body.status
+    emitEvent('spot_updated', spot)
+    return HttpResponse.json(spot)
+  }),
   http.get('*/v1/tariffs', () => {
     return HttpResponse.json(mockTariffs)
   }),
+  http.get('*/v1/tariffs/active', ({ request }) => {
+    const url = new URL(request.url)
+    const type = url.searchParams.get('type')
+    const tariff = mockTariffs.find((t) => t.active && (!type || t.type === type))
+    if (!tariff) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    return HttpResponse.json(tariff)
+  }),
   http.get('*/v1/tickets', ({ request }) => {
     const url = new URL(request.url)
-    const page = Number(url.searchParams.get('page') ?? '1')
-    const pageSize = Number(url.searchParams.get('pageSize') ?? '10')
+    const pageParam = url.searchParams.get('page')
+    const page = pageParam !== null ? Number(pageParam) : 0
+    const pageSize = Number(url.searchParams.get('size') ?? url.searchParams.get('pageSize') ?? '10')
     const search = url.searchParams.get('search')?.toLowerCase() ?? ''
     const dateFrom = url.searchParams.get('dateFrom')
     const dateTo = url.searchParams.get('dateTo')
@@ -340,22 +371,24 @@ export const adminHandlers = [
     }
 
     const total = filtered.length
-    const start = (page - 1) * pageSize
+    const start = page * pageSize
     const paginated = filtered.slice(start, start + pageSize)
 
     const response: PaginatedResponse<Ticket> = {
-      data: paginated,
-      total,
+      content: paginated,
+      totalElements: total,
       page,
-      pageSize,
+      size: pageSize,
+      totalPages: Math.ceil(total / pageSize),
     }
 
     return HttpResponse.json(response)
   }),
   http.get('*/v1/stays', ({ request }) => {
     const url = new URL(request.url)
-    const page = Number(url.searchParams.get('page') ?? '1')
-    const pageSize = Number(url.searchParams.get('pageSize') ?? '10')
+    const pageParam = url.searchParams.get('page')
+    const page = pageParam !== null ? Number(pageParam) : 0
+    const pageSize = Number(url.searchParams.get('size') ?? url.searchParams.get('pageSize') ?? '10')
     const search = url.searchParams.get('search')?.toLowerCase() ?? ''
     const status = url.searchParams.get('status')
     const vehicleType = url.searchParams.get('vehicleType')
@@ -363,7 +396,7 @@ export const adminHandlers = [
     let filtered = [...mockStays]
 
     if (search) {
-      filtered = filtered.filter((stay) => stay.vehicle.plate.toLowerCase().includes(search))
+      filtered = filtered.filter((stay) => stay.plate.toLowerCase().includes(search))
     }
 
     if (status) {
@@ -371,18 +404,19 @@ export const adminHandlers = [
     }
 
     if (vehicleType) {
-      filtered = filtered.filter((stay) => stay.vehicle.type === vehicleType)
+      filtered = filtered.filter((stay) => stay.vehicleType === vehicleType)
     }
 
     const total = filtered.length
-    const start = (page - 1) * pageSize
+    const start = page * pageSize
     const paginated = filtered.slice(start, start + pageSize)
 
     const response: PaginatedResponse<Stay> = {
-      data: paginated,
-      total,
+      content: paginated,
+      totalElements: total,
       page,
-      pageSize,
+      size: pageSize,
+      totalPages: Math.ceil(total / pageSize),
     }
 
     return HttpResponse.json(response)
@@ -396,16 +430,35 @@ export const adminHandlers = [
     mockTariffs.push(newTariff)
     return HttpResponse.json(newTariff, { status: 201 })
   }),
-  http.patch('/v1/tariffs/:id/status', ({ params }) => {
+  http.put('*/v1/tariffs/:id', async ({ params, request }) => {
+    const { id } = params
+    const body = (await request.json()) as UpdateTariffInput
+    const index = mockTariffs.findIndex((t) => t.id === id)
+    if (index === -1) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    mockTariffs[index] = { ...mockTariffs[index], ...body }
+    return HttpResponse.json(mockTariffs[index])
+  }),
+  http.patch('*/v1/tariffs/:id/status', async ({ params, request }) => {
     const { id } = params
     const tariff = mockTariffs.find((t) => t.id === id)
     if (!tariff) {
       return new HttpResponse(null, { status: 404 })
     }
-    tariff.active = !tariff.active
+    try {
+      const body = (await request.json()) as { active?: boolean }
+      if (typeof body.active === 'boolean') {
+        tariff.active = body.active
+      } else {
+        tariff.active = !tariff.active
+      }
+    } catch {
+      tariff.active = !tariff.active
+    }
     return HttpResponse.json(tariff)
   }),
-  http.delete('/v1/tariffs/:id', ({ params }) => {
+  http.delete('*/v1/tariffs/:id', ({ params }) => {
     const { id } = params
     const index = mockTariffs.findIndex((t) => t.id === id)
     if (index !== -1) {

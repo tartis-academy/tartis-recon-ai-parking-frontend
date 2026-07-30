@@ -1,5 +1,6 @@
 export interface VehicleBase {
-  uniqueId: string
+  id?: string
+  uniqueId?: string
   plate: string
   brand: string
   model: string
@@ -24,6 +25,4 @@ export type Vehicle = Car | Motorbike
 
 export type VehicleType = 'CAR' | 'CAR_PMR' | 'MOTORBIKE'
 
-export type CreateVehicleInput = Omit<Vehicle, 'uniqueId' | 'active'>
-
-export type StatusFilter = 'ALL' | 'PARKED' | 'OUTSIDE'
+export type CreateVehicleInput = Omit<Vehicle, 'id' | 'uniqueId' | 'active'>

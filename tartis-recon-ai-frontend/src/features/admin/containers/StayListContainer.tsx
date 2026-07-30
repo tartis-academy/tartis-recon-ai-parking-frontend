@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useStays } from '../hooks/useStays'
 import { StayTable } from '../components/StayTable'
 import { PageHeader, LoadingSpinner, ErrorMessage } from '@/shared/ui'
 import { adminLabels } from '../labels'
 import { DEFAULT_PAGE_SIZE } from '../constants'
 import type { StayStatusFilter, StayVehicleTypeFilter } from '../types/stay'
+import { useDebounce } from '@/shared/hooks/useDebounce'
 
 export function StayListContainer() {
   const [page, setPage] = useState(1)
@@ -13,11 +14,13 @@ export function StayListContainer() {
   const [status, setStatus] = useState<StayStatusFilter>('ALL')
   const [vehicleType, setVehicleType] = useState<StayVehicleTypeFilter>('ALL')
 
-  const filters = {
-    search: search || undefined,
+  const debouncedSearch = useDebounce(search, 350)
+
+  const filters = useMemo(() => ({
+    search: debouncedSearch || undefined,
     status: status === 'ALL' ? undefined : status,
     vehicleType: vehicleType === 'ALL' ? undefined : vehicleType,
-  }
+  }), [debouncedSearch, status, vehicleType])
 
   const { data, isLoading, isError } = useStays(page, pageSize, filters)
 
@@ -63,10 +66,10 @@ export function StayListContainer() {
         subtitle={adminLabels.stays.pageSubtitle}
       />
       <StayTable
-        stays={data?.data ?? []}
-        total={data?.total ?? 0}
+        stays={data?.content ?? []}
+        total={data?.totalElements ?? 0}
         page={data?.page ?? page}
-        pageSize={data?.pageSize ?? pageSize}
+        pageSize={data?.size ?? pageSize}
         search={search}
         status={status}
         vehicleType={vehicleType}

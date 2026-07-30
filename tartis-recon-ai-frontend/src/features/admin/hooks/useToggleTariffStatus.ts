@@ -5,7 +5,7 @@ export function useToggleTariffStatus() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (id: string) => toggleTariffStatus(id),
+    mutationFn: ({ id, active }: { id: string; active: boolean }) => toggleTariffStatus(id, active),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tariffs'] })
     },

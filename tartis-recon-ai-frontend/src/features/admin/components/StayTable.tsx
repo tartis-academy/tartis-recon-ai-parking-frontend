@@ -7,6 +7,7 @@ import {
   Pagination,
   LoadingSpinner,
   ErrorMessage,
+  CopyBadge,
 } from '@/shared/ui'
 import { adminLabels } from '../labels'
 import { STAY_TABLE_COLUMNS_COUNT } from '../constants'
@@ -62,27 +63,7 @@ export function StayTable({
   const labels = adminLabels.stays
   const hasActiveFilters = Boolean(search) || status !== 'ALL' || vehicleType !== 'ALL'
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardBody>
-          <LoadingSpinner />
-          <p className="text-center text-gray-400 mt-4">{labels.loading}</p>
-        </CardBody>
-      </Card>
-    )
-  }
-
-  if (isError) {
-    return (
-      <Card>
-        <CardBody>
-          <ErrorMessage>{labels.error}</ErrorMessage>
-        </CardBody>
-      </Card>
-    )
-  }
-
+  // Removed early returns for isLoading and isError to keep the toolbar mounted
   return (
     <Card>
       <CardHeader>
@@ -106,36 +87,53 @@ export function StayTable({
         <table className="hidden xl:table w-full text-left border-collapse">
           <thead>
             <tr className="bg-surface-app/50 border-b border-border-subtle text-gray-500 text-xs uppercase tracking-wider font-semibold">
+              <th className="p-3 xl:p-4 2xl:p-5">{labels.tableHeaders.stayId}</th>
               <th className="p-3 xl:p-4 2xl:p-5">{labels.tableHeaders.plate}</th>
               <th className="p-3 xl:p-4 2xl:p-5">{labels.tableHeaders.spot}</th>
               <th className="p-3 xl:p-4 2xl:p-5">{labels.tableHeaders.tariff}</th>
               <th className="p-3 xl:p-4 2xl:p-5">{labels.tableHeaders.checkIn}</th>
               <th className="p-3 xl:p-4 2xl:p-5">{labels.tableHeaders.checkOut}</th>
               <th className="p-3 xl:p-4 2xl:p-5">{labels.tableHeaders.total}</th>
-              <th className="p-3 xl:p-4 2xl:p-5 text-center">{labels.tableHeaders.status}</th>
+              <th className="p-3 xl:p-4 2xl:p-5 text-right">{labels.tableHeaders.status}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-subtle">
-            {stays.map((stay) => (
-              <tr key={stay.id} className="hover:bg-surface-row-hover/50 transition-colors duration-200 text-sm">
-                <td className="p-3 xl:p-4 2xl:p-5 font-bold text-gray-200">{stay.vehicle.plate}</td>
-                <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">{stay.spot.code}</td>
+            {isLoading ? (
+              <tr>
+                <td colSpan={STAY_TABLE_COLUMNS_COUNT} className="p-8">
+                  <LoadingSpinner />
+                  <p className="text-center text-gray-400 mt-4">{labels.loading}</p>
+                </td>
+              </tr>
+            ) : isError ? (
+              <tr>
+                <td colSpan={STAY_TABLE_COLUMNS_COUNT} className="p-8">
+                  <ErrorMessage>{labels.error}</ErrorMessage>
+                </td>
+              </tr>
+            ) : stays.map((stay) => (
+              <tr key={stay.stayId} className="hover:bg-surface-row-hover/50 transition-colors duration-200 text-sm">
+                <td className="p-3 xl:p-4 2xl:p-5 text-gray-400">
+                  <CopyBadge value={stay.stayId} />
+                </td>
+                <td className="p-3 xl:p-4 2xl:p-5 font-bold text-gray-200">{stay.plate}</td>
                 <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">
-                  <span className="inline-flex px-3 py-1 rounded-md text-xs font-medium bg-surface-panel border border-border-default text-gray-300 truncate max-w-[180px]">
-                    {stay.tariff.name}
-                  </span>
+                  <CopyBadge value={stay.spotId} />
+                </td>
+                <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">
+                  <CopyBadge value={stay.tariffId} />
                 </td>
                 <td className="p-3 xl:p-4 2xl:p-5 text-gray-400">{formatCheckIn(stay.checkIn)}</td>
                 <td className="p-3 xl:p-4 2xl:p-5 text-gray-400">{formatCheckOut(stay.checkOut, stay.status)}</td>
                 <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">{formatTotal(stay.totalAmount, stay.status)}</td>
-                <td className="p-3 xl:p-4 2xl:p-5 text-center">
+                <td className="p-3 xl:p-4 2xl:p-5 text-right">
                   <StatusBadge variant={statusBadgeVariant[stay.status]}>
                     {resolveStatusLabel(stay.status)}
                   </StatusBadge>
                 </td>
               </tr>
             ))}
-            {stays.length === 0 && (
+            {!isLoading && !isError && stays.length === 0 && (
               <StayTableEmptyState
                 hasActiveFilters={hasActiveFilters}
                 labels={labels}
@@ -147,15 +145,24 @@ export function StayTable({
         </table>
 
         <div className="xl:hidden">
-          {stays.length > 0 ? (
+          {isLoading ? (
+            <div className="p-8">
+              <LoadingSpinner />
+              <p className="text-center text-gray-400 mt-4">{labels.loading}</p>
+            </div>
+          ) : isError ? (
+            <div className="p-8">
+              <ErrorMessage>{labels.error}</ErrorMessage>
+            </div>
+          ) : stays.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {stays.map((stay) => (
                 <StayCard
-                  key={stay.id}
-                  plate={stay.vehicle.plate}
-                  spot={stay.spot.code}
-                  vehicleTypeLabel={resolveVehicleTypeLabel(stay.vehicle.type)}
-                  tariff={formatTariff(stay.tariff.name, stay.tariff.rate)}
+                  key={stay.stayId}
+                  plate={stay.plate}
+                  spot={stay.spotId}
+                  vehicleTypeLabel={stay.vehicleType ? resolveVehicleTypeLabel(stay.vehicleType) : stay.vehicleId}
+                  tariff={formatTariff(stay.tariffId)}
                   checkIn={formatCheckIn(stay.checkIn)}
                   checkOut={formatCheckOut(stay.checkOut, stay.status)}
                   total={formatTotal(stay.totalAmount, stay.status)}
@@ -171,7 +178,7 @@ export function StayTable({
                     viewTicket: labels.viewTicket,
                     viewTicketUnavailable: labels.viewTicketUnavailable,
                   }}
-                  onViewTicket={onViewTicket ? () => onViewTicket(stay.id) : undefined}
+                  onViewTicket={onViewTicket ? () => onViewTicket(stay.stayId) : undefined}
                 />
               ))}
             </div>

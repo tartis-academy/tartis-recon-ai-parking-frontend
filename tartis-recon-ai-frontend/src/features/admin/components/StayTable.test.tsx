@@ -6,49 +6,40 @@ import type { Stay } from '../types/stay'
 
 const mockStays: Stay[] = [
   {
-    id: '1',
-    vehicleId: 'v1',
-    spotId: 's1',
-    tariffId: 't1',
+    stayId: '1',
+    plate: '1234ABC',
+    vehicleId: 'Coche',
+    spotId: 'A-01',
+    tariffId: 'Tarifa Coche',
     checkIn: '2026-07-22T08:30:00.000Z',
     checkOut: null,
     totalAmount: null,
     status: 'IN_PROGRESS',
-    vehicle: { plate: '1234ABC', type: 'CAR' },
-    spot: { code: 'A-01' },
-    tariff: { name: 'Tarifa Coche', rate: 0.05 },
-    entryTicket: { id: 'et-1' },
-    ticket: null,
+    vehicleType: 'CAR',
   },
   {
-    id: '2',
-    vehicleId: 'v2',
-    spotId: 's2',
-    tariffId: 't2',
+    stayId: '2',
+    plate: '5678DEF',
+    vehicleId: 'CAR_PMR',
+    spotId: 'B-02',
+    tariffId: 'Tarifa Moto',
     checkIn: '2026-07-21T10:00:00.000Z',
     checkOut: '2026-07-21T14:30:00.000Z',
     totalAmount: 12.5,
     status: 'FINISHED',
-    vehicle: { plate: '5678DEF', type: 'MOTORBIKE' },
-    spot: { code: 'B-02' },
-    tariff: { name: 'Tarifa Moto', rate: 0.03 },
-    entryTicket: { id: 'et-2' },
-    ticket: { id: 'tk-2', totalAmount: 12.5 },
+    vehicleType: 'MOTORBIKE',
   },
   {
-    id: '3',
-    vehicleId: 'v3',
-    spotId: 's3',
-    tariffId: 't1',
+    stayId: '3',
+    plate: '9012GHI',
+    vehicleId: 'Coche',
+    spotId: 'C-03',
+    tariffId: 'Tarifa Coche',
     checkIn: '2026-07-20T09:00:00.000Z',
     checkOut: null,
     totalAmount: null,
     status: 'CANCELLED',
-    vehicle: { plate: '9012GHI', type: 'CAR_PMR' },
-    spot: { code: 'C-03' },
-    tariff: { name: 'Tarifa Coche', rate: 0.05 },
-    entryTicket: null,
-    ticket: null,
+    vehicleType: 'CAR_PMR',
   },
 ]
 
@@ -202,13 +193,13 @@ describe('StayTable', () => {
   it('renders loading state', () => {
     renderStayTable({ isLoading: true })
 
-    expect(screen.getByText(/cargando estancias/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/cargando estancias/i)[0]).toBeInTheDocument()
   })
 
   it('renders error state', () => {
     renderStayTable({ isError: true })
 
-    expect(screen.getByText(/error al cargar las estancias/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/error al cargar las estancias/i)[0]).toBeInTheDocument()
   })
 
   it('renders cards with semantic markup and vehicle type context', () => {

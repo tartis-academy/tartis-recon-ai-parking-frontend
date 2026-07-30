@@ -1,4 +1,4 @@
-import { StatusBadge, Button } from '@/shared/ui'
+import { StatusBadge, Button, CopyBadge } from '@/shared/ui'
 
 interface StayCardLabels {
   spot: string
@@ -44,11 +44,12 @@ export function StayCard({
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="font-bold text-lg text-gray-200 truncate">{plate}</h3>
-          <p className="text-sm text-gray-400 mt-1">
-            {labels.spot} {spot}
-            <span className="mx-1.5 text-gray-600" aria-hidden="true">·</span>
-            {vehicleTypeLabel}
-          </p>
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-400 mt-1">
+            <span className="text-gray-400">{labels.spot} </span>
+            <CopyBadge value={spot} />
+            <span className="text-gray-600" aria-hidden="true">·</span>
+            <CopyBadge value={vehicleTypeLabel} />
+          </div>
         </div>
         <StatusBadge variant={statusVariant}>{statusLabel}</StatusBadge>
       </header>
@@ -56,19 +57,21 @@ export function StayCard({
       <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
         <div>
           <dt className="text-xs text-gray-500 uppercase tracking-wide">{labels.checkIn}</dt>
-          <dd className="text-gray-200 mt-1">{checkIn}</dd>
+          <dd className="text-gray-200 mt-1 text-sm">{checkIn}</dd>
         </div>
         <div>
           <dt className="text-xs text-gray-500 uppercase tracking-wide">{labels.checkOut}</dt>
-          <dd className="text-gray-200 mt-1">{checkOut}</dd>
+          <dd className="text-gray-200 mt-1 text-sm">{checkOut}</dd>
         </div>
         <div>
           <dt className="text-xs text-gray-500 uppercase tracking-wide">{labels.total}</dt>
-          <dd className="text-gray-200 mt-1 font-medium">{total}</dd>
+          <dd className="text-gray-200 mt-1 text-sm font-medium">{total}</dd>
         </div>
         <div>
           <dt className="text-xs text-gray-500 uppercase tracking-wide">{labels.tariff}</dt>
-          <dd className="text-gray-200 mt-1 truncate" title={tariff}>{tariff}</dd>
+          <dd className="mt-1">
+            <CopyBadge value={tariff} displayValue={tariff} />
+          </dd>
         </div>
       </dl>
 

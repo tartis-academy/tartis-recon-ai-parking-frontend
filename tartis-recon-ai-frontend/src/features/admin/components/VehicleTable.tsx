@@ -1,31 +1,29 @@
 import type { Vehicle } from '../types/vehicle'
-import type { StatusFilter } from '../types/vehicle'
-import { Card, CardHeader, CardBody, StatusBadge, EmptyState, TextInput, Select, Icon } from '@/shared/ui'
+import { Card, CardHeader, CardBody, StatusBadge, EmptyState, TextInput, Icon } from '@/shared/ui'
 import { adminLabels } from '../labels'
 
 interface VehicleTableProps {
   vehicles: Vehicle[]
   searchQuery: string
   onSearchChange: (val: string) => void
-  statusFilter: StatusFilter
-  onFilterChange: (val: StatusFilter) => void
+  onToggleStatus: (vehicle: Vehicle) => void
+  onEdit?: (vehicle: Vehicle) => void
 }
 
-export function VehicleTable({ 
-  vehicles, 
-  searchQuery, 
-  onSearchChange, 
-  statusFilter, 
-  onFilterChange,
+export function VehicleTable({
+  vehicles,
+  searchQuery,
+  onSearchChange,
+  onToggleStatus,
+  onEdit,
 }: VehicleTableProps) {
-  const { 
-    tableHeaders, 
-    types, 
-    status, 
-    emptyState, 
-    records, 
+  const {
+    tableHeaders,
+    types,
+    emptyState,
+    records,
     searchPlaceholder,
-    filterAll,
+    actions,
   } = adminLabels.vehicles
 
   return (
@@ -39,26 +37,15 @@ export function VehicleTable({
         </div>
       </CardHeader>
       
-      {/* Toolbar (Filters & Search) */}
+      {/* Toolbar (Search) */}
       <div className="p-5 border-b border-border-subtle bg-surface-card flex flex-wrap gap-4 items-center">
         <div className="flex-1 min-w-[200px] max-w-sm">
-          <TextInput 
+          <TextInput
             icon={<Icon name="search" />}
             placeholder={searchPlaceholder}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />
-        </div>
-        <div className="w-48">
-          <Select 
-            icon={<Icon name="filter" />}
-            value={statusFilter}
-            onChange={(e) => onFilterChange(e.target.value as 'ALL' | 'PARKED' | 'OUTSIDE')}
-          >
-            <option value="ALL">{filterAll}</option>
-            <option value="PARKED">{status.parked}</option>
-            <option value="OUTSIDE">{status.outside}</option>
-          </Select>
         </div>
       </div>
 
@@ -71,6 +58,7 @@ export function VehicleTable({
               <th className="p-5">{tableHeaders.brandModel}</th>
               <th className="p-5">{tableHeaders.type}</th>
               <th className="p-5 text-center">{tableHeaders.status}</th>
+              <th className="p-5 text-right w-28">{tableHeaders.actions}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-subtle">
@@ -85,16 +73,53 @@ export function VehicleTable({
                   </span>
                 </td>
                 <td className="p-5 text-center">
-                  {vehicle.isParked ? (
-                    <StatusBadge variant="parked">{status.parked}</StatusBadge>
-                  ) : (
-                    <StatusBadge variant="outside">{status.outside}</StatusBadge>
+                  {!vehicle.active && (
+                    <StatusBadge variant="unavailable">{actions.inactive}</StatusBadge>
                   )}
+                </td>
+                <td className="p-5 text-right">
+                  <div className="flex items-center justify-end gap-3">
+                    {onEdit && (
+                      <button
+                        type="button"
+                        onClick={() => onEdit(vehicle)}
+                        className="flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors group"
+                        title={actions.edit}
+                        aria-label={actions.edit}
+                      >
+                        <Icon name="pencil" className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        <span className="text-[10px] font-bold tracking-wider">{actions.edit}</span>
+                      </button>
+                    )}
+                    {vehicle.active ? (
+                      <button
+                        type="button"
+                        onClick={() => onToggleStatus(vehicle)}
+                        className="flex flex-col items-center gap-1 text-gray-400 hover:text-red-400 transition-colors group"
+                        title={actions.deactivate}
+                        aria-label={actions.baja}
+                      >
+                        <Icon name="ban" className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        <span className="text-[10px] font-bold tracking-wider">{actions.baja}</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => onToggleStatus(vehicle)}
+                        className="flex flex-col items-center gap-1 text-emerald-500 hover:text-emerald-400 transition-colors group"
+                        title={actions.activate}
+                        aria-label={actions.alta}
+                      >
+                        <Icon name="check-circle" className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        <span className="text-[10px] font-bold tracking-wider text-emerald-500 group-hover:text-emerald-400">{actions.alta}</span>
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
             {vehicles.length === 0 && (
-              <EmptyState colSpan={5}>{emptyState}</EmptyState>
+              <EmptyState colSpan={6}>{emptyState}</EmptyState>
             )}
           </tbody>
         </table>

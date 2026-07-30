@@ -28,6 +28,15 @@ export const createVehicle = async (data: CreateVehicleInput): Promise<Vehicle> 
   return response.data
 }
 
-export const deactivateVehicle = async (uniqueId: string): Promise<void> => {
-  await apiClient.patch(`/v1/vehicles/${uniqueId}/status`)
+export const updateVehicle = async (id: string, data: CreateVehicleInput): Promise<Vehicle> => {
+  const response = await apiClient.put<Vehicle>(`/v1/vehicles/${id}`, data)
+  return response.data
 }
+
+export const activateVehicle = async (id: string): Promise<void> => {
+  await apiClient.patch(`/v1/vehicles/${id}/status`, { active: true })
+}
+
+export const deactivateVehicle = async (id: string): Promise<void> => {
+  await apiClient.patch(`/v1/vehicles/${id}/status`, { active: false })
+}

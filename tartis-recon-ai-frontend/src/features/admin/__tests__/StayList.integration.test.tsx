@@ -68,10 +68,9 @@ describe('StayListContainer integration', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('cell', { name: '1234ABC' })).toBeInTheDocument()
+      expect(screen.queryByRole('cell', { name: '5678DEF' })).not.toBeInTheDocument()
+      expect(screen.getByText('1 - 2 de 2 registros')).toBeInTheDocument()
     })
-
-    expect(screen.queryByRole('cell', { name: '5678DEF' })).not.toBeInTheDocument()
-    expect(screen.getByText('1 - 2 de 2 registros')).toBeInTheDocument()
   })
 
   it('filters stays by status', async () => {
