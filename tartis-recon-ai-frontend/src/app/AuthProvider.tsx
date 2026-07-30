@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { keycloak, initKeycloak, getAuthToken, getToken } from '@/lib/keycloak'
+import { authLabels } from './labels'
 
 // eslint-disable-next-line react-refresh/only-export-components -- contrato de shell/AuthProvider ya consumido por mfe-entryexit exige getAuthToken/getToken en el mismo módulo que el componente
 export { getAuthToken, getToken }
@@ -15,13 +16,24 @@ interface AuthProviderProps {
  */
 export function AuthProvider({ children }: AuthProviderProps) {
   const [ready, setReady] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    initKeycloak().then(() => setReady(true))
+    initKeycloak()
+      .then(() => setReady(true))
+      .catch((err) => setError(err?.message || authLabels.defaultError))
   }, [])
 
+  if (error) {
+    return (
+      <div className="p-4 text-state-error">
+        {authLabels.errorPrefix}: {error}
+      </div>
+    )
+  }
+
   if (!ready || !keycloak.authenticated) {
-    return null
+    return <div className="p-4 text-gray-300">{authLabels.loading}</div>
   }
 
   return <>{children}</>

@@ -15,11 +15,17 @@ let initPromise: Promise<boolean> | null = null
  */
 export function initKeycloak(): Promise<boolean> {
   if (!initPromise) {
-    initPromise = keycloak.init({
-      onLoad: 'login-required',
-      pkceMethod: 'S256',
-      checkLoginIframe: false,
-    })
+    initPromise = keycloak
+      .init({
+        onLoad: 'login-required',
+        pkceMethod: 'S256',
+        checkLoginIframe: false,
+      })
+      .catch((err) => {
+        // Permite reintentar en la siguiente llamada en vez de dejar la promesa rechazada para siempre
+        initPromise = null
+        throw err
+      })
 
     keycloak.onTokenExpired = () => {
       keycloak.updateToken(30).catch(() => keycloak.login())
