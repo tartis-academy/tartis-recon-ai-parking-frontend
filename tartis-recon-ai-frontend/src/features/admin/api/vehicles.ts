@@ -1,6 +1,7 @@
 import apiClient from '@/lib/api-client'
 import type { Vehicle, CreateVehicleInput } from '../types/vehicle'
-import type { PaginatedResponse, Stay } from '../types/stay'
+import type { Stay } from '../types/stay'
+import type { SpringPageResponse } from '@/lib/pagination'
 
 function toVehicleList(payload: unknown): Vehicle[] {
   if (Array.isArray(payload)) {
@@ -22,10 +23,10 @@ function toVehicleList(payload: unknown): Vehicle[] {
 export const getVehicles = async (): Promise<Vehicle[]> => {
   const [vehiclesRes, staysRes] = await Promise.all([
     apiClient.get<unknown>('/v1/vehicles'),
-    apiClient.get<PaginatedResponse<Stay>>('/v1/stays', { 
+    apiClient.get<SpringPageResponse<Stay>>('/v1/stays', { 
       params: { status: 'IN_PROGRESS', size: 1000 },
       skipToast: true,
-    }).catch(() => ({ data: { content: [] } as unknown as PaginatedResponse<Stay> })),
+    }).catch(() => ({ data: { content: [] } as unknown as SpringPageResponse<Stay> })),
   ])
   
   const vehicles = toVehicleList(vehiclesRes.data)

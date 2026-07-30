@@ -1,7 +1,7 @@
 import apiClient from '@/lib/api-client'
+import { normalizePageResponse, type SpringPageResponse } from '@/lib/pagination'
 import type { PaginatedResponse, Stay, StayFilters } from '../types/stay'
 import { getVehicles } from './vehicles'
-
 let vehicleMapCache: Map<string, string> | null = null
 let cacheTimestamp = 0
 const CACHE_TTL_MS = 5 * 60 * 1000 // 5 minutes
@@ -38,7 +38,7 @@ export const getStays = async (
   filters: StayFilters,
 ): Promise<PaginatedResponse<Stay>> => {
   const backendPage = Math.max(0, page - 1)
-  const response = await apiClient.get<PaginatedResponse<Stay>>('/v1/stays', {
+  const response = await apiClient.get<SpringPageResponse<Stay>>('/v1/stays', {
     params: { page: backendPage, size: pageSize, ...filters },
   })
   const data = response.data
@@ -64,11 +64,5 @@ export const getStays = async (
     }
   }
 
-  return {
-    ...data,
-    content,
-    page: (data?.page ?? 0) + 1,
-    size: data?.size ?? pageSize,
-    totalElements: data?.totalElements ?? 0,
-  }
+  return normalizePageResponse({ ...data, content }, pageSize)
 }
