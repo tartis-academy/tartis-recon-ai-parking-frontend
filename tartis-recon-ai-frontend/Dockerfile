@@ -1,7 +1,6 @@
 # Multi-stage: build de la SPA con Node y luego se sirve el estatico con
-# nginx, que ademas reenvia las llamadas de API hacia Kong (el frontend solo
-# conoce un VITE_API_BASE_URL relativo y llama a rutas /v1/*; nginx las
-# traduce a las /api/v1/* del gateway, ver nginx.conf).
+# nginx, que ademas hace de reverse proxy hacia los microservicios (el
+# frontend solo conoce un VITE_API_BASE_URL relativo y llama a rutas /v1/*).
 
 # --- build ---
 FROM node:20-alpine AS build
@@ -11,8 +10,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
-# Relativo: nginx reenvia /v1/* a Kong, que valida el JWT y enruta al
-# microservicio correcto (ver nginx.conf).
+# Relativo: nginx resuelve /v1/* contra el microservicio correcto (ver nginx.conf).
 ENV VITE_API_BASE_URL=""
 RUN npm run build
 
