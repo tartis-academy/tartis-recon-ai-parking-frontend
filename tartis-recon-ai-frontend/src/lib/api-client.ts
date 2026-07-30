@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios'
-import { getDevToken } from './keycloak'
+import { keycloak, getAuthToken } from './keycloak'
 
 declare module 'axios' {
   export interface AxiosRequestConfig {
@@ -39,8 +39,8 @@ apiClient.interceptors.request.use((config) => {
     return config
   }
   return (async () => {
-    if (import.meta.env.DEV && !config.headers.Authorization) {
-      const token = await getDevToken()
+    if (!config.headers.Authorization) {
+      const token = await getAuthToken()
       if (token) {
         config.headers.Authorization = `Bearer ${token}`
       }
@@ -54,6 +54,10 @@ apiClient.interceptors.response.use(
   (error: AxiosError<BackendErrorPayload>) => {
     const responseData = error?.response?.data
     const responseStatus = error?.response?.status
+
+    if (responseStatus === 401) {
+      keycloak.login()
+    }
 
     const message =
       responseData?.message ||

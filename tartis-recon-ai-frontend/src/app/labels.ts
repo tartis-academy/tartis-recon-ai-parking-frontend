@@ -1,3 +1,9 @@
+export const authLabels = {
+  loading: 'Cargando sesión...',
+  errorPrefix: 'Error de autenticación',
+  defaultError: 'No se pudo autenticar con Keycloak',
+}
+
 export const notificationLabels = {
   closeToast: 'Cerrar notificación',
   systemTitle: 'Notificación del sistema',

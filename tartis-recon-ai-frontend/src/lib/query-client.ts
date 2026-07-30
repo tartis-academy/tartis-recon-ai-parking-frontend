@@ -4,9 +4,10 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 2,
-      staleTime: 10 * 1000,
       gcTime: 10 * 60 * 1000,
-      refetchOnWindowFocus: true,
+      // Sin polling por staleTime/refetchOnWindowFocus: la frescura la gestiona
+      // el SSE (useRealtimeSync) invalidando las queries afectadas.
+      refetchOnWindowFocus: false,
     },
   },
 })

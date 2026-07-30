@@ -56,7 +56,8 @@ export function useSseNotifications(
 
     const connect = () => {
       try {
-        const storedToken = localStorage.getItem('access_token')
+        const storedToken =
+          typeof localStorage !== 'undefined' ? localStorage.getItem('access_token') : null
         const finalUrl = storedToken
           ? `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}token=${encodeURIComponent(storedToken)}`
           : baseUrl
