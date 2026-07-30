@@ -8,7 +8,7 @@ describe('normalizePageResponse', () => {
       number: 0,
       size: 20,
       totalElements: 2,
-      totalPages: 1
+      totalPages: 1,
     }
     const result = normalizePageResponse(springResponse, 10)
     
@@ -23,7 +23,7 @@ describe('normalizePageResponse', () => {
       content: ['item'],
       page: 2,
       size: 15,
-      totalElements: 1
+      totalElements: 1,
     }
     const result = normalizePageResponse(legacyResponse, 10)
     
