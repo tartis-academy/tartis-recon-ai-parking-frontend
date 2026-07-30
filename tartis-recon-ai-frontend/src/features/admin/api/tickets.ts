@@ -25,7 +25,7 @@ export const getTickets = async (
   return {
     ...data,
     content: data.content ?? [],
-    page: (data.page ?? 0) + 1,
+    page: ((data as any).number ?? data.page ?? 0) + 1,
     size: data.size ?? pageSize,
     totalElements: data.totalElements ?? 0,
   }
