@@ -13,7 +13,7 @@ interface CopyBadgeProps {
 export function CopyBadge({ value, displayValue, title, className = '' }: CopyBadgeProps) {
   const [copied, setCopied] = useState(false)
 
-  const formattedDisplay = displayValue || (value ? truncateId(value) : value)
+  const formattedDisplay = displayValue || truncateId(value)
 
   return (
     <button
