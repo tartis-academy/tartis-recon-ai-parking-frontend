@@ -24,12 +24,17 @@ export function VehicleListContainer() {
   const [vehicleToEdit, setVehicleToEdit] = useState<Vehicle | null>(null)
 
   const handleConfirm = () => {
-    const targetId = vehicleToConfirm?.id || vehicleToConfirm?.uniqueId
-    if (!vehicleToConfirm || !targetId) return
-    toggleVehicle(targetId, {
+    if (!vehicleToConfirm) return
+    const isDeactivating = vehicleToConfirm.active
+    toggleVehicle(vehicleToConfirm, {
       onSuccess: () => {
         setVehicleToConfirm(null)
-        addToast({ type: 'success', message: 'Estado del vehículo actualizado correctamente' })
+        addToast({ 
+          type: 'success', 
+          message: isDeactivating 
+            ? 'Vehículo dado de baja correctamente' 
+            : 'Vehículo dado de alta correctamente' 
+        })
       },
       onError: () => addToast({ type: 'error', message: adminLabels.vehicles.actions.errorUpdate }),
     })
@@ -63,15 +68,17 @@ export function VehicleListContainer() {
   
   // TODO: Migrar filtrado a query params del router / backend cuando crezca el dataset
   const vehicleList = Array.isArray(vehicles) ? vehicles : []
-  const filteredVehicles = vehicleList.filter((v) => {
-    const matchesSearch = v.plate.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus =
-      statusFilter === 'ALL' ? true :
-      statusFilter === 'PARKED' ? v.isParked === true :
-      v.isParked === false
+  const filteredVehicles = vehicleList
+    .filter((v) => {
+      const matchesSearch = v.plate.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesStatus =
+        statusFilter === 'ALL' ? true :
+        statusFilter === 'PARKED' ? v.isParked === true :
+        v.isParked === false
 
-    return matchesSearch && matchesStatus
-  })
+      return matchesSearch && matchesStatus
+    })
+    .sort((a, b) => a.plate.localeCompare(b.plate, undefined, { numeric: true, sensitivity: 'base' }))
 
   return (
     <div className="max-w-[1400px] mx-auto animate-fade-in">

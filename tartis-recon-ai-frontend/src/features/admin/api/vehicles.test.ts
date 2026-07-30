@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { getVehicles, createVehicle, updateVehicle, deactivateVehicle } from './vehicles'
+import { getVehicles, createVehicle, updateVehicle, activateVehicle, deactivateVehicle } from './vehicles'
 import apiClient from '@/lib/api-client'
 import type { Vehicle, CreateVehicleInput } from '../types/vehicle'
 
@@ -289,14 +289,23 @@ describe('vehicles API client', () => {
     })
   })
 
-  describe('deactivateVehicle', () => {
-    it('should call PATCH /v1/vehicles/{uniqueId}/status', async () => {
+  describe('activateVehicle & deactivateVehicle', () => {
+    it('should call PATCH /v1/vehicles/{id}/status with active: true for activateVehicle', async () => {
+      vi.mocked(apiClient.patch).mockResolvedValueOnce({})
+
+      await activateVehicle('uniq-1')
+
+      expect(apiClient.patch).toHaveBeenCalledTimes(1)
+      expect(apiClient.patch).toHaveBeenCalledWith('/v1/vehicles/uniq-1/status', { active: true })
+    })
+
+    it('should call PATCH /v1/vehicles/{id}/status with active: false for deactivateVehicle', async () => {
       vi.mocked(apiClient.patch).mockResolvedValueOnce({})
 
       await deactivateVehicle('uniq-1')
 
       expect(apiClient.patch).toHaveBeenCalledTimes(1)
-      expect(apiClient.patch).toHaveBeenCalledWith('/v1/vehicles/uniq-1/status')
+      expect(apiClient.patch).toHaveBeenCalledWith('/v1/vehicles/uniq-1/status', { active: false })
     })
 
     it('should propagate API error when deactivateVehicle fails', async () => {

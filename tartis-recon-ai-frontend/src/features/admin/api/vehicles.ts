@@ -50,6 +50,10 @@ export const updateVehicle = async (id: string, data: CreateVehicleInput): Promi
   return response.data
 }
 
+export const activateVehicle = async (id: string): Promise<void> => {
+  await apiClient.patch(`/v1/vehicles/${id}/status`, { active: true })
+}
+
 export const deactivateVehicle = async (id: string): Promise<void> => {
-  await apiClient.patch(`/v1/vehicles/${id}/status`)
+  await apiClient.patch(`/v1/vehicles/${id}/status`, { active: false })
 }
