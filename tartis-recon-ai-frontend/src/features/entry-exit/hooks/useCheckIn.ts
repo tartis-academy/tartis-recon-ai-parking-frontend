@@ -12,7 +12,7 @@ export function useCheckIn(): UseMutationResult<CheckInResponse, Error, CheckInR
         return await stayService.checkIn(payload, { skipToast: true })
       } catch (error) {
         if (isAxiosError(error) && error.response?.status === 409) {
-          throw new Error('No hay plazas libres')
+          throw new Error('No hay plazas libres', { cause: error })
         }
         throw error
       }

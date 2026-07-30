@@ -15,13 +15,7 @@ export interface Stay {
   vehicleType?: VehicleType
 }
 
-export interface PaginatedResponse<T> {
-  content: T[]
-  totalElements: number
-  page: number
-  size: number
-  totalPages?: number
-}
+export type { PaginatedResponse } from '@/lib/pagination'
 
 export type StayStatusFilter = 'ALL' | StayStatus
 export type StayVehicleTypeFilter = 'ALL' | VehicleType

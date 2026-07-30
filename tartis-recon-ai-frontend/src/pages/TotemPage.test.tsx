@@ -115,7 +115,7 @@ describe('TotemPage Component', () => {
         plate: '5678DEF',
         vehicleType: 'CAR',
       },
-      { skipToast: true }
+      { skipToast: true },
     )
 
     expect(await screen.findByText(/ticket emitido exitosamente/i)).toBeInTheDocument()
@@ -185,7 +185,7 @@ describe('TotemPage Component', () => {
       {
         plate: '9999ZZZ',
       },
-      { skipToast: true }
+      { skipToast: true },
     )
 
     expect(await screen.findByRole('dialog', { name: /ticket de salida/i })).toBeInTheDocument()

@@ -222,7 +222,18 @@ describe('vehicles API client', () => {
         numDoors: 5,
         hasSidecar: false,
       }
-      const createdVehicle: Vehicle = { id: 'v-1', uniqueId: 'uniq-1', active: true, ...input }
+      const createdVehicle: Vehicle = {
+        id: 'v-1',
+        uniqueId: 'uniq-1',
+        active: true,
+        type: 'CAR',
+        plate: '1234ABC',
+        brand: 'Toyota',
+        model: 'Corolla',
+        color: 'Red',
+        numDoors: 5,
+        hasSidecar: false,
+      }
 
       vi.mocked(apiClient.post).mockResolvedValueOnce({ data: createdVehicle })
 
@@ -261,7 +272,18 @@ describe('vehicles API client', () => {
         numDoors: 5,
         hasSidecar: false,
       }
-      const updatedVehicle: Vehicle = { id: 'v-1', uniqueId: 'uniq-1', active: true, ...input }
+      const updatedVehicle: Vehicle = {
+        id: 'v-1',
+        uniqueId: 'uniq-1',
+        active: true,
+        type: 'CAR',
+        plate: '1234ABC',
+        brand: 'Toyota',
+        model: 'Corolla Hybrid',
+        color: 'Blue',
+        numDoors: 5,
+        hasSidecar: false,
+      }
 
       vi.mocked(apiClient.put).mockResolvedValueOnce({ data: updatedVehicle })
 

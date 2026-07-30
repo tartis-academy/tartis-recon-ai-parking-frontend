@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom'
 import { vehicleSchema, type VehicleFormData } from '../validation/vehicleSchema'
 import { adminLabels } from '../labels'
 import { TextInput, Select, Button, Icon } from '@/shared/ui'
+import type { Vehicle } from '../types/vehicle'
 
 interface VehicleFormProps {
   onSubmit: (data: VehicleFormData) => void
@@ -15,6 +16,42 @@ interface VehicleFormProps {
 export function VehicleForm({ onSubmit, onClose, isPending, initialValues }: VehicleFormProps) {
   const { form } = adminLabels
 
+  const getDefaultValues = (): VehicleFormData => {
+    if (!initialValues) {
+      return {
+        plate: '',
+        brand: '',
+        model: '',
+        color: '',
+        type: 'CAR',
+        numDoors: 4,
+        hasSidecar: false,
+      }
+    }
+
+    if (initialValues.type === 'MOTORBIKE') {
+      return {
+        plate: initialValues.plate,
+        brand: initialValues.brand,
+        model: initialValues.model,
+        color: initialValues.color || '',
+        type: 'MOTORBIKE',
+        numDoors: 0,
+        hasSidecar: initialValues.hasSidecar,
+      }
+    }
+
+    return {
+      plate: initialValues.plate,
+      brand: initialValues.brand,
+      model: initialValues.model,
+      color: initialValues.color || '',
+      type: initialValues.type,
+      numDoors: initialValues.numDoors,
+      hasSidecar: false,
+    }
+  }
+
   const {
     register,
     handleSubmit,
@@ -22,19 +59,7 @@ export function VehicleForm({ onSubmit, onClose, isPending, initialValues }: Veh
     formState: { errors },
   } = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
-    defaultValues: initialValues ? {
-      plate: initialValues.plate,
-      brand: initialValues.brand,
-      model: initialValues.model,
-      color: initialValues.color || '',
-      type: initialValues.type,
-      numDoors: initialValues.type === 'CAR' || initialValues.type === 'CAR_PMR' ? initialValues.numDoors : 4,
-      hasSidecar: initialValues.type === 'MOTORBIKE' ? initialValues.hasSidecar : false,
-    } : {
-      type: 'CAR',
-      numDoors: 4,
-      hasSidecar: false,
-    },
+    defaultValues: getDefaultValues(),
   })
 
   const vehicleType = useWatch({ control, name: 'type' })
