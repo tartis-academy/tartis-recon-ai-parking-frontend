@@ -170,6 +170,7 @@ export const adminLabels = {
     filterByStatus: 'Filtrar por estado',
     filterByVehicleType: 'Filtrar por tipo de vehículo',
     tableHeaders: {
+      stayId: 'ID Estancia',
       plate: 'Matrícula',
       spot: 'Plaza',
       tariff: 'Tarifa',

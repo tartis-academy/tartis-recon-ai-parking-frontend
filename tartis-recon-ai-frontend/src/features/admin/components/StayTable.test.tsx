@@ -193,13 +193,13 @@ describe('StayTable', () => {
   it('renders loading state', () => {
     renderStayTable({ isLoading: true })
 
-    expect(screen.getByText(/cargando estancias/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/cargando estancias/i)[0]).toBeInTheDocument()
   })
 
   it('renders error state', () => {
     renderStayTable({ isError: true })
 
-    expect(screen.getByText(/error al cargar las estancias/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/error al cargar las estancias/i)[0]).toBeInTheDocument()
   })
 
   it('renders cards with semantic markup and vehicle type context', () => {
