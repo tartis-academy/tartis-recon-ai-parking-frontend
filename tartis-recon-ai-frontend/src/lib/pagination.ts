@@ -20,7 +20,7 @@ export interface PaginatedResponse<T> {
 
 export function normalizePageResponse<T>(
   data: Partial<SpringPageResponse<T>> & { page?: number } | T[] | null | undefined,
-  fallbackPageSize: number
+  fallbackPageSize: number,
 ): PaginatedResponse<T> {
   if (Array.isArray(data)) {
     return {

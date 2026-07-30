@@ -1,6 +1,6 @@
 import apiClient from '@/lib/api-client'
 import type { Vehicle, CreateVehicleInput } from '../types/vehicle'
-import type { PaginatedResponse, Stay } from '../types/stay'
+import type { Stay } from '../types/stay'
 import type { SpringPageResponse } from '@/lib/pagination'
 
 function toVehicleList(payload: unknown): Vehicle[] {
