@@ -9,4 +9,5 @@ export * from './Icon'
 export * from './LoadingSpinner'
 export * from './ErrorMessage'
 export * from './Pagination'
+export * from './CopyBadge'
 

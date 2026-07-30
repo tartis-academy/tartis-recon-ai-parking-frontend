@@ -54,26 +54,15 @@ export const getStays = async (
 
       content = content.map((s) => ({
         ...s,
-        plate: s.plate || vehicleMap.get(s.vehicleId) || s.vehicleId.slice(0, 8),
+        plate: s.plate || (s.vehicleId ? vehicleMap.get(s.vehicleId) || s.vehicleId.slice(0, 8) : '-'),
       }))
     } catch {
       content = content.map((s) => ({
         ...s,
-        plate: s.plate || s.vehicleId.slice(0, 8),
+        plate: s.plate || (s.vehicleId ? s.vehicleId.slice(0, 8) : '-'),
       }))
     }
   }
 
-  if (filters.search) {
-    const query = filters.search.trim().toLowerCase()
-    if (query) {
-      content = content.filter((s) => s.plate?.toLowerCase().includes(query))
-    }
-  }
-
-  const normalized = normalizePageResponse({ ...data, content }, pageSize)
-  return {
-    ...normalized,
-    totalElements: filters.search ? content.length : normalized.totalElements,
-  }
+  return normalizePageResponse({ ...data, content }, pageSize)
 }

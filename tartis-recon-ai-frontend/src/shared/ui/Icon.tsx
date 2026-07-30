@@ -1,4 +1,4 @@
-export type IconName = 'plus' | 'search' | 'filter' | 'close' | 'check' | 'grid' | 'chevron-right' | 'document' | 'server' | 'clock' | 'alert' | 'refresh' | 'pencil' | 'check-circle' | 'ban'
+export type IconName = 'plus' | 'search' | 'filter' | 'close' | 'check' | 'grid' | 'chevron-right' | 'document' | 'server' | 'clock' | 'alert' | 'refresh' | 'pencil' | 'check-circle' | 'ban' | 'copy'
 
 interface IconProps {
   name: IconName
@@ -7,6 +7,12 @@ interface IconProps {
 
 export function Icon({ name, className = 'w-4 h-4' }: IconProps) {
   switch (name) {
+    case 'copy':
+      return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      )
     case 'plus':
       return (
         <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -50,7 +50,10 @@ export function formatTotal(value: number | null, status: StayStatus): string {
 }
 
 export function formatTariff(tariffId: string, rate?: number): string {
-  return rate !== undefined ? `${tariffId} (${rateFormatter.format(rate)}/min)` : tariffId
+  const displayId = tariffId && tariffId.length > 12 && tariffId.includes('-')
+    ? `${tariffId.slice(0, 8)}...`
+    : tariffId
+  return rate !== undefined ? `${displayId} (${rateFormatter.format(rate)}/min)` : displayId
 }
 
 export function resolveStatusLabel(status: StayStatus): string {

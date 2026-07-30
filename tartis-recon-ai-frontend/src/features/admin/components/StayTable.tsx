@@ -7,6 +7,7 @@ import {
   Pagination,
   LoadingSpinner,
   ErrorMessage,
+  CopyBadge,
 } from '@/shared/ui'
 import { adminLabels } from '../labels'
 import { STAY_TABLE_COLUMNS_COUNT } from '../constants'
@@ -112,13 +113,15 @@ export function StayTable({
               </tr>
             ) : stays.map((stay) => (
               <tr key={stay.stayId} className="hover:bg-surface-row-hover/50 transition-colors duration-200 text-sm">
-                <td className="p-3 xl:p-4 2xl:p-5 font-mono text-xs text-gray-400 truncate max-w-[120px]" title={stay.stayId}>{stay.stayId}</td>
+                <td className="p-3 xl:p-4 2xl:p-5 text-gray-400">
+                  <CopyBadge value={stay.stayId} />
+                </td>
                 <td className="p-3 xl:p-4 2xl:p-5 font-bold text-gray-200">{stay.plate}</td>
-                <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">{stay.spotId}</td>
                 <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">
-                  <span className="inline-flex px-3 py-1 rounded-md text-xs font-medium bg-surface-panel border border-border-default text-gray-300 truncate max-w-[180px]">
-                    {formatTariff(stay.tariffId)}
-                  </span>
+                  <CopyBadge value={stay.spotId} />
+                </td>
+                <td className="p-3 xl:p-4 2xl:p-5 text-gray-300">
+                  <CopyBadge value={stay.tariffId} displayValue={formatTariff(stay.tariffId)} />
                 </td>
                 <td className="p-3 xl:p-4 2xl:p-5 text-gray-400">{formatCheckIn(stay.checkIn)}</td>
                 <td className="p-3 xl:p-4 2xl:p-5 text-gray-400">{formatCheckOut(stay.checkOut, stay.status)}</td>

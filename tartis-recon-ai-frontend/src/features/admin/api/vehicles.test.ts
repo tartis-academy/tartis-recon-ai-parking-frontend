@@ -50,96 +50,28 @@ describe('vehicles API client', () => {
   })
 
   describe('getVehicles', () => {
-    it('should call GET /v1/vehicles and GET /v1/stays and map isParked status by plate', async () => {
-      vi.mocked(apiClient.get).mockImplementation((url) => {
-        if (url === '/v1/vehicles') {
-          return Promise.resolve({ data: [mockCar, mockMotorbike] })
-        }
-        if (url === '/v1/stays') {
-          return Promise.resolve({
-            data: {
-              content: [{ plate: '1234ABC', vehicleId: 'other-id' }],
-            },
-          })
-        }
-        return Promise.reject(new Error('Unknown URL'))
-      })
+    it('should call GET /v1/vehicles and return list of vehicles', async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: [mockCar, mockMotorbike] })
 
       const result = await getVehicles()
 
       expect(apiClient.get).toHaveBeenCalledWith('/v1/vehicles')
-      expect(apiClient.get).toHaveBeenCalledWith('/v1/stays', {
-        params: { status: 'IN_PROGRESS', size: 1000 },
-        skipToast: true,
-      })
       expect(result).toHaveLength(2)
-      expect(result[0]).toEqual({ ...mockCar, isParked: true })
-      expect(result[1]).toEqual({ ...mockMotorbike, isParked: false })
-    })
-
-    it('should map isParked status by uniqueId or id', async () => {
-      const vehicleWithIdOnly: Vehicle = {
-        id: 'id-only',
-        plate: '9999BBB',
-        brand: 'Ford',
-        model: 'Focus',
-        color: 'Blue',
-        active: true,
-        type: 'CAR',
-        numDoors: 5,
-        hasSidecar: false,
-      }
-
-      vi.mocked(apiClient.get).mockImplementation((url) => {
-        if (url === '/v1/vehicles') {
-          return Promise.resolve({ data: [mockCar, vehicleWithIdOnly] })
-        }
-        if (url === '/v1/stays') {
-          return Promise.resolve({
-            data: {
-              content: [
-                { plate: 'UNMATCHED_PLATE', vehicleId: 'uniq-1' },
-                { plate: 'UNMATCHED_PLATE_2', vehicleId: 'id-only' },
-              ],
-            },
-          })
-        }
-        return Promise.reject(new Error('Unknown URL'))
-      })
-
-      const result = await getVehicles()
-
-      expect(result[0].isParked).toBe(true)
-      expect(result[1].isParked).toBe(true)
+      expect(result[0]).toEqual(mockCar)
+      expect(result[1]).toEqual(mockMotorbike)
     })
 
     it('should handle nested response format { data: [...] } from /v1/vehicles', async () => {
-      vi.mocked(apiClient.get).mockImplementation((url) => {
-        if (url === '/v1/vehicles') {
-          return Promise.resolve({ data: { data: [mockCar] } })
-        }
-        if (url === '/v1/stays') {
-          return Promise.resolve({ data: { content: [] } })
-        }
-        return Promise.reject(new Error('Unknown URL'))
-      })
+      vi.mocked(apiClient.get).mockResolvedValue({ data: { data: [mockCar] } })
 
       const result = await getVehicles()
 
       expect(result).toHaveLength(1)
-      expect(result[0]).toEqual({ ...mockCar, isParked: false })
+      expect(result[0]).toEqual(mockCar)
     })
 
     it('should return empty array if /v1/vehicles returns non-array and non-wrapper payload', async () => {
-      vi.mocked(apiClient.get).mockImplementation((url) => {
-        if (url === '/v1/vehicles') {
-          return Promise.resolve({ data: { invalidKey: 'invalidValue' } })
-        }
-        if (url === '/v1/stays') {
-          return Promise.resolve({ data: { content: [] } })
-        }
-        return Promise.reject(new Error('Unknown URL'))
-      })
+      vi.mocked(apiClient.get).mockResolvedValue({ data: { invalidKey: 'invalidValue' } })
 
       const result = await getVehicles()
 
@@ -147,65 +79,15 @@ describe('vehicles API client', () => {
     })
 
     it('should return empty array if /v1/vehicles returns null or non-object payload', async () => {
-      vi.mocked(apiClient.get).mockImplementation((url) => {
-        if (url === '/v1/vehicles') {
-          return Promise.resolve({ data: null })
-        }
-        if (url === '/v1/stays') {
-          return Promise.resolve({ data: { content: [] } })
-        }
-        return Promise.reject(new Error('Unknown URL'))
-      })
+      vi.mocked(apiClient.get).mockResolvedValue({ data: null })
 
       const result = await getVehicles()
 
       expect(result).toEqual([])
     })
 
-    it('should handle failure of /v1/stays gracefully and default activeStays to []', async () => {
-      vi.mocked(apiClient.get).mockImplementation((url) => {
-        if (url === '/v1/vehicles') {
-          return Promise.resolve({ data: [mockCar] })
-        }
-        if (url === '/v1/stays') {
-          return Promise.reject(new Error('Stays service error'))
-        }
-        return Promise.reject(new Error('Unknown URL'))
-      })
-
-      const result = await getVehicles()
-
-      expect(result).toHaveLength(1)
-      expect(result[0]).toEqual({ ...mockCar, isParked: false })
-    })
-
-    it('should handle undefined content in /v1/stays response safely', async () => {
-      vi.mocked(apiClient.get).mockImplementation((url) => {
-        if (url === '/v1/vehicles') {
-          return Promise.resolve({ data: [mockCar] })
-        }
-        if (url === '/v1/stays') {
-          return Promise.resolve({ data: {} })
-        }
-        return Promise.reject(new Error('Unknown URL'))
-      })
-
-      const result = await getVehicles()
-
-      expect(result).toHaveLength(1)
-      expect(result[0]).toEqual({ ...mockCar, isParked: false })
-    })
-
     it('should propagate error if /v1/vehicles fails', async () => {
-      vi.mocked(apiClient.get).mockImplementation((url) => {
-        if (url === '/v1/vehicles') {
-          return Promise.reject(new Error('Failed to fetch vehicles'))
-        }
-        if (url === '/v1/stays') {
-          return Promise.resolve({ data: { content: [] } })
-        }
-        return Promise.reject(new Error('Unknown URL'))
-      })
+      vi.mocked(apiClient.get).mockRejectedValue(new Error('Failed to fetch vehicles'))
 
       await expect(getVehicles()).rejects.toThrow('Failed to fetch vehicles')
     })
