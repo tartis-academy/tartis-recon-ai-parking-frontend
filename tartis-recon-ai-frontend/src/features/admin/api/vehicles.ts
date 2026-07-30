@@ -24,12 +24,13 @@ export const getVehicles = async (): Promise<Vehicle[]> => {
   const [vehiclesRes, staysRes] = await Promise.all([
     apiClient.get<unknown>('/v1/vehicles'),
     apiClient.get<SpringPageResponse<Stay>>('/v1/stays', { 
-      params: { status: 'IN_PROGRESS', size: 1000 }, 
+      params: { status: 'IN_PROGRESS', size: 1000 },
+      skipToast: true,
     }).catch(() => ({ data: { content: [] } as unknown as SpringPageResponse<Stay> })),
   ])
   
   const vehicles = toVehicleList(vehiclesRes.data)
-  const activeStays = staysRes.data.content || []
+  const activeStays = staysRes.data?.content || []
   
   const parkedPlates = new Set(activeStays.map((s) => s.plate))
   const parkedIds = new Set(activeStays.map((s) => s.vehicleId))
@@ -45,6 +46,15 @@ export const createVehicle = async (data: CreateVehicleInput): Promise<Vehicle> 
   return response.data
 }
 
-export const deactivateVehicle = async (uniqueId: string): Promise<void> => {
-  await apiClient.patch(`/v1/vehicles/${uniqueId}/status`)
+export const updateVehicle = async (id: string, data: CreateVehicleInput): Promise<Vehicle> => {
+  const response = await apiClient.put<Vehicle>(`/v1/vehicles/${id}`, data)
+  return response.data
+}
+
+export const activateVehicle = async (id: string): Promise<void> => {
+  await apiClient.patch(`/v1/vehicles/${id}/status`, { active: true })
+}
+
+export const deactivateVehicle = async (id: string): Promise<void> => {
+  await apiClient.patch(`/v1/vehicles/${id}/status`, { active: false })
 }

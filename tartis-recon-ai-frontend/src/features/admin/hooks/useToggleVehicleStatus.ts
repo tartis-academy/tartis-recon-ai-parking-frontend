@@ -1,10 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { deactivateVehicle } from '../api/vehicles'
+import { activateVehicle, deactivateVehicle } from '../api/vehicles'
+import type { Vehicle } from '../types/vehicle'
 
 export const useToggleVehicleStatus = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (uniqueId: string) => deactivateVehicle(uniqueId),
+    mutationFn: (vehicle: Vehicle) => {
+      const id = vehicle.id || vehicle.uniqueId || ''
+      return vehicle.active ? deactivateVehicle(id) : activateVehicle(id)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] })
     },

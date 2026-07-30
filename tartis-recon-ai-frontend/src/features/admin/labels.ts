@@ -30,6 +30,9 @@ export const adminLabels = {
       actions: 'Acciones',
     },
     actions: {
+      edit: 'EDITAR',
+      alta: 'ALTA',
+      baja: 'BAJA',
       deactivate: 'Dar de baja',
       activate: 'Reactivar',
       confirmDeactivateTitle: '¿Dar de baja vehículo?',
@@ -43,6 +46,10 @@ export const adminLabels = {
       selectedVehicle: 'Vehículo seleccionado:',
       active: 'Activo',
       inactive: 'Inactivo',
+      activateSuccess: 'Vehículo dado de alta correctamente',
+      deactivateSuccess: 'Vehículo dado de baja correctamente',
+      updateSuccess: 'actualizado correctamente',
+      updateError: 'Error al actualizar los datos del vehículo',
     },
     types: {
       car: 'Coche',
@@ -239,7 +246,9 @@ export const adminLabels = {
   },
   form: {
     title: 'Registrar vehículo',
+    editTitle: 'Editar vehículo',
     subtitle: 'Alta en el registro · la plaza seleccionada se marcará como ocupada',
+    editSubtitle: 'Modificar datos del vehículo',
     idAssigned: 'ID Asignado',
     idAssignedHint: 'Generado automáticamente · secuencial',
     plate: 'Matrícula',
@@ -253,6 +262,7 @@ export const adminLabels = {
     mandatoryHint: 'Los campos marcados con * son obligatorios.',
     cancel: 'Cancelar',
     submit: 'Registrar vehículo',
+    submitEdit: 'Guardar cambios',
     processing: 'Procesando...',
     placeholder: {
       plate: '1234 ABC',

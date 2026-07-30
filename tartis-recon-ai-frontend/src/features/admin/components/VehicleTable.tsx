@@ -10,6 +10,7 @@ interface VehicleTableProps {
   statusFilter: StatusFilter
   onFilterChange: (val: StatusFilter) => void
   onToggleStatus: (vehicle: Vehicle) => void
+  onEdit?: (vehicle: Vehicle) => void
 }
 
 export function VehicleTable({ 
@@ -19,6 +20,7 @@ export function VehicleTable({
   statusFilter, 
   onFilterChange,
   onToggleStatus,
+  onEdit,
 }: VehicleTableProps) {
   const { 
     tableHeaders, 
@@ -74,7 +76,7 @@ export function VehicleTable({
               <th className="p-5">{tableHeaders.brandModel}</th>
               <th className="p-5">{tableHeaders.type}</th>
               <th className="p-5 text-center">{tableHeaders.status}</th>
-              <th className="p-5 text-right w-16">{tableHeaders.actions}</th>
+              <th className="p-5 text-right w-28">{tableHeaders.actions}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-subtle">
@@ -101,19 +103,48 @@ export function VehicleTable({
                   )}
                 </td>
                 <td className="p-5 text-right">
-                  {!vehicle.isParked && (
-                    <button
-                      type="button"
-                      onClick={() => onToggleStatus(vehicle)}
-                      className={`p-2 rounded-md transition-colors hover:bg-surface-panel ${
-                        vehicle.active ? 'text-state-error hover:text-red-400' : 'text-brand-500 hover:text-brand-400'
-                      }`}
-                      title={vehicle.active ? actions.deactivate : actions.activate}
-                      aria-label={vehicle.active ? actions.deactivate : actions.activate}
-                    >
-                      <Icon name={vehicle.active ? 'alert' : 'check'} className="w-4 h-4" />
-                    </button>
-                  )}
+                  <div className="flex items-center justify-end gap-3">
+                    {onEdit && (
+                      <button
+                        type="button"
+                        onClick={() => onEdit(vehicle)}
+                        className="flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors group"
+                        title={actions.edit}
+                        aria-label={actions.edit}
+                      >
+                        <Icon name="pencil" className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        <span className="text-[10px] font-bold tracking-wider">{actions.edit}</span>
+                      </button>
+                    )}
+                    {vehicle.active ? (
+                      <button
+                        type="button"
+                        onClick={() => onToggleStatus(vehicle)}
+                        disabled={vehicle.isParked}
+                        className={`flex flex-col items-center gap-1 transition-colors group ${
+                          vehicle.isParked
+                            ? 'opacity-40 cursor-not-allowed text-gray-500'
+                            : 'text-gray-400 hover:text-red-400'
+                        }`}
+                        title={vehicle.isParked ? 'No se puede dar de baja un vehículo estacionado' : actions.deactivate}
+                        aria-label={actions.baja}
+                      >
+                        <Icon name="ban" className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        <span className="text-[10px] font-bold tracking-wider">{actions.baja}</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => onToggleStatus(vehicle)}
+                        className="flex flex-col items-center gap-1 text-emerald-500 hover:text-emerald-400 transition-colors group"
+                        title={actions.activate}
+                        aria-label={actions.alta}
+                      >
+                        <Icon name="check-circle" className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        <span className="text-[10px] font-bold tracking-wider text-emerald-500 group-hover:text-emerald-400">{actions.alta}</span>
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
