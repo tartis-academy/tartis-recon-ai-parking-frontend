@@ -1,10 +1,11 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { getStays } from '../api/stays'
-import type { StayFilters } from '../types/stay'
+import type { PaginatedResponse, Stay, StayFilters } from '../types/stay'
 
 export function useStays(page: number, pageSize: number, filters: StayFilters) {
-  return useQuery({
-    queryKey: ['stays', page, pageSize, filters.search, filters.status, filters.vehicleType],
+  return useQuery<PaginatedResponse<Stay>>({
+    queryKey: ['stays', filters, page, pageSize],
     queryFn: () => getStays(page, pageSize, filters),
+    placeholderData: keepPreviousData,
   })
 }

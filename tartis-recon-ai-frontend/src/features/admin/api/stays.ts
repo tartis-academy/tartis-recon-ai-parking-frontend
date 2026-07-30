@@ -64,5 +64,16 @@ export const getStays = async (
     }
   }
 
-  return normalizePageResponse({ ...data, content }, pageSize)
+  if (filters.search) {
+    const query = filters.search.trim().toLowerCase()
+    if (query) {
+      content = content.filter((s) => s.plate?.toLowerCase().includes(query))
+    }
+  }
+
+  const normalized = normalizePageResponse({ ...data, content }, pageSize)
+  return {
+    ...normalized,
+    totalElements: filters.search ? content.length : normalized.totalElements,
+  }
 }
