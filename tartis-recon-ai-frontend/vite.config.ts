@@ -9,13 +9,12 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, 'src'),
       '@app': path.resolve(__dirname, 'src/app'),
-      '@features': path.resolve(__dirname, 'src/features'),
       '@lib': path.resolve(__dirname, 'src/lib'),
-      '@testing': path.resolve(__dirname, 'src/testing'),
-      '@shared': path.resolve(__dirname, 'src/shared'),
     },
   },
   server: {
+    // TODO: Las reglas de proxy locales para endpoints monolíticos (/v1/*)
+    // serán reemplazadas por la integración de remotos MFE y Kong Gateway.
     proxy: {
       '/v1/vehicles': {
         target: 'http://localhost:8080',
