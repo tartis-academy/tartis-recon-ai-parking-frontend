@@ -5,17 +5,15 @@ import type { Vehicle } from '../types/vehicle'
 import { adminLabels } from '../labels'
 
 const mockVehicles: Vehicle[] = [
-  { uniqueId: '1', plate: '1234ABC', brand: 'Toyota', model: 'Corolla', color: 'Blanco', type: 'CAR', numDoors: 5, hasSidecar: false, active: true, isParked: true },
-  { uniqueId: '2', plate: '5678DEF', brand: 'Seat', model: 'Ibiza', color: 'Rojo', type: 'CAR_PMR', numDoors: 3, hasSidecar: false, active: false, isParked: false },
-  { uniqueId: '3', plate: '9012GHI', brand: 'Honda', model: 'CBR', color: 'Negro', type: 'MOTORBIKE', numDoors: 0, hasSidecar: false, active: true, isParked: false },
+  { uniqueId: '1', plate: '1234ABC', brand: 'Toyota', model: 'Corolla', color: 'Blanco', type: 'CAR', numDoors: 5, hasSidecar: false, active: true },
+  { uniqueId: '2', plate: '5678DEF', brand: 'Seat', model: 'Ibiza', color: 'Rojo', type: 'CAR_PMR', numDoors: 3, hasSidecar: false, active: false },
+  { uniqueId: '3', plate: '9012GHI', brand: 'Honda', model: 'CBR', color: 'Negro', type: 'MOTORBIKE', numDoors: 0, hasSidecar: false, active: true },
 ]
 
 describe('VehicleTable Component', () => {
   const defaultProps = {
     searchQuery: '',
     onSearchChange: vi.fn(),
-    statusFilter: 'ALL' as const,
-    onFilterChange: vi.fn(),
     onToggleStatus: vi.fn(),
   }
 
@@ -55,15 +53,6 @@ describe('VehicleTable Component', () => {
     expect(onSearchChange).toHaveBeenCalledWith('123')
   })
 
-  it('handles status filter change', () => {
-    const onFilterChange = vi.fn()
-    render(<VehicleTable vehicles={mockVehicles} {...defaultProps} onFilterChange={onFilterChange} />)
-    
-    const filterSelect = screen.getByRole('combobox')
-    fireEvent.change(filterSelect, { target: { value: 'PARKED' } })
-    expect(onFilterChange).toHaveBeenCalledWith('PARKED')
-  })
-
   it('shows inactive badge for inactive vehicles', () => {
     render(<VehicleTable vehicles={mockVehicles} {...defaultProps} />)
     
@@ -71,26 +60,25 @@ describe('VehicleTable Component', () => {
     expect(screen.getByText(adminLabels.vehicles.actions.inactive)).toBeInTheDocument()
   })
 
-  it('allows clicking toggle status button for non-parked vehicles', () => {
+  it('allows clicking toggle status button for active and inactive vehicles', () => {
     const onToggleStatus = vi.fn()
     render(<VehicleTable vehicles={mockVehicles} {...defaultProps} onToggleStatus={onToggleStatus} />)
 
-    // Vehicle 1 is parked, toggle status button should not render.
+    // Vehicle 1 and 3 are active, button is BAJA.
     // Vehicle 2 is inactive, button is ALTA.
-    // Vehicle 3 is active, button is BAJA.
     const activateButton = screen.getByTitle(adminLabels.vehicles.actions.activate)
-    const deactivateButton = screen.getByTitle(adminLabels.vehicles.actions.deactivate)
+    const deactivateButtons = screen.getAllByTitle(adminLabels.vehicles.actions.deactivate)
 
     expect(activateButton).toBeInTheDocument()
-    expect(deactivateButton).toBeInTheDocument()
+    expect(deactivateButtons).toHaveLength(2)
     expect(screen.getByText('ALTA')).toBeInTheDocument()
-    expect(screen.getAllByText('BAJA').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('BAJA')).toHaveLength(2)
 
     fireEvent.click(activateButton)
     expect(onToggleStatus).toHaveBeenCalledWith(mockVehicles[1])
 
-    fireEvent.click(deactivateButton)
-    expect(onToggleStatus).toHaveBeenCalledWith(mockVehicles[2])
+    fireEvent.click(deactivateButtons[0])
+    expect(onToggleStatus).toHaveBeenCalledWith(mockVehicles[0])
   })
 
   it('renders EDITAR button and calls onEdit when clicked', () => {
