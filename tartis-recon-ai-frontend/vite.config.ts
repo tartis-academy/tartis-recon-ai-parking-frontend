@@ -51,36 +51,20 @@ export default defineConfig({
   server: {
     port: 5000,
     strictPort: true,
-    // TODO: Las reglas de proxy locales para endpoints monolíticos (/v1/*)
-    // serán reemplazadas por la integración de remotos MFE y Kong Gateway.
+    // GW-07 cerró los puertos directos de los microservicios (8080-8084) en
+    // docker-compose.demo.yml — solo Kong (8000) queda expuesto. Todo pasa por
+    // Kong bajo /api/v1/*, con el JWT real (verificado con curl real: 200 vía
+    // Kong, 502 apuntando a los puertos viejos ya cerrados).
     proxy: {
-      '/v1/vehicles': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-      },
-      '/v1/spots': {
-        target: 'http://localhost:8081',
-        changeOrigin: true,
-      },
-      '/v1/tariffs': {
-        target: 'http://localhost:8082',
-        changeOrigin: true,
-      },
-      '/v1/tickets': {
-        target: 'http://localhost:8083',
-        changeOrigin: true,
-      },
-      '/v1/entry-tickets': {
-        target: 'http://localhost:8083',
-        changeOrigin: true,
-      },
-      '/v1/stays': {
-        target: 'http://localhost:8084',
-        changeOrigin: true,
-      },
       '/v1/events': {
-        target: 'http://localhost:8084',
+        target: 'http://localhost:8000',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/v1/, '/api/v1'),
+      },
+      '/v1': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/v1/, '/api/v1'),
       },
     },
   },
