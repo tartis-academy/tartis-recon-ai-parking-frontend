@@ -44,12 +44,15 @@ async function getDevToken(): Promise<string | null> {
     return cachedToken.token
   }
 
+  const username = import.meta.env.VITE_DEV_USER || 'admin.test'
+  const password = import.meta.env.VITE_DEV_PASSWORD || 'Admin.123!'
+
   try {
     const params = new URLSearchParams()
-    params.append('client_id', 'parking-frontend')
+    params.append('client_id', import.meta.env.VITE_KEYCLOAK_CLIENT_ID || 'parking-frontend')
     params.append('grant_type', 'password')
-    params.append('username', 'admin.test')
-    params.append('password', 'Admin.123!')
+    params.append('username', username)
+    params.append('password', password)
 
     const keycloakUrl = import.meta.env.VITE_KEYCLOAK_URL || 'http://localhost:8180'
     const res = await axios.post(`${keycloakUrl}/realms/parking/protocol/openid-connect/token`, params, {
@@ -73,10 +76,15 @@ apiClient.interceptors.request.use((config) => {
     return config
   }
   return (async () => {
-    if (import.meta.env.DEV && !config.headers.Authorization) {
-      const token = await getDevToken()
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`
+    if (!config.headers.Authorization) {
+      const storedToken = localStorage.getItem('access_token')
+      if (storedToken) {
+        config.headers.Authorization = `Bearer ${storedToken}`
+      } else {
+        const devToken = await getDevToken()
+        if (devToken) {
+          config.headers.Authorization = `Bearer ${devToken}`
+        }
       }
     }
     return config
@@ -88,6 +96,10 @@ apiClient.interceptors.response.use(
   (error: AxiosError<BackendErrorPayload>) => {
     const responseData = error?.response?.data
     const responseStatus = error?.response?.status
+
+    if (responseStatus === 401) {
+      localStorage.removeItem('access_token')
+    }
 
     const message =
       responseData?.message ||
