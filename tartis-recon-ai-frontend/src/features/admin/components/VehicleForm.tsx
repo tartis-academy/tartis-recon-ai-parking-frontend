@@ -48,10 +48,10 @@ export function VehicleForm({ onSubmit, onClose, isPending, initialValues }: Veh
         <div className="p-6 border-b border-border-subtle flex justify-between items-start bg-surface-card">
           <div>
             <h2 className="text-xl font-bold text-white mb-1">
-              {initialValues ? 'Editar vehículo' : form.title}
+              {initialValues ? form.editTitle : form.title}
             </h2>
             <p className="text-xs text-gray-400">
-              {initialValues ? `Modificar datos del vehículo ${initialValues.plate}` : form.subtitle}
+              {initialValues ? `${form.editSubtitle} ${initialValues.plate}` : form.subtitle}
             </p>
           </div>
           <button
@@ -123,49 +123,53 @@ export function VehicleForm({ onSubmit, onClose, isPending, initialValues }: Veh
             </div>
           </div>
 
-          <div>
-            <label htmlFor="color" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{form.color}</label>
-            <TextInput
-              id="color"
-              {...register('color')}
-              placeholder={form.placeholder.color}
-              error={errors.color?.message}
-            />
-          </div>
-
-          {isCar ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
             <div>
-              <label htmlFor="numDoors" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{form.doors}</label>
+              <label htmlFor="color" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{form.color} <span className="text-brand-500">*</span></label>
               <TextInput
-                id="numDoors"
-                type="number"
-                {...register('numDoors', { valueAsNumber: true })}
-                min="2"
-                max="5"
-                error={errors.numDoors?.message}
+                id="color"
+                placeholder={form.placeholder.color}
+                error={errors.color?.message}
+                {...register('color')}
               />
             </div>
-          ) : (
-            <div>
-              <label className="flex items-center gap-3 cursor-pointer mt-4">
+
+            {isCar ? (
+              <div>
+                <label htmlFor="numDoors" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{form.doors} <span className="text-brand-500">*</span></label>
+                <TextInput
+                  id="numDoors"
+                  type="number"
+                  error={errors.numDoors?.message}
+                  {...register('numDoors', { valueAsNumber: true })}
+                />
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 pt-6">
                 <input
                   type="checkbox"
+                  id="hasSidecar"
+                  className="w-4 h-4 rounded border-border-default bg-surface-panel text-brand-500 focus:ring-brand-500"
                   {...register('hasSidecar')}
-                  className="w-4 h-4 rounded border-border-default bg-surface-app text-brand-500 focus:ring-brand-500 focus:ring-offset-surface-app"
                 />
-                <span className="text-sm text-gray-300">{form.hasSideCar}</span>
-              </label>
-            </div>
-          )}
-          
+                <label htmlFor="hasSidecar" className="text-sm text-gray-300 select-none cursor-pointer">
+                  {form.hasSideCar}
+                </label>
+              </div>
+            )}
+          </div>
+
           {/* Footer Actions */}
-          <div className="mt-4 pt-5 border-t border-border-subtle flex items-center justify-between">
-            <span className="text-[11px] text-gray-500">{form.mandatoryHint}</span>
-            <div className="flex gap-3">
+          <div className="pt-4 mt-6 border-t border-border-subtle flex items-center justify-between">
+            <span className="text-xs text-gray-400 font-medium">
+              {form.mandatoryHint}
+            </span>
+            <div className="flex items-center gap-3">
               <Button
                 type="button"
                 variant="secondary"
                 onClick={onClose}
+                disabled={isPending}
               >
                 {form.cancel}
               </Button>
@@ -175,7 +179,7 @@ export function VehicleForm({ onSubmit, onClose, isPending, initialValues }: Veh
                 disabled={isPending}
                 icon={!isPending ? <Icon name="check" className="w-4 h-4" /> : undefined}
               >
-                {isPending ? form.processing : initialValues ? 'Guardar cambios' : form.submit}
+                {isPending ? form.processing : initialValues ? form.submitEdit : form.submit}
               </Button>
             </div>
           </div>

@@ -32,8 +32,8 @@ export function VehicleListContainer() {
         addToast({ 
           type: 'success', 
           message: isDeactivating 
-            ? 'Vehículo dado de baja correctamente' 
-            : 'Vehículo dado de alta correctamente' 
+            ? adminLabels.vehicles.actions.deactivateSuccess 
+            : adminLabels.vehicles.actions.activateSuccess 
         })
       },
       onError: () => addToast({ type: 'error', message: adminLabels.vehicles.actions.errorUpdate }),
@@ -49,10 +49,13 @@ export function VehicleListContainer() {
       {
         onSuccess: () => {
           setVehicleToEdit(null)
-          addToast({ type: 'success', message: `Vehículo ${data.plate} actualizado correctamente` })
+          addToast({ 
+            type: 'success', 
+            message: `${adminLabels.vehicles.pageTitle.slice(0, -1)} ${data.plate} ${adminLabels.vehicles.actions.updateSuccess}` 
+          })
         },
         onError: () => {
-          addToast({ type: 'error', message: 'Error al actualizar los datos del vehículo' })
+          addToast({ type: 'error', message: adminLabels.vehicles.actions.updateError })
         },
       },
     )
