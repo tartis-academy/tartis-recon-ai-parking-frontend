@@ -1,6 +1,7 @@
 import type { Stay, StayStatus } from '../types/stay'
 import type { VehicleType } from '../types/vehicle'
 import { adminLabels } from '../labels'
+import { truncateId } from '@/shared/utils/truncateId'
 
 const dateTimeFormatter = new Intl.DateTimeFormat('es-ES', {
   day: '2-digit',
@@ -50,9 +51,7 @@ export function formatTotal(value: number | null, status: StayStatus): string {
 }
 
 export function formatTariff(tariffId: string, rate?: number): string {
-  const displayId = tariffId && tariffId.length > 12 && tariffId.includes('-')
-    ? `${tariffId.slice(0, 8)}...`
-    : tariffId
+  const displayId = truncateId(tariffId)
   return rate !== undefined ? `${displayId} (${rateFormatter.format(rate)}/min)` : displayId
 }
 
@@ -67,6 +66,8 @@ export function resolveVehicleTypeLabel(type: VehicleType): string {
   return adminLabels.stays.vehicleTypes[type] || type
 }
 
+// Heurística: se asume ticket disponible por estado porque el backend no expone
+// un campo explícito. Migrar a un campo real (p.ej. `hasTicket`) cuando exista.
 export function hasTicket(stay: Stay): boolean {
   return stay.status === 'FINISHED' || stay.status === 'PAID'
 }

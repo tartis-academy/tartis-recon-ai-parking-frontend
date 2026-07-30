@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Icon } from './Icon'
 import { useToastStore } from '@/shared/stores/useToastStore'
+import { truncateId } from '@/shared/utils/truncateId'
 
 interface CopyBadgeProps {
   value: string
@@ -12,8 +13,7 @@ interface CopyBadgeProps {
 export function CopyBadge({ value, displayValue, title, className = '' }: CopyBadgeProps) {
   const [copied, setCopied] = useState(false)
 
-  const isUuid = value && value.length > 12 && value.includes('-')
-  const formattedDisplay = displayValue || (isUuid ? `${value.slice(0, 8)}...` : value)
+  const formattedDisplay = displayValue || (value ? truncateId(value) : value)
 
   return (
     <button

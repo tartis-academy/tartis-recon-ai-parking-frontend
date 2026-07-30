@@ -13,7 +13,7 @@ export function SpotListContainer() {
   
   const { data: spots, isLoading, isError } = useSpots()
   const { mutate: updateSpot, isPending } = useUpdateSpotStatus()
-  const { addToast } = useToastStore()
+  const addToast = useToastStore((s) => s.addToast)
 
   const handleConfirm = () => {
     if (!spotToConfirm) return
