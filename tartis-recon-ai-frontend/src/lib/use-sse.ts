@@ -2,15 +2,49 @@ import { useEffect, useRef, useState } from 'react'
 import { useToastStore, type ToastType } from '../app/stores/toast-store'
 import { SSE_RECONNECT_DELAY_MS } from '../app/constants'
 import { notificationLabels } from '../app/labels'
+import { queryClient } from './query-client'
 
 export interface SseEventPayload {
   id?: string
+  eventType?: string
   type?: ToastType
   title?: string
   message: string
 }
 
-export function useSseNotifications(url: string = '/v1/events', enabled: boolean = true) {
+const EVENT_QUERY_MAP: Record<string, string[]> = {
+  stay_updated: ['stays'],
+  spot_updated: ['spots'],
+  vehicle_updated: ['vehicles'],
+  ticket_updated: ['tickets'],
+  entry_ticket_updated: ['tickets'],
+}
+
+export function handleSseEvent(
+  data: SseEventPayload,
+  addToast: ReturnType<typeof useToastStore.getState>['addToast'],
+) {
+  const eventType = data.eventType || ''
+
+  // Invalidar caché en TanStack Query si el evento corresponde a una entidad
+  const queryKeysToInvalidate = EVENT_QUERY_MAP[eventType]
+  if (queryKeysToInvalidate) {
+    queryClient.invalidateQueries({ queryKey: queryKeysToInvalidate })
+  }
+
+  // Disparar la notificación Toast flotante
+  addToast({
+    id: data.id,
+    type: data.type || (eventType ? 'success' : 'info'),
+    title: data.title || notificationLabels.systemTitle,
+    message: data.message,
+  })
+}
+
+export function useSseNotifications(
+  baseUrl: string = '/v1/events',
+  enabled: boolean = true,
+) {
   const [isConnected, setIsConnected] = useState(false)
   const addToast = useToastStore((s) => s.addToast)
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -22,29 +56,40 @@ export function useSseNotifications(url: string = '/v1/events', enabled: boolean
 
     const connect = () => {
       try {
-        eventSource = new EventSource(url)
+        const storedToken = localStorage.getItem('access_token')
+        const finalUrl = storedToken
+          ? `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}token=${encodeURIComponent(storedToken)}`
+          : baseUrl
+
+        eventSource = new EventSource(finalUrl)
 
         eventSource.onopen = () => {
           setIsConnected(true)
         }
 
-        eventSource.onmessage = (event) => {
+        const handleRawMessage = (event: MessageEvent) => {
           try {
             const data: SseEventPayload = JSON.parse(event.data)
-            addToast({
-              id: data.id,
-              type: data.type || 'info',
-              title: data.title || notificationLabels.systemTitle,
-              message: data.message || event.data,
-            })
+            handleSseEvent(data, addToast)
           } catch {
-            addToast({
-              type: 'info',
-              title: notificationLabels.systemTitle,
-              message: event.data,
-            })
+            handleSseEvent({ message: event.data }, addToast)
           }
         }
+
+        eventSource.onmessage = handleRawMessage
+
+        // Escuchar eventos nombrados del dominio
+        const namedEvents = Object.keys(EVENT_QUERY_MAP)
+        namedEvents.forEach((eventName) => {
+          eventSource?.addEventListener(eventName, (event: MessageEvent) => {
+            try {
+              const data: SseEventPayload = JSON.parse(event.data)
+              handleSseEvent({ ...data, eventType: eventName }, addToast)
+            } catch {
+              handleSseEvent({ eventType: eventName, message: event.data }, addToast)
+            }
+          })
+        })
 
         eventSource.onerror = () => {
           setIsConnected(false)
@@ -71,7 +116,7 @@ export function useSseNotifications(url: string = '/v1/events', enabled: boolean
         eventSource.close()
       }
     }
-  }, [url, enabled, addToast])
+  }, [baseUrl, enabled, addToast])
 
   return { isConnected }
 }

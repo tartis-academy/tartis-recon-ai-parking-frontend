@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { DEFAULT_TOAST_DURATION_MS } from '../constants'
+import { TOAST_AUTO_DISMISS_MS } from '../constants'
 
 export type ToastType = 'info' | 'success' | 'warning' | 'error'
 
@@ -31,11 +31,11 @@ export const useToastStore = create<ToastState>((set) => ({
       ...payload,
       id,
       timestamp: Date.now(),
-      duration: payload.duration ?? DEFAULT_TOAST_DURATION_MS,
+      duration: payload.duration ?? TOAST_AUTO_DISMISS_MS,
     }
 
     set((state) => ({
-      toasts: [newToast, ...state.toasts].slice(0, 5), // Limitar a máximo 5 toasts simultáneos
+      toasts: [newToast, ...state.toasts].slice(0, 5),
     }))
 
     return id

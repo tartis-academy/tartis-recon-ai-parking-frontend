@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import type { ToastItem as ToastItemType } from '../stores/toast-store'
 import { notificationLabels } from '../labels'
+import { Icon, type IconName } from '@/shared/ui'
 
 interface ToastItemProps {
   toast: ToastItemType
@@ -17,32 +18,36 @@ export function ToastItem({ toast, onClose }: ToastItemProps) {
     return () => clearTimeout(timer)
   }, [toast.id, toast.duration, onClose])
 
-  const getVariantStyles = () => {
+  const getVariantStyles = (): {
+    border: string
+    badge: string
+    iconName: IconName
+  } => {
     switch (toast.type) {
       case 'success':
         return {
           border: 'border-brand-500/40',
           badge: 'bg-brand-500/20 text-brand-400',
-          icon: '✓',
+          iconName: 'check',
         }
       case 'error':
         return {
           border: 'border-state-error/40',
           badge: 'bg-state-error/20 text-state-error',
-          icon: '✕',
+          iconName: 'alert',
         }
       case 'warning':
         return {
           border: 'border-state-warn/40',
           badge: 'bg-state-warn/20 text-state-warn',
-          icon: '⚠',
+          iconName: 'alert',
         }
       case 'info':
       default:
         return {
           border: 'border-border-default',
           badge: 'bg-surface-row-hover text-gray-300',
-          icon: 'ℹ',
+          iconName: 'info',
         }
     }
   }
@@ -57,7 +62,7 @@ export function ToastItem({ toast, onClose }: ToastItemProps) {
       <span
         className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold shrink-0 ${styles.badge}`}
       >
-        {styles.icon}
+        <Icon name={styles.iconName} className="w-3.5 h-3.5" />
       </span>
       <div className="flex-1 min-w-0">
         {toast.title && (
@@ -75,7 +80,7 @@ export function ToastItem({ toast, onClose }: ToastItemProps) {
         aria-label={notificationLabels.closeToast}
         className="text-gray-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-surface-row-hover shrink-0"
       >
-        ✕
+        <Icon name="close" className="w-3.5 h-3.5" />
       </button>
     </div>
   )
