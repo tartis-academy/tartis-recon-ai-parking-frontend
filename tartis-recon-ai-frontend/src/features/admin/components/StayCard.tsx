@@ -45,7 +45,7 @@ export function StayCard({
         <div className="min-w-0">
           <h3 className="font-bold text-lg text-gray-200 truncate">{plate}</h3>
           <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-400 mt-1">
-            <span className="text-gray-400">{labels.spot}</span>
+            <span className="text-gray-400">{labels.spot} </span>
             <CopyBadge value={spot} />
             <span className="text-gray-600" aria-hidden="true">·</span>
             <CopyBadge value={vehicleTypeLabel} />
