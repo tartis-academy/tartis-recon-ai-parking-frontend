@@ -19,9 +19,19 @@ export interface PaginatedResponse<T> {
 }
 
 export function normalizePageResponse<T>(
-  data: Partial<SpringPageResponse<T>> & { page?: number } | null | undefined,
+  data: Partial<SpringPageResponse<T>> & { page?: number } | T[] | null | undefined,
   fallbackPageSize: number
 ): PaginatedResponse<T> {
+  if (Array.isArray(data)) {
+    return {
+      content: data,
+      totalElements: data.length,
+      page: 1,
+      size: fallbackPageSize,
+      totalPages: 1,
+    }
+  }
+
   const safeData = data || {}
   return {
     ...safeData,
