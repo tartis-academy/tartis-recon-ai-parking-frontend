@@ -1,0 +1,2 @@
+export const DEFAULT_TOAST_DURATION_MS = 5000
+export const SSE_RECONNECT_DELAY_MS = 3000
