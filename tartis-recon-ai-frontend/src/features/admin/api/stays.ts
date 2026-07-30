@@ -64,11 +64,20 @@ export const getStays = async (
     }
   }
 
+  if (filters.search) {
+    const query = filters.search.trim().toLowerCase()
+    if (query) {
+      content = content.filter((s) => s.plate?.toLowerCase().includes(query))
+    }
+  }
+
+  const totalElements = filters.search ? content.length : (data?.totalElements ?? 0)
+
   return {
     ...data,
     content,
-    page: ((data as Record<string, unknown>)?.number as number ?? data?.page ?? 0) + 1,
+    page: ((data as unknown as Record<string, unknown>)?.number as number ?? data?.page ?? 0) + 1,
     size: data?.size ?? pageSize,
-    totalElements: data?.totalElements ?? 0,
+    totalElements,
   }
 }
