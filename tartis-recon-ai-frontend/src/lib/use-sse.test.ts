@@ -50,7 +50,7 @@ describe('useSseNotifications & handleSseEvent', () => {
 
     renderHook(() => useSseNotifications('/v1/events'))
 
-    expect(MockEventSource.instance?.url).toBe('/v1/events?token=my-secret-token')
+    expect(MockEventSource.instance?.url).toBe('/v1/events?access_token=my-secret-token')
 
     localStorage.removeItem('access_token')
   })
