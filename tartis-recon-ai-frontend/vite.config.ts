@@ -17,8 +17,8 @@ export default defineConfig({
       // (rama feature/mfee-02-axios-interceptor, sin mergear). Puertos fijados
       // por convención ya en uso en esos repos (5001/5002).
       remotes: {
-        mfe_entryexit: 'http://localhost:5001/assets/remoteEntry.js',
-        mfe_admin: 'http://localhost:5002/assets/remoteEntry.js',
+        mfe_entryexit: process.env.VITE_MFE_ENTRYEXIT_URL || 'http://localhost:5001/assets/remoteEntry.js',
+        mfe_admin: process.env.VITE_MFE_ADMIN_URL || 'http://localhost:5002/assets/remoteEntry.js',
       },
       // Contrato consumido por mfe-entryexit: import('shell/AuthProvider') solo para
       // leer getAuthToken/getToken (funciones puras) en el interceptor de axios.
