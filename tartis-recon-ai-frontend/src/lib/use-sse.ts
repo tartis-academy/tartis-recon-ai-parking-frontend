@@ -59,7 +59,7 @@ export function useSseNotifications(
         const storedToken =
           typeof localStorage !== 'undefined' ? localStorage.getItem('access_token') : null
         const finalUrl = storedToken
-          ? `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}token=${encodeURIComponent(storedToken)}`
+          ? `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}access_token=${encodeURIComponent(storedToken)}`
           : baseUrl
 
         eventSource = new EventSource(finalUrl)
