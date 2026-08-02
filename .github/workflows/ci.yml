@@ -16,6 +16,15 @@ permissions:
   contents: read
 
 jobs:
+  # FSH-08: build+lint+test del shell en su propio pipeline, sin depender de
+  # mfe-entryexit ni mfe-admin. 'remotes' en vite.config.ts son URLs que se
+  # hornean como strings en el bundle (VITE_MFE_ENTRYEXIT_URL/VITE_MFE_ADMIN_URL)
+  # y solo se resuelven contra un remoteEntry.js real en el navegador, en
+  # runtime — build/lint/test de este job no llegan a tocar la red, asi que el
+  # shell puede desplegarse aunque un remote este roto o caido. No anadir aqui
+  # un job que levante los remotos de verdad (docker-compose, Playwright
+  # contra los tres a la vez...): eso rompe la independencia que pide el
+  # ticket. Cada remoto tiene su propio pipeline (ci.yml en su propio repo).
   build-and-test:
     runs-on: ubuntu-latest
 
