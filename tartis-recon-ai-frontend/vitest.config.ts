@@ -9,6 +9,8 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
       '@app': path.resolve(__dirname, 'src/app'),
       '@lib': path.resolve(__dirname, 'src/lib'),
+      'mfe_entryexit/EntryExitApp': path.resolve(__dirname, 'src/test/mocks/mfe-entryexit-app.tsx'),
+      'mfe_admin/AdminApp': path.resolve(__dirname, 'src/test/mocks/mfe-admin-app.tsx'),
     },
   },
   test: {
