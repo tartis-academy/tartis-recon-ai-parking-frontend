@@ -12,3 +12,18 @@ export const notificationLabels = {
   sseReconnecting: 'Reconectando notificaciones...',
   sseError: 'Error en conexión de notificaciones',
 }
+
+export const shellLabels = {
+  title: 'TARTIS Recon-AI',
+  navHome: 'Inicio',
+  navEntryExit: 'Entrada / Salida',
+  navAdmin: 'Administración',
+  homeTitle: 'Panel de Control',
+  homeDescription: 'Seleccioná un módulo para comenzar.',
+  entryExitDescription: 'Gestión de entradas y salidas del parking.',
+  adminDescription: 'Panel de administración del sistema.',
+  loadingModule: 'Cargando módulo...',
+  moduleUnavailable: 'Módulo no disponible',
+  moduleUnavailableDescription: 'No se pudo cargar el módulo. Puede estar temporalmente fuera de servicio.',
+  backToHome: 'Volver al inicio',
+}
