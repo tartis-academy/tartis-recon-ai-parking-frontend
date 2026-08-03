@@ -1,63 +1,97 @@
+import { lazy } from 'react'
 import {
   createRouter,
   createRootRoute,
   createRoute,
-  Outlet,
+  Link,
 } from '@tanstack/react-router'
-import { useToastStore } from './stores/toast-store'
+import { ShellLayout } from './layouts/ShellLayout'
+import { RemoteSlot } from './components/RemoteSlot'
+import { shellLabels } from './labels'
+
+// eslint-disable-next-line react-refresh/only-export-components -- lazy-loaded federated remotes, consumed as components in route definitions
+const EntryExitApp = lazy(() => import('mfe_entryexit/EntryExitApp'))
+// eslint-disable-next-line react-refresh/only-export-components
+const AdminApp = lazy(() => import('mfe_admin/AdminApp'))
 
 const rootRoute = createRootRoute({
-  component: () => (
-    <div className="min-h-screen bg-surface-app text-white font-sans antialiased">
-      <Outlet />
-    </div>
-  ),
+  component: ShellLayout,
 })
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: function IndexPage() {
-    const addToast = useToastStore((s) => s.addToast)
-
-    const handleTestNotification = () => {
-      addToast({
-        title: 'Prueba de Notificación',
-        message: 'Evento SSE simulado correctamente.',
-        type: 'success',
-      })
-    }
-
+  component: function HomePage() {
     return (
-      <div className="p-8 max-w-4xl mx-auto space-y-6">
+      <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">
-            TARTIS Recon-AI Shell Host
-          </h1>
-          <p className="text-gray-400 text-base">
-            Aplicación raíz/shell lista para la composición de módulos remotos y notificaciones SSE en tiempo real.
-          </p>
+          <h2 className="text-2xl font-bold tracking-tight text-white">
+            {shellLabels.homeTitle}
+          </h2>
+          <p className="mt-1 text-gray-400">{shellLabels.homeDescription}</p>
         </div>
 
-        <div className="p-6 rounded-xl bg-surface-card border border-border-subtle shadow-xl space-y-4">
-          <h2 className="text-lg font-semibold text-white">Estado de Notificaciones SSE</h2>
-          <p className="text-xs text-gray-300">
-            Escuchando eventos en tiempo real desde <code className="text-brand-400 font-mono">/v1/events</code>.
-          </p>
-          <button
-            type="button"
-            onClick={handleTestNotification}
-            className="px-4 py-2 text-xs font-semibold rounded-lg bg-brand-500 text-black hover:bg-brand-400 transition-colors shadow-md cursor-pointer"
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <Link
+            to="/entry-exit"
+            className="group rounded-xl border border-border-subtle bg-surface-card p-6 transition-all duration-300 hover:border-brand-500/50 hover:shadow-brand-glow"
           >
-            Simular Notificación Toast
-          </button>
+            <span className="mb-3 block text-3xl" aria-hidden="true">🚗</span>
+            <h3 className="text-lg font-semibold text-white transition-colors group-hover:text-brand-400">
+              {shellLabels.navEntryExit}
+            </h3>
+            <p className="mt-1 text-sm text-gray-400">
+              {shellLabels.entryExitDescription}
+            </p>
+          </Link>
+
+          <Link
+            to="/admin"
+            className="group rounded-xl border border-border-subtle bg-surface-card p-6 transition-all duration-300 hover:border-brand-500/50 hover:shadow-brand-glow"
+          >
+            <span className="mb-3 block text-3xl" aria-hidden="true">⚙️</span>
+            <h3 className="text-lg font-semibold text-white transition-colors group-hover:text-brand-400">
+              {shellLabels.navAdmin}
+            </h3>
+            <p className="mt-1 text-sm text-gray-400">
+              {shellLabels.adminDescription}
+            </p>
+          </Link>
         </div>
       </div>
     )
   },
 })
 
-const routeTree = rootRoute.addChildren([indexRoute])
+const entryExitRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/entry-exit',
+  component: function EntryExitPage() {
+    return (
+      <RemoteSlot moduleName={shellLabels.navEntryExit}>
+        <EntryExitApp />
+      </RemoteSlot>
+    )
+  },
+})
+
+const adminRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin',
+  component: function AdminPage() {
+    return (
+      <RemoteSlot moduleName={shellLabels.navAdmin}>
+        <AdminApp />
+      </RemoteSlot>
+    )
+  },
+})
+
+export const routeTree = rootRoute.addChildren([
+  indexRoute,
+  entryExitRoute,
+  adminRoute,
+])
 
 export const router = createRouter({ routeTree })
 
