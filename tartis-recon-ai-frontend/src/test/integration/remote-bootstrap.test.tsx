@@ -47,8 +47,12 @@ describe('MFEE-09: Test de Integración — Carga de Remote vía Module Federati
   it('no debe romper la aplicación ni mostrar pantalla de error durante el bootstrap del módulo remoto', async () => {
     renderShellWithRemote('/entry-exit')
 
+    // Esperar a que el módulo remoto complete el bootstrap/renderizado
     await waitFor(() => {
-      expect(screen.queryByText(/Módulo no disponible/i)).not.toBeInTheDocument()
+      expect(screen.getByTestId('entry-exit-app')).toBeInTheDocument()
     })
+
+    // Garantizar que la carga finalizó limpiamente sin mostrar la pantalla de fallo/error
+    expect(screen.queryByText(/Módulo no disponible/i)).not.toBeInTheDocument()
   })
 })
