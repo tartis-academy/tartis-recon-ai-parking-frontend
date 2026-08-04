@@ -7,7 +7,7 @@ import { ToastContainer } from './components/ToastContainer'
 import { useSseNotifications } from '@/lib/use-sse'
 
 function AppContent() {
-  useSseNotifications('/v1/events')
+  useSseNotifications('/api/v1/events')
 
   return (
     <>

@@ -61,15 +61,9 @@ export default defineConfig({
     // Kong bajo /api/v1/*, con el JWT real (verificado con curl real: 200 vía
     // Kong, 502 apuntando a los puertos viejos ya cerrados).
     proxy: {
-      '/v1/events': {
+      '/api/v1': {
         target: 'http://localhost:8000',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/v1/, '/api/v1'),
-      },
-      '/v1': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/v1/, '/api/v1'),
       },
     },
   },
