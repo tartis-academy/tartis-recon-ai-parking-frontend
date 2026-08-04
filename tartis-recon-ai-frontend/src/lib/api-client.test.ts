@@ -47,7 +47,7 @@ describe('apiClient', () => {
       vi.mocked(getAuthToken).mockResolvedValue('fake-jwt-token')
       const getCapturedConfig = stubAdapterAndCapture()
 
-      await apiClient.get('/v1/vehicles')
+      await apiClient.get('/api/v1/vehicles')
 
       expect(getAuthToken).toHaveBeenCalled()
       expect(getCapturedConfig()?.headers.Authorization).toBe('Bearer fake-jwt-token')
@@ -57,7 +57,7 @@ describe('apiClient', () => {
       vi.mocked(getAuthToken).mockResolvedValue(null)
       const getCapturedConfig = stubAdapterAndCapture()
 
-      await apiClient.get('/v1/vehicles')
+      await apiClient.get('/api/v1/vehicles')
 
       expect(getCapturedConfig()?.headers.Authorization).toBeUndefined()
     })
