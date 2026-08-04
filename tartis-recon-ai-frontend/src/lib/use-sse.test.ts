@@ -39,24 +39,24 @@ describe('useSseNotifications & handleSseEvent', () => {
   })
 
   it('debe conectarse al endpoint SSE especificado', () => {
-    renderHook(() => useSseNotifications('/v1/events'))
+    renderHook(() => useSseNotifications('/api/v1/events'))
 
     expect(MockEventSource.instance).not.toBeNull()
-    expect(MockEventSource.instance?.url).toBe('/v1/events')
+    expect(MockEventSource.instance?.url).toBe('/api/v1/events')
   })
 
   it('debe incluir token de auth en la URL si existe en localStorage', () => {
     localStorage.setItem('access_token', 'my-secret-token')
 
-    renderHook(() => useSseNotifications('/v1/events'))
+    renderHook(() => useSseNotifications('/api/v1/events'))
 
-    expect(MockEventSource.instance?.url).toBe('/v1/events?access_token=my-secret-token')
+    expect(MockEventSource.instance?.url).toBe('/api/v1/events?access_token=my-secret-token')
 
     localStorage.removeItem('access_token')
   })
 
   it('debe agregar un toast al recibir un mensaje SSE genérico', () => {
-    renderHook(() => useSseNotifications('/v1/events'))
+    renderHook(() => useSseNotifications('/api/v1/events'))
 
     act(() => {
       if (MockEventSource.instance?.onmessage) {

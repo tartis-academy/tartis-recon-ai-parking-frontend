@@ -42,7 +42,7 @@ export function handleSseEvent(
 }
 
 export function useSseNotifications(
-  baseUrl: string = '/v1/events',
+  baseUrl: string = '/api/v1/events',
   enabled: boolean = true,
 ) {
   const [isConnected, setIsConnected] = useState(false)
