@@ -62,7 +62,7 @@ export function useSseNotifications(
     const scheduleReconnect = () => {
       if (cancelled) return
       reconnectTimerRef.current = setTimeout(() => {
-        void connect()
+        connect()
       }, SSE_RECONNECT_DELAY_MS)
     }
 
@@ -125,7 +125,7 @@ export function useSseNotifications(
       }
     }
 
-    void connect()
+    connect()
 
     return () => {
       cancelled = true

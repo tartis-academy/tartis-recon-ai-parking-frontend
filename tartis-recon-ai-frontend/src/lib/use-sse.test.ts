@@ -37,6 +37,7 @@ class MockEventSource {
 
 describe('useSseNotifications & handleSseEvent', () => {
   beforeEach(() => {
+    vi.clearAllMocks()
     useToastStore.getState().clearToasts()
     MockEventSource.instance = null
     MockEventSource.instances = []
@@ -87,6 +88,27 @@ describe('useSseNotifications & handleSseEvent', () => {
 
     expect(MockEventSource.instances).toHaveLength(2)
     expect(MockEventSource.instances[1].url).toContain('access_token=token-renovado')
+
+    vi.useRealTimers()
+  })
+
+  it('debe cerrar el stream y no reconectar tras desmontar', async () => {
+    vi.useFakeTimers()
+
+    const { unmount } = renderHook(() => useSseNotifications('/api/v1/events'))
+    await vi.waitFor(() => expect(MockEventSource.instances).toHaveLength(1))
+    const stream = MockEventSource.instances[0]
+
+    unmount()
+    expect(stream.close).toHaveBeenCalled()
+
+    // Un error posterior no debe reprogramar la reconexion: el flag cancelled
+    // del cleanup es lo unico que evita el bucle tras desmontar.
+    await act(async () => {
+      stream.onerror?.()
+      await vi.advanceTimersByTimeAsync(3000)
+    })
+    expect(MockEventSource.instances).toHaveLength(1)
 
     vi.useRealTimers()
   })
