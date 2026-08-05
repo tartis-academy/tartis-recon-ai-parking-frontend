@@ -178,6 +178,53 @@ describe('useSseNotifications & handleSseEvent', () => {
     expect(sseNamed).not.toHaveBeenCalled()
   })
 
+  // El nombre que emite spot-service es spot_status_updated. Estuvo escrito
+  // como spot_updated, y como las claves del mapa son ademas la lista de
+  // addEventListener, el evento se descartaba sin error visible.
+  it('reenvia spot_status_updated, el nombre que emite spot-service', () => {
+    const domNamed = vi.fn()
+    window.addEventListener('parking:spot-updated', domNamed)
+
+    handleSseEvent('spot_status_updated', { data: { spotId: 'abc', status: 'AVAILABLE' } }, vi.fn())
+
+    window.removeEventListener('parking:spot-updated', domNamed)
+
+    expect(domNamed).toHaveBeenCalled()
+  })
+
+  it('no reenvia spot_updated: ese nombre no lo emite nadie', () => {
+    const domNamed = vi.fn()
+    window.addEventListener('parking:spot-updated', domNamed)
+
+    handleSseEvent('spot_updated', { data: {} }, vi.fn())
+
+    window.removeEventListener('parking:spot-updated', domNamed)
+
+    expect(domNamed).not.toHaveBeenCalled()
+  })
+
+  it('reenvia tariff_updated, que antes no estaba en el catalogo', () => {
+    const domNamed = vi.fn()
+    window.addEventListener('parking:tariff-updated', domNamed)
+
+    handleSseEvent('tariff_updated', { data: { tariffId: 'abc', active: true } }, vi.fn())
+
+    window.removeEventListener('parking:tariff-updated', domNamed)
+
+    expect(domNamed).toHaveBeenCalled()
+  })
+
+  it('reenvia vehicle_updated (SSE-06)', () => {
+    const domNamed = vi.fn()
+    window.addEventListener('parking:vehicle-updated', domNamed)
+
+    handleSseEvent('vehicle_updated', { data: { vehicleId: 'abc', plate: '1234BCD' } }, vi.fn())
+
+    window.removeEventListener('parking:vehicle-updated', domNamed)
+
+    expect(domNamed).toHaveBeenCalled()
+  })
+
   it('no reenvia al DOM un evento que no esta en el catalogo', () => {
     const anyParkingEvent = vi.fn()
     const names = ['parking:stay-created', 'parking:stay-updated', 'parking:spot-updated']

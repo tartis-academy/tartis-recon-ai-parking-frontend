@@ -32,7 +32,11 @@ export interface ParkingEvent<T = Record<string, unknown>> {
 const EVENT_QUERY_MAP: Record<string, string[]> = {
   stay_created: ['stays'],
   stay_updated: ['stays'],
-  spot_updated: ['spots'],
+  // El backend emite spot_status_updated y tariff_updated (SSE-06). Estaban
+  // como spot_updated y sin entrada respectivamente, asi que no se suscribia
+  // nadie y los dos eventos se perdian aqui en silencio.
+  spot_status_updated: ['spots'],
+  tariff_updated: ['tariffs'],
   vehicle_updated: ['vehicles'],
   ticket_updated: ['tickets'],
   entry_ticket_updated: ['tickets'],
@@ -43,7 +47,10 @@ const EVENT_QUERY_MAP: Record<string, string[]> = {
 const DOM_EVENT_NAME: Record<string, string> = {
   stay_created: 'parking:stay-created',
   stay_updated: 'parking:stay-updated',
-  spot_updated: 'parking:spot-updated',
+  // El nombre DOM no cambia aunque el del backend sea spot_status_updated:
+  // parking:spot-updated ya es contrato publicado en docs/EVENTS.md.
+  spot_status_updated: 'parking:spot-updated',
+  tariff_updated: 'parking:tariff-updated',
   vehicle_updated: 'parking:vehicle-updated',
   ticket_updated: 'parking:ticket-updated',
   entry_ticket_updated: 'parking:entry-ticket-updated',
