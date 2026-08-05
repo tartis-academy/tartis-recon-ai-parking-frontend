@@ -17,6 +17,16 @@ export interface SseEnvelope {
   data?: Record<string, unknown>
 }
 
+// Envoltorio de los CustomEvent que el shell publica en window para los
+// remotos (docs/EVENTS.md). Distinto del de SSE a proposito: aqui el emisor es
+// el shell, no el backend.
+export interface ParkingEvent<T = Record<string, unknown>> {
+  version: 1
+  source: 'shell'
+  occurredAt: string
+  data: T
+}
+
 // Las claves son ademas la lista de eventos que se suscriben: un evento con
 // nombre y sin listener no llega a onmessage, se pierde en silencio.
 const EVENT_QUERY_MAP: Record<string, string[]> = {
@@ -26,6 +36,17 @@ const EVENT_QUERY_MAP: Record<string, string[]> = {
   vehicle_updated: ['vehicles'],
   ticket_updated: ['tickets'],
   entry_ticket_updated: ['tickets'],
+}
+
+// El nombre SSE es contrato del backend y no se reutiliza como nombre DOM: el
+// shell traduce entre ambos limites (docs/EVENTS.md).
+const DOM_EVENT_NAME: Record<string, string> = {
+  stay_created: 'parking:stay-created',
+  stay_updated: 'parking:stay-updated',
+  spot_updated: 'parking:spot-updated',
+  vehicle_updated: 'parking:vehicle-updated',
+  ticket_updated: 'parking:ticket-updated',
+  entry_ticket_updated: 'parking:entry-ticket-updated',
 }
 
 const asText = (value: unknown): string | null =>
@@ -61,6 +82,25 @@ function describeEvent(
   }
 }
 
+// Reenvia el evento al DOM para que los remotos reaccionen sin acoplarse al
+// shell. Se conserva el occurredAt del backend en vez de sellar uno nuevo: es
+// cuando ocurrio el hecho, no cuando lo recibio el navegador.
+function dispatchDomEvent(eventName: string, envelope: SseEnvelope) {
+  const domEventName = DOM_EVENT_NAME[eventName]
+  if (!domEventName || typeof window === 'undefined') return
+
+  window.dispatchEvent(
+    new CustomEvent<ParkingEvent>(domEventName, {
+      detail: {
+        version: 1,
+        source: 'shell',
+        occurredAt: envelope.occurredAt ?? new Date().toISOString(),
+        data: envelope.data ?? {},
+      },
+    }),
+  )
+}
+
 export function handleSseEvent(
   eventName: string,
   envelope: SseEnvelope,
@@ -70,6 +110,8 @@ export function handleSseEvent(
   if (queryKeysToInvalidate) {
     queryClient.invalidateQueries({ queryKey: queryKeysToInvalidate })
   }
+
+  dispatchDomEvent(eventName, envelope)
 
   const { title, message } = describeEvent(eventName, envelope.data ?? {})
 
