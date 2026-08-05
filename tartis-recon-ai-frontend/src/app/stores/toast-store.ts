@@ -46,3 +46,22 @@ export const useToastStore = create<ToastState>((set) => ({
     })),
   clearToasts: () => set({ toasts: [] }),
 }))
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('parking:toast', (e: Event) => {
+    const customEvent = e as CustomEvent<{
+      title?: string
+      message: string
+      type?: ToastType
+      duration?: number
+    }>
+    if (customEvent.detail && customEvent.detail.message) {
+      useToastStore.getState().addToast({
+        title: customEvent.detail.title,
+        message: customEvent.detail.message,
+        type: customEvent.detail.type || 'info',
+        duration: customEvent.detail.duration,
+      })
+    }
+  })
+}
