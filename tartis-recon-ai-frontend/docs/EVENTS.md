@@ -110,14 +110,20 @@ Estos eventos no sustituyen la publicación backend. Son una señal inmediata pa
 
 > Esta sección describe lo que **emite hoy** `stay-service`, verificado contra `SseEmitterRegistry` y los `record` de `StayCreatedEvent` / `StayClosedEvent`. No confundir con el envoltorio `ParkingEvent<T>` de arriba, que es el de los `CustomEvent` del DOM y **no** es el mismo.
 
-Solo existen **dos** eventos de dominio. El resto de nombres del catálogo de abajo son previstos, no implementados en ningún backend.
+Existen **cinco** eventos de dominio. Los dos nombres de ticket del catálogo de abajo son previstos: `ticket-service` todavía no publica nada.
 
 | Evento SSE | Clase de origen | Cuándo |
 |---|---|---|
 | `stay_created` | `StayCreatedEvent` | Check-in completado |
 | `stay_updated` | `StayClosedEvent` | Check-out completado |
+| `tariff_updated` | `TariffChangedEvent` | Alta, edición o cambio de estado de una tarifa |
+| `spot_status_updated` | `SpotStatusChangedEvent` | Cambio de estado de una plaza |
+| `vehicle_updated` | `VehicleChangedEvent` | Alta, edición o cambio de estado de un vehículo |
 
-Ambos comparten envoltorio. **No traen `title` ni `message`**: son eventos de dominio, no notificaciones de interfaz. El texto del toast lo compone el shell.
+> [!warning] Los nombres SSE no siguen todos el mismo patrón
+> El de plazas es `spot_status_updated`, **no** `spot_updated`. Estuvo mal escrito en `use-sse.ts`, y como las claves de `EVENT_QUERY_MAP` son además la lista de `addEventListener`, el evento llegaba al navegador y se descartaba sin dejar rastro. `tariff_updated` directamente no estaba. Un nombre que no case aquí no da error: se pierde en silencio.
+
+Todos comparten envoltorio. **No traen `title` ni `message`**: son eventos de dominio, no notificaciones de interfaz. El texto del toast lo compone el shell.
 
 ```jsonc
 {
@@ -141,15 +147,18 @@ Además, el stream emite un evento `connected` al abrir la conexión y comentari
 
 El shell los publica en `window` al recibir el evento SSE correspondiente, además de invalidar sus propias queries. **`data` se reenvía tal cual llega del backend**: el shell traduce el nombre y envuelve, no recorta campos, para no tener que tocarlo cada vez que un backend añada uno.
 
-> [!note] Solo `stay_created` y `stay_updated` existen hoy
-> Los otros cuatro nombres están cableados y se publicarán en cuanto algún backend los emita, pero **ningún servicio los emite todavía**. Ver el contrato SSE real más arriba.
+> [!note] Los dos de ticket siguen sin emisor
+> `parking:ticket-updated` y `parking:entry-ticket-updated` están cableados y se publicarán en cuanto `ticket-service` emita, pero hoy **no los emite nadie**. Los otros cuatro sí llegan. Ver el contrato SSE real más arriba.
+
+El nombre DOM no tiene por qué coincidir con el del backend: `spot_status_updated` se publica como `parking:spot-updated` porque ese nombre ya era contrato consumido. El shell es el adaptador entre los dos límites.
 
 | Evento DOM | Evento SSE origen | Payload `data` | Emisor | Consumidores |
 |---|---|---|---|---|
 | `parking:stay-created` | `stay_created` | `{ stayId, vehicleId, vehicleType, spotId, tariffId, plate, checkIn }` | Shell (adaptando `stay-service`) | `mfe-admin`, `mfe-entryexit` |
 | `parking:stay-updated` | `stay_updated` | `{ stayId, spotId, plate, entryDate, exitDate, totalAmount }` | Shell (adaptando `stay-service`) | `mfe-admin` |
-| `parking:spot-updated` | `spot_updated` | `{ spotId?: string, spotCode?: string, status?: string }` | Shell (adaptando `spot-service`) | `mfe-admin`, `mfe-entryexit` |
-| `parking:vehicle-updated` | `vehicle_updated` | `{ vehicleId?: string, plate?: string }` | Shell (adaptando `vehicle-service`) | `mfe-admin` |
+| `parking:tariff-updated` | `tariff_updated` | `{ tariffId, name, vehicleType, pricePerMinute, basePrice, active }` | Shell (adaptando `tariff-service`) | `mfe-admin` |
+| `parking:spot-updated` | `spot_status_updated` | `{ spotId, vehicleType, status }` | Shell (adaptando `spot-service`) | `mfe-admin`, `mfe-entryexit` |
+| `parking:vehicle-updated` | `vehicle_updated` | `{ vehicleId, plate, vehicleType, brand, model, color, numDoors, hasSidecar, active }` | Shell (adaptando `vehicle-service`) | `mfe-admin` |
 | `parking:ticket-updated` | `ticket_updated` | `{ ticketId?: string, stayId?: string, status?: string }` | Shell (adaptando `ticket-service`) | `mfe-admin` |
 | `parking:entry-ticket-updated` | `entry_ticket_updated` | `{ ticketId?: string, stayId?: string, plate?: string }` | Shell (adaptando `ticket-service`) | `mfe-entryexit`, `mfe-admin` |
 
@@ -191,9 +200,11 @@ Por lo tanto, la arquitectura real solo cuenta con tres componentes frontend: **
 ### 2. Estado de la brecha
 
 - ✅ **Shell**: `use-sse.ts` invalida sus queries **y** publica los `CustomEvent` `parking:*` en `window` (`dispatchDomEvent`).
-- ⬜ **Remotos**: `mfe-admin` y `mfe-entryexit` **aún no tienen los `addEventListener`**, así que hoy los eventos se publican y nadie los escucha. Es el paso que falta para cerrar el circuito.
+- ✅ **mfe-admin**: `useParkingEventListeners` escucha los `parking:*` con limpieza al desmontar e invalida sus queries `['admin', …]` por prefijo.
+- ⬜ **mfe-entryexit**: sigue sin `addEventListener`.
 - ⬜ **Eventos de usuario**: `mfe-entryexit` todavía no despacha `parking:check-in-completed` ni `parking:check-out-completed` al recibir la respuesta de la API.
 
 ### 3. Lo que queda
-1. En `mfe-admin` y `mfe-entryexit`, añadir listeners de `window` **con limpieza al desmontar** e invalidar sus propias queries.
+1. En `mfe-entryexit`, añadir listeners de `window` **con limpieza al desmontar** e invalidar sus propias queries.
 2. En `mfe-entryexit`, despachar `parking:check-in-completed` y `parking:check-out-completed` tras la respuesta de la API.
+3. En `ticket-service`, publicar sus eventos: es el único backend que sigue sin emitir, y por eso `parking:ticket-updated` y `parking:entry-ticket-updated` no llegan nunca.
