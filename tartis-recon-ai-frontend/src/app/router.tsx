@@ -75,6 +75,30 @@ const entryExitRoute = createRoute({
   },
 })
 
+const entradaRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/entrada',
+  component: function EntradaPage() {
+    return (
+      <RemoteSlot moduleName={shellLabels.navEntryExit}>
+        <EntryExitApp />
+      </RemoteSlot>
+    )
+  },
+})
+
+const salidaRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/salida',
+  component: function SalidaPage() {
+    return (
+      <RemoteSlot moduleName={shellLabels.navEntryExit}>
+        <EntryExitApp />
+      </RemoteSlot>
+    )
+  },
+})
+
 const adminRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin',
@@ -90,6 +114,8 @@ const adminRoute = createRoute({
 export const routeTree = rootRoute.addChildren([
   indexRoute,
   entryExitRoute,
+  entradaRoute,
+  salidaRoute,
   adminRoute,
 ])
 
