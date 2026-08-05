@@ -36,7 +36,7 @@ window.dispatchEvent(new CustomEvent(...))
         +--> mfe-entryexit  (actualiza plazas disponibles, tickets o estado visible)
 ```
 
-Los nombres recibidos por SSE (`stay_updated`, `spot_updated`, etc.) son un contrato backend y no se reutilizan directamente como nombres DOM. El shell es el adaptador entre ambos límites.
+Los nombres recibidos por SSE (`stay_created`, `stay_updated`, etc.) son un contrato backend y no se reutilizan directamente como nombres DOM. El shell es el adaptador entre ambos límites: le corresponde validar la forma del payload y **componer el texto de la notificación**, porque el backend emite eventos de dominio, no copy de interfaz.
 
 ## Convenciones del contrato
 
@@ -106,12 +106,45 @@ Cada listener debe eliminarse al desmontar el componente. El consumidor no debe 
 
 Estos eventos no sustituyen la publicación backend. Son una señal inmediata para la experiencia de usuario del navegador; la fuente de verdad sigue siendo la API y los eventos SSE del backend.
 
+### Contrato SSE real de `stay-service`
+
+> Esta sección describe lo que **emite hoy** `stay-service`, verificado contra `SseEmitterRegistry` y los `record` de `StayCreatedEvent` / `StayClosedEvent`. No confundir con el envoltorio `ParkingEvent<T>` de arriba, que es el de los `CustomEvent` del DOM y **no** es el mismo.
+
+Solo existen **dos** eventos de dominio. El resto de nombres del catálogo de abajo son previstos, no implementados en ningún backend.
+
+| Evento SSE | Clase de origen | Cuándo |
+|---|---|---|
+| `stay_created` | `StayCreatedEvent` | Check-in completado |
+| `stay_updated` | `StayClosedEvent` | Check-out completado |
+
+Ambos comparten envoltorio. **No traen `title` ni `message`**: son eventos de dominio, no notificaciones de interfaz. El texto del toast lo compone el shell.
+
+```jsonc
+{
+  "eventId":  "uuid",                 // va tambien en el campo id: del SSE
+  "type":     "StayCreatedEvent",     // nombre de la clase Java, NO el nombre del evento SSE
+  "version":  "v1",
+  "occurredAt": "2026-08-05T09:50:16Z",
+  "data": { /* especifico de cada evento */ }
+}
+```
+
+> [!warning] `type` no es un nivel de notificación
+> Vale `StayCreatedEvent` / `StayClosedEvent`. Usarlo como tipo de toast (`success`/`info`/`error`) fue un bug real: el aviso salía sin texto y con título genérico.
+
+`data` de `stay_created`: `{ stayId, vehicleId, vehicleType, spotId, tariffId, plate, checkIn }`
+`data` de `stay_updated`: `{ stayId, spotId, plate, entryDate, exitDate, totalAmount }`
+
+Además, el stream emite un evento `connected` al abrir la conexión y comentarios de *heartbeat* periódicos, que el cliente ignora.
+
 ### Eventos de sincronización recibidos desde SSE (Adaptados por el Shell)
 
-El shell los publica como `CustomEvent` en `window` después de recibir y procesar el evento SSE correspondiente.
+> [!note] Pendiente de implementar
+> El shell **todavía no publica** estos `CustomEvent`: hoy solo invalida sus propias queries de TanStack Query al recibir el evento SSE. La tabla es el contrato objetivo, no el estado actual.
 
 | Evento DOM | Evento SSE origen | Payload `data` | Emisor | Consumidores |
 |---|---|---|---|---|
+| `parking:stay-created` | `stay_created` | `{ stayId?: string, plate?: string, spotId?: string }` | Shell (adaptando `stay-service`) | `mfe-admin`, `mfe-entryexit` |
 | `parking:stay-updated` | `stay_updated` | `{ stayId?: string, plate?: string, status?: string }` | Shell (adaptando `stay-service`) | `mfe-admin` |
 | `parking:spot-updated` | `spot_updated` | `{ spotId?: string, spotCode?: string, status?: string }` | Shell (adaptando `spot-service`) | `mfe-admin`, `mfe-entryexit` |
 | `parking:vehicle-updated` | `vehicle_updated` | `{ vehicleId?: string, plate?: string }` | Shell (adaptando `vehicle-service`) | `mfe-admin` |

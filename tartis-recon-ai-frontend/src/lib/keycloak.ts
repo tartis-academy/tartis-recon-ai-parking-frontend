@@ -51,3 +51,23 @@ export async function getAuthToken(): Promise<string | null> {
 }
 
 export const getToken = getAuthToken
+
+// Fuente unica de roles para los remotos: ningun MFE debe decodificar el JWT.
+// Sincrona porque AuthProvider no los renderiza hasta que initKeycloak() resuelve.
+export function getRoles(): string[] {
+  return keycloak.tokenParsed?.realm_access?.roles ?? []
+}
+
+export function hasRole(role: string): boolean {
+  return getRoles().includes(role)
+}
+
+export function getUsername(): string | null {
+  return keycloak.tokenParsed?.preferred_username ?? null
+}
+
+// keycloak-js 26 manda id_token_hint, asi que no aparece la pantalla de
+// confirmacion que si sale al llamar al endpoint de logout a pelo.
+export function logout(): void {
+  keycloak.logout({ redirectUri: window.location.origin })
+}
