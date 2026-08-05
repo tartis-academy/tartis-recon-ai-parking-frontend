@@ -113,6 +113,23 @@ describe('useSseNotifications & handleSseEvent', () => {
     expect(toasts[0].type).toBe('success')
   })
 
+  it('debe suscribirse a stay_created: stay-service lo emite con nombre en cada check-in', async () => {
+    renderHook(() => useSseNotifications('/api/v1/events'))
+
+    await waitFor(() => expect(MockEventSource.instance).not.toBeNull())
+
+    expect(Object.keys(MockEventSource.instance!.eventListeners)).toContain('stay_created')
+
+    act(() => {
+      MockEventSource.instance!.eventListeners.stay_created[0]({
+        data: JSON.stringify({ message: 'Entrada registrada' }),
+      })
+    })
+
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['stays'] })
+    expect(useToastStore.getState().toasts).toHaveLength(1)
+  })
+
   it('debe invalidar la caché de TanStack Query al recibir un evento de dominio como stay_updated', () => {
     const addToastSpy = vi.fn()
 

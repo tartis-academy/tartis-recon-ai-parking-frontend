@@ -13,7 +13,10 @@ export interface SseEventPayload {
   message: string
 }
 
+// Las claves son ademas la lista de eventos que se suscriben: un evento con
+// nombre y sin listener no llega a onmessage, se pierde en silencio.
 const EVENT_QUERY_MAP: Record<string, string[]> = {
+  stay_created: ['stays'],
   stay_updated: ['stays'],
   spot_updated: ['spots'],
   vehicle_updated: ['vehicles'],
