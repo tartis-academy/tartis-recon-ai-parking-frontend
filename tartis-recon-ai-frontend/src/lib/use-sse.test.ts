@@ -1,11 +1,19 @@
-import { renderHook, act } from '@testing-library/react'
+import { renderHook, act, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { useSseNotifications, handleSseEvent } from './use-sse'
 import { useToastStore } from '../app/stores/toast-store'
 import { queryClient } from './query-client'
+import { getAuthToken } from './keycloak'
+
+vi.mock('./keycloak', () => ({
+  getAuthToken: vi.fn(),
+}))
+
+const mockedGetAuthToken = vi.mocked(getAuthToken)
 
 class MockEventSource {
   static instance: MockEventSource | null = null
+  static instances: MockEventSource[] = []
   url: string
   onopen: (() => void) | null = null
   onmessage: ((e: { data: string }) => void) | null = null
@@ -16,6 +24,7 @@ class MockEventSource {
   constructor(url: string) {
     this.url = url
     MockEventSource.instance = this
+    MockEventSource.instances.push(this)
   }
 
   addEventListener(event: string, callback: (e: { data: string }) => void) {
@@ -30,44 +39,71 @@ describe('useSseNotifications & handleSseEvent', () => {
   beforeEach(() => {
     useToastStore.getState().clearToasts()
     MockEventSource.instance = null
+    MockEventSource.instances = []
     vi.stubGlobal('EventSource', MockEventSource)
     vi.spyOn(queryClient, 'invalidateQueries').mockResolvedValue(undefined)
+    mockedGetAuthToken.mockResolvedValue('token-de-keycloak')
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
   })
 
-  it('debe conectarse al endpoint SSE especificado', () => {
+  it('debe adjuntar el token de Keycloak a la URL del stream', async () => {
     renderHook(() => useSseNotifications('/api/v1/events'))
 
-    expect(MockEventSource.instance).not.toBeNull()
-    expect(MockEventSource.instance?.url).toBe('/api/v1/events')
+    await waitFor(() => {
+      expect(MockEventSource.instance?.url).toBe(
+        '/api/v1/events?access_token=token-de-keycloak',
+      )
+    })
   })
 
-  it('debe incluir token de auth en la URL si existe en localStorage', () => {
-    localStorage.setItem('access_token', 'my-secret-token')
+  it('no debe abrir el stream sin token: Kong lo rechazaría con 401', async () => {
+    mockedGetAuthToken.mockResolvedValue(null)
 
     renderHook(() => useSseNotifications('/api/v1/events'))
 
-    expect(MockEventSource.instance?.url).toBe('/api/v1/events?access_token=my-secret-token')
-
-    localStorage.removeItem('access_token')
+    await waitFor(() => {
+      expect(mockedGetAuthToken).toHaveBeenCalled()
+    })
+    expect(MockEventSource.instance).toBeNull()
   })
 
-  it('debe agregar un toast al recibir un mensaje SSE genérico', () => {
+  it('debe pedir un token nuevo al reconectar, no reutilizar el de la primera conexión', async () => {
+    vi.useFakeTimers()
+    mockedGetAuthToken.mockResolvedValueOnce('token-inicial')
+    mockedGetAuthToken.mockResolvedValueOnce('token-renovado')
+
     renderHook(() => useSseNotifications('/api/v1/events'))
+
+    await vi.waitFor(() => expect(MockEventSource.instances).toHaveLength(1))
+    expect(MockEventSource.instances[0].url).toContain('access_token=token-inicial')
+
+    await act(async () => {
+      MockEventSource.instances[0].onerror?.()
+      await vi.advanceTimersByTimeAsync(3000)
+    })
+
+    expect(MockEventSource.instances).toHaveLength(2)
+    expect(MockEventSource.instances[1].url).toContain('access_token=token-renovado')
+
+    vi.useRealTimers()
+  })
+
+  it('debe agregar un toast al recibir un mensaje SSE genérico', async () => {
+    renderHook(() => useSseNotifications('/api/v1/events'))
+
+    await waitFor(() => expect(MockEventSource.instance).not.toBeNull())
 
     act(() => {
-      if (MockEventSource.instance?.onmessage) {
-        MockEventSource.instance.onmessage({
-          data: JSON.stringify({
-            title: 'Plaza Liberada',
-            message: 'La plaza A-12 ha sido liberada.',
-            type: 'success',
-          }),
-        })
-      }
+      MockEventSource.instance?.onmessage?.({
+        data: JSON.stringify({
+          title: 'Plaza Liberada',
+          message: 'La plaza A-12 ha sido liberada.',
+          type: 'success',
+        }),
+      })
     })
 
     const toasts = useToastStore.getState().toasts

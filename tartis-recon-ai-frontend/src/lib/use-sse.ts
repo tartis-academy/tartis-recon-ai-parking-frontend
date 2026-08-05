@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useToastStore, type ToastType } from '../app/stores/toast-store'
 import { SSE_RECONNECT_DELAY_MS } from '../app/constants'
 import { notificationLabels } from '../app/labels'
+import { getAuthToken } from './keycloak'
 import { queryClient } from './query-client'
 
 export interface SseEventPayload {
@@ -53,14 +54,28 @@ export function useSseNotifications(
     if (!enabled) return
 
     let eventSource: EventSource | null = null
+    let cancelled = false
 
-    const connect = () => {
+    const scheduleReconnect = () => {
+      if (cancelled) return
+      reconnectTimerRef.current = setTimeout(() => {
+        void connect()
+      }, SSE_RECONNECT_DELAY_MS)
+    }
+
+    const connect = async () => {
       try {
-        const storedToken =
-          typeof localStorage !== 'undefined' ? localStorage.getItem('access_token') : null
-        const finalUrl = storedToken
-          ? `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}access_token=${encodeURIComponent(storedToken)}`
-          : baseUrl
+        // El token se pide en cada (re)conexión: caduca durante la vida del stream
+        const token = await getAuthToken()
+        if (cancelled) return
+
+        if (!token) {
+          setIsConnected(false)
+          scheduleReconnect()
+          return
+        }
+
+        const finalUrl = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}access_token=${encodeURIComponent(token)}`
 
         eventSource = new EventSource(finalUrl)
 
@@ -96,20 +111,21 @@ export function useSseNotifications(
           setIsConnected(false)
           if (eventSource) {
             eventSource.close()
+            eventSource = null
           }
-          reconnectTimerRef.current = setTimeout(() => {
-            connect()
-          }, SSE_RECONNECT_DELAY_MS)
+          scheduleReconnect()
         }
       } catch (err) {
         console.error('Error al inicializar SSE EventSource:', err)
         setIsConnected(false)
+        scheduleReconnect()
       }
     }
 
-    connect()
+    void connect()
 
     return () => {
+      cancelled = true
       if (reconnectTimerRef.current) {
         clearTimeout(reconnectTimerRef.current)
       }
