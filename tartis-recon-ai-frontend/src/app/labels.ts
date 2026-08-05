@@ -9,6 +9,10 @@ export const authLabels = {
 export const notificationLabels = {
   closeToast: 'Cerrar notificación',
   systemTitle: 'Notificación del sistema',
+  genericEvent: 'Se ha actualizado el estado del parking.',
+  stayCreatedTitle: 'Entrada registrada',
+  stayClosedTitle: 'Salida registrada',
+  plate: 'Matrícula',
   sseConnected: 'Conectado a notificaciones en tiempo real',
   sseDisconnected: 'Desconectado de notificaciones en tiempo real',
   sseReconnecting: 'Reconectando notificaciones...',
