@@ -139,13 +139,15 @@ Además, el stream emite un evento `connected` al abrir la conexión y comentari
 
 ### Eventos de sincronización recibidos desde SSE (Adaptados por el Shell)
 
-> [!note] Pendiente de implementar
-> El shell **todavía no publica** estos `CustomEvent`: hoy solo invalida sus propias queries de TanStack Query al recibir el evento SSE. La tabla es el contrato objetivo, no el estado actual.
+El shell los publica en `window` al recibir el evento SSE correspondiente, además de invalidar sus propias queries. **`data` se reenvía tal cual llega del backend**: el shell traduce el nombre y envuelve, no recorta campos, para no tener que tocarlo cada vez que un backend añada uno.
+
+> [!note] Solo `stay_created` y `stay_updated` existen hoy
+> Los otros cuatro nombres están cableados y se publicarán en cuanto algún backend los emita, pero **ningún servicio los emite todavía**. Ver el contrato SSE real más arriba.
 
 | Evento DOM | Evento SSE origen | Payload `data` | Emisor | Consumidores |
 |---|---|---|---|---|
-| `parking:stay-created` | `stay_created` | `{ stayId?: string, plate?: string, spotId?: string }` | Shell (adaptando `stay-service`) | `mfe-admin`, `mfe-entryexit` |
-| `parking:stay-updated` | `stay_updated` | `{ stayId?: string, plate?: string, status?: string }` | Shell (adaptando `stay-service`) | `mfe-admin` |
+| `parking:stay-created` | `stay_created` | `{ stayId, vehicleId, vehicleType, spotId, tariffId, plate, checkIn }` | Shell (adaptando `stay-service`) | `mfe-admin`, `mfe-entryexit` |
+| `parking:stay-updated` | `stay_updated` | `{ stayId, spotId, plate, entryDate, exitDate, totalAmount }` | Shell (adaptando `stay-service`) | `mfe-admin` |
 | `parking:spot-updated` | `spot_updated` | `{ spotId?: string, spotCode?: string, status?: string }` | Shell (adaptando `spot-service`) | `mfe-admin`, `mfe-entryexit` |
 | `parking:vehicle-updated` | `vehicle_updated` | `{ vehicleId?: string, plate?: string }` | Shell (adaptando `vehicle-service`) | `mfe-admin` |
 | `parking:ticket-updated` | `ticket_updated` | `{ ticketId?: string, stayId?: string, status?: string }` | Shell (adaptando `ticket-service`) | `mfe-admin` |
@@ -186,12 +188,12 @@ En [`Notas Última Semana.md`](file:///C:/Users/jhony/Desktop/GRE/Ingeniero%20So
 
 Por lo tanto, la arquitectura real solo cuenta con tres componentes frontend: **Shell Host**, **`mfe-entryexit`** y **`mfe-admin`**. El catálogo de este documento fue depurado para reflejar esta realidad.
 
-### 2. Brecha actual en el código (`tartis-recon-ai-frontend/src/lib/use-sse.ts`)
-Al inspeccionar el repositorio real en `c:\Development\tartis-recon-ai-parking-frontend`:
-- `use-sse.ts` actualmente escucha los eventos SSE del backend e invalida TanStack Query internamente dentro del Shell mediante `queryClient.invalidateQueries`.
-- **Pendiente**: El Shell aún no ejecuta `window.dispatchEvent` para reenviar los eventos `parking:*` hacia `window`, ni los remotos (`mfe-entryexit` y `mfe-admin`) tienen instanciados los `addEventListener` correspondientes.
+### 2. Estado de la brecha
 
-### 3. Plan de acción para cerrar la brecha
-1. En `use-sse.ts` del Shell, agregar `window.dispatchEvent(new CustomEvent('parking:...'))` al recibir cada evento SSE.
-2. En `mfe-entryexit`, despachar `parking:check-in-completed` y `parking:check-out-completed` al recibir la respuesta de la API.
-3. En `mfe-admin` y `mfe-entryexit`, agregar listeners de `window` con limpieza en el desmonte de componentes.
+- ✅ **Shell**: `use-sse.ts` invalida sus queries **y** publica los `CustomEvent` `parking:*` en `window` (`dispatchDomEvent`).
+- ⬜ **Remotos**: `mfe-admin` y `mfe-entryexit` **aún no tienen los `addEventListener`**, así que hoy los eventos se publican y nadie los escucha. Es el paso que falta para cerrar el circuito.
+- ⬜ **Eventos de usuario**: `mfe-entryexit` todavía no despacha `parking:check-in-completed` ni `parking:check-out-completed` al recibir la respuesta de la API.
+
+### 3. Lo que queda
+1. En `mfe-admin` y `mfe-entryexit`, añadir listeners de `window` **con limpieza al desmontar** e invalidar sus propias queries.
+2. En `mfe-entryexit`, despachar `parking:check-in-completed` y `parking:check-out-completed` tras la respuesta de la API.
