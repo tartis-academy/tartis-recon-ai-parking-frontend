@@ -35,6 +35,39 @@ class MockEventSource {
   }
 }
 
+// Copiados de StayCreatedEvent.java / StayClosedEvent.java de stay-service.
+// Si el backend cambia el contrato, estos tests deben romperse.
+const STAY_CREATED_EVENT = {
+  eventId: '5f0a1b2c-3d4e-4f50-8a9b-0c1d2e3f4a5b',
+  type: 'StayCreatedEvent',
+  version: 'v1',
+  occurredAt: '2026-08-05T09:50:16Z',
+  data: {
+    stayId: 'caa405e6-97ac-4897-8f49-b9cfe7e3ad8c',
+    vehicleId: 'b2f772ad-9081-4758-a7c1-e5f0480b0f64',
+    vehicleType: 'CAR',
+    spotId: 'b8e1a5a5-4858-407e-ad8b-d187b1c93ef9',
+    tariffId: '3ffb2828-dc9e-4846-a900-2baa66b27481',
+    plate: '7777BCD',
+    checkIn: '2026-08-05T09:50:16Z',
+  },
+}
+
+const STAY_CLOSED_EVENT = {
+  eventId: '9c8b7a65-4321-4def-9876-543210fedcba',
+  type: 'StayClosedEvent',
+  version: 'v1',
+  occurredAt: '2026-08-05T09:51:48Z',
+  data: {
+    stayId: 'caa405e6-97ac-4897-8f49-b9cfe7e3ad8c',
+    spotId: 'b8e1a5a5-4858-407e-ad8b-d187b1c93ef9',
+    plate: '7777BCD',
+    entryDate: '2026-08-05T09:50:16Z',
+    exitDate: '2026-08-05T09:51:48Z',
+    totalAmount: 0.13,
+  },
+}
+
 describe('useSseNotifications & handleSseEvent', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -113,66 +146,83 @@ describe('useSseNotifications & handleSseEvent', () => {
     vi.useRealTimers()
   })
 
-  it('debe agregar un toast al recibir un mensaje SSE genérico', async () => {
+  it('debe describir el check-in con el payload real de StayCreatedEvent', async () => {
     renderHook(() => useSseNotifications('/api/v1/events'))
 
     await waitFor(() => expect(MockEventSource.instance).not.toBeNull())
-
-    act(() => {
-      MockEventSource.instance?.onmessage?.({
-        data: JSON.stringify({
-          title: 'Plaza Liberada',
-          message: 'La plaza A-12 ha sido liberada.',
-          type: 'success',
-        }),
-      })
-    })
-
-    const toasts = useToastStore.getState().toasts
-    expect(toasts).toHaveLength(1)
-    expect(toasts[0].title).toBe('Plaza Liberada')
-    expect(toasts[0].message).toBe('La plaza A-12 ha sido liberada.')
-    expect(toasts[0].type).toBe('success')
-  })
-
-  it('debe suscribirse a stay_created: stay-service lo emite con nombre en cada check-in', async () => {
-    renderHook(() => useSseNotifications('/api/v1/events'))
-
-    await waitFor(() => expect(MockEventSource.instance).not.toBeNull())
-
     expect(Object.keys(MockEventSource.instance!.eventListeners)).toContain('stay_created')
 
     act(() => {
       MockEventSource.instance!.eventListeners.stay_created[0]({
-        data: JSON.stringify({ message: 'Entrada registrada' }),
+        data: JSON.stringify(STAY_CREATED_EVENT),
       })
     })
 
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['stays'] })
-    expect(useToastStore.getState().toasts).toHaveLength(1)
+
+    const toasts = useToastStore.getState().toasts
+    expect(toasts).toHaveLength(1)
+    expect(toasts[0].title).toBe('Entrada registrada')
+    expect(toasts[0].message).toBe('Matrícula 7777BCD')
+    expect(toasts[0].type).toBe('success')
+    expect(toasts[0].id).toBe(STAY_CREATED_EVENT.eventId)
   })
 
-  it('debe invalidar la caché de TanStack Query al recibir un evento de dominio como stay_updated', () => {
+  it('debe describir el check-out con el importe cobrado', () => {
     const addToastSpy = vi.fn()
 
-    handleSseEvent(
-      {
-        eventType: 'stay_updated',
-        title: 'Estancia actualizada',
-        message: 'Vehículo finalizó su estancia',
-      },
-      addToastSpy,
-    )
+    handleSseEvent('stay_updated', STAY_CLOSED_EVENT, addToastSpy)
 
-    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
-      queryKey: ['stays'],
-    })
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['stays'] })
     expect(addToastSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: 'Estancia actualizada',
-        message: 'Vehículo finalizó su estancia',
+        title: 'Salida registrada',
+        message: 'Matrícula 7777BCD · 0.13 €',
         type: 'success',
       }),
     )
+  })
+
+  it('no debe usar el campo type del backend como nivel de toast', () => {
+    const addToastSpy = vi.fn()
+
+    // El backend manda type: "StayCreatedEvent", el nombre de la clase Java.
+    handleSseEvent('stay_created', STAY_CREATED_EVENT, addToastSpy)
+
+    expect(addToastSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'success' }),
+    )
+    expect(addToastSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'StayCreatedEvent' }),
+    )
+  })
+
+  it('debe caer a un texto generico si el evento no trae datos describibles', () => {
+    const addToastSpy = vi.fn()
+
+    handleSseEvent('stay_created', { eventId: 'e1', data: {} }, addToastSpy)
+
+    expect(addToastSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Entrada registrada',
+        message: 'Se ha actualizado el estado del parking.',
+        type: 'info',
+      }),
+    )
+  })
+
+  it('debe notificar un evento sin nombre sin inventarse un titulo', async () => {
+    renderHook(() => useSseNotifications('/api/v1/events'))
+
+    await waitFor(() => expect(MockEventSource.instance).not.toBeNull())
+
+    act(() => {
+      MockEventSource.instance?.onmessage?.({ data: 'texto suelto, no JSON' })
+    })
+
+    const toasts = useToastStore.getState().toasts
+    expect(toasts).toHaveLength(1)
+    expect(toasts[0].title).toBe('Notificación del sistema')
+    expect(toasts[0].type).toBe('info')
   })
 })

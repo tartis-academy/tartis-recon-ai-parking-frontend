@@ -1,16 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
-import { useToastStore, type ToastType } from '../app/stores/toast-store'
+import { useToastStore } from '../app/stores/toast-store'
 import { SSE_RECONNECT_DELAY_MS } from '../app/constants'
 import { notificationLabels } from '../app/labels'
 import { getAuthToken } from './keycloak'
 import { queryClient } from './query-client'
 
-export interface SseEventPayload {
-  id?: string
-  eventType?: string
-  type?: ToastType
-  title?: string
-  message: string
+// Envoltorio que emiten de verdad los eventos de dominio de stay-service
+// (StayCreatedEvent / StayClosedEvent). No trae title ni message: el texto de
+// la notificacion lo compone el shell, que es el adaptador entre el limite
+// backend y el DOM (docs/EVENTS.md).
+export interface SseEnvelope {
+  eventId?: string
+  type?: string
+  version?: string
+  occurredAt?: string
+  data?: Record<string, unknown>
 }
 
 // Las claves son ademas la lista de eventos que se suscriben: un evento con
@@ -24,24 +28,58 @@ const EVENT_QUERY_MAP: Record<string, string[]> = {
   entry_ticket_updated: ['tickets'],
 }
 
+const asText = (value: unknown): string | null =>
+  typeof value === 'string' && value.length > 0 ? value : null
+
+const asAmount = (value: unknown): string | null => {
+  const n = typeof value === 'number' ? value : Number(value)
+  return Number.isFinite(n) ? `${n.toFixed(2)} €` : null
+}
+
+// Redaccion del toast a partir del evento de dominio. message null = no se
+// sabe describirlo con los datos que han llegado, y se cae a un texto generico
+// en vez de inventar uno que no aporta.
+function describeEvent(
+  eventName: string,
+  data: Record<string, unknown>,
+): { title: string; message: string | null } {
+  const plate = asText(data.plate)
+  const withPlate = plate ? `${notificationLabels.plate} ${plate}` : null
+
+  switch (eventName) {
+    case 'stay_created':
+      return { title: notificationLabels.stayCreatedTitle, message: withPlate }
+    case 'stay_updated': {
+      const amount = asAmount(data.totalAmount)
+      return {
+        title: notificationLabels.stayClosedTitle,
+        message: withPlate && amount ? `${withPlate} · ${amount}` : withPlate,
+      }
+    }
+    default:
+      return { title: notificationLabels.systemTitle, message: null }
+  }
+}
+
 export function handleSseEvent(
-  data: SseEventPayload,
+  eventName: string,
+  envelope: SseEnvelope,
   addToast: ReturnType<typeof useToastStore.getState>['addToast'],
 ) {
-  const eventType = data.eventType || ''
-
-  // Invalidar caché en TanStack Query si el evento corresponde a una entidad
-  const queryKeysToInvalidate = EVENT_QUERY_MAP[eventType]
+  const queryKeysToInvalidate = EVENT_QUERY_MAP[eventName]
   if (queryKeysToInvalidate) {
     queryClient.invalidateQueries({ queryKey: queryKeysToInvalidate })
   }
 
-  // Disparar la notificación Toast flotante
+  const { title, message } = describeEvent(eventName, envelope.data ?? {})
+
   addToast({
-    id: data.id,
-    type: data.type || (eventType ? 'success' : 'info'),
-    title: data.title || notificationLabels.systemTitle,
-    message: data.message,
+    id: envelope.eventId,
+    // El tipo sale del evento, no del payload: el campo `type` del backend es
+    // el nombre de la clase Java (StayCreatedEvent), no un nivel de toast.
+    type: message ? 'success' : 'info',
+    title,
+    message: message ?? notificationLabels.genericEvent,
   })
 }
 
@@ -86,28 +124,22 @@ export function useSseNotifications(
           setIsConnected(true)
         }
 
-        const handleRawMessage = (event: MessageEvent) => {
+        const dispatch = (eventName: string, raw: string) => {
           try {
-            const data: SseEventPayload = JSON.parse(event.data)
-            handleSseEvent(data, addToast)
+            handleSseEvent(eventName, JSON.parse(raw) as SseEnvelope, addToast)
           } catch {
-            handleSseEvent({ message: event.data }, addToast)
+            handleSseEvent(eventName, {}, addToast)
           }
         }
 
-        eventSource.onmessage = handleRawMessage
+        // Eventos sin nombre: no hay nada que describir, solo notificar
+        eventSource.onmessage = (event: MessageEvent) => dispatch('', event.data)
 
         // Escuchar eventos nombrados del dominio
-        const namedEvents = Object.keys(EVENT_QUERY_MAP)
-        namedEvents.forEach((eventName) => {
-          eventSource?.addEventListener(eventName, (event: MessageEvent) => {
-            try {
-              const data: SseEventPayload = JSON.parse(event.data)
-              handleSseEvent({ ...data, eventType: eventName }, addToast)
-            } catch {
-              handleSseEvent({ eventType: eventName, message: event.data }, addToast)
-            }
-          })
+        Object.keys(EVENT_QUERY_MAP).forEach((eventName) => {
+          eventSource?.addEventListener(eventName, (event: MessageEvent) =>
+            dispatch(eventName, event.data),
+          )
         })
 
         eventSource.onerror = () => {
