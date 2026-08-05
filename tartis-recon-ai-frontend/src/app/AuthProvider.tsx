@@ -1,9 +1,9 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { keycloak, initKeycloak, getAuthToken, getToken } from '@/lib/keycloak'
+import { keycloak, initKeycloak, getAuthToken, getToken, getRoles, hasRole } from '@/lib/keycloak'
 import { authLabels } from './labels'
 
 // eslint-disable-next-line react-refresh/only-export-components -- contrato de shell/AuthProvider ya consumido por mfe-entryexit exige getAuthToken/getToken en el mismo módulo que el componente
-export { getAuthToken, getToken }
+export { getAuthToken, getToken, getRoles, hasRole }
 
 interface AuthProviderProps {
   children: ReactNode
