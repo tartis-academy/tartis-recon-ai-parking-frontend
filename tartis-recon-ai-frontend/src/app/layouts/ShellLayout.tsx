@@ -1,15 +1,17 @@
 import type { ReactNode } from 'react'
 import { Link, Outlet } from '@tanstack/react-router'
 import { shellLabels } from '../labels'
+import { UserMenu } from '../components/UserMenu'
 
 export function ShellLayout() {
   return (
     <div className="min-h-screen bg-surface-app text-white font-sans antialiased">
       <header className="border-b border-border-subtle bg-surface-panel">
-        <div className="mx-auto max-w-7xl px-6 py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <h1 className="text-xl font-bold tracking-tight text-brand-400">
             {shellLabels.title}
           </h1>
+          <UserMenu />
         </div>
       </header>
 

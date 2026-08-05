@@ -61,3 +61,13 @@ export function getRoles(): string[] {
 export function hasRole(role: string): boolean {
   return getRoles().includes(role)
 }
+
+export function getUsername(): string | null {
+  return keycloak.tokenParsed?.preferred_username ?? null
+}
+
+// keycloak-js 26 manda id_token_hint, asi que no aparece la pantalla de
+// confirmacion que si sale al llamar al endpoint de logout a pelo.
+export function logout(): void {
+  keycloak.logout({ redirectUri: window.location.origin })
+}
