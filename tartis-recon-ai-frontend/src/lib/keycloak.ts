@@ -51,3 +51,13 @@ export async function getAuthToken(): Promise<string | null> {
 }
 
 export const getToken = getAuthToken
+
+// Fuente unica de roles para los remotos: ningun MFE debe decodificar el JWT.
+// Sincrona porque AuthProvider no los renderiza hasta que initKeycloak() resuelve.
+export function getRoles(): string[] {
+  return keycloak.tokenParsed?.realm_access?.roles ?? []
+}
+
+export function hasRole(role: string): boolean {
+  return getRoles().includes(role)
+}
