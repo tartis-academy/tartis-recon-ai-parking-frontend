@@ -1,6 +1,6 @@
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { useSseNotifications, handleSseEvent } from './use-sse'
+import { useSseNotifications, handleSseEvent, type ParkingEvent } from './use-sse'
 import { useToastStore } from '../app/stores/toast-store'
 import { queryClient } from './query-client'
 import { getAuthToken } from './keycloak'
@@ -144,6 +144,50 @@ describe('useSseNotifications & handleSseEvent', () => {
     expect(MockEventSource.instances).toHaveLength(1)
 
     vi.useRealTimers()
+  })
+
+  it('reenvia el evento al DOM como parking:* para que reaccionen los remotos', () => {
+    const received: ParkingEvent[] = []
+    const listener = (e: Event) => received.push((e as CustomEvent<ParkingEvent>).detail)
+    window.addEventListener('parking:stay-created', listener)
+
+    handleSseEvent('stay_created', STAY_CREATED_EVENT, vi.fn())
+
+    window.removeEventListener('parking:stay-created', listener)
+
+    expect(received).toHaveLength(1)
+    expect(received[0].version).toBe(1)
+    expect(received[0].source).toBe('shell')
+    // el occurredAt es el del backend, no el del navegador
+    expect(received[0].occurredAt).toBe(STAY_CREATED_EVENT.occurredAt)
+    expect(received[0].data).toMatchObject({ plate: '7777BCD' })
+  })
+
+  it('traduce el nombre del evento: el nombre SSE no se reutiliza como nombre DOM', () => {
+    const sseNamed = vi.fn()
+    window.addEventListener('stay_updated', sseNamed)
+    const domNamed = vi.fn()
+    window.addEventListener('parking:stay-updated', domNamed)
+
+    handleSseEvent('stay_updated', STAY_CLOSED_EVENT, vi.fn())
+
+    window.removeEventListener('stay_updated', sseNamed)
+    window.removeEventListener('parking:stay-updated', domNamed)
+
+    expect(domNamed).toHaveBeenCalled()
+    expect(sseNamed).not.toHaveBeenCalled()
+  })
+
+  it('no reenvia al DOM un evento que no esta en el catalogo', () => {
+    const anyParkingEvent = vi.fn()
+    const names = ['parking:stay-created', 'parking:stay-updated', 'parking:spot-updated']
+    names.forEach((n) => window.addEventListener(n, anyParkingEvent))
+
+    handleSseEvent('', { data: {} }, vi.fn())
+
+    names.forEach((n) => window.removeEventListener(n, anyParkingEvent))
+
+    expect(anyParkingEvent).not.toHaveBeenCalled()
   })
 
   it('debe describir el check-in con el payload real de StayCreatedEvent', async () => {
