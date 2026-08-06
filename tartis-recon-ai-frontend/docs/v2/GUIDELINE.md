@@ -31,7 +31,8 @@ Fuente de la verdad para contribuciones al frontend de Tartis. Este documento es
 ```
 tartis-recon-ai-frontend/
 ├── docs/
-│   └── GUIDELINE.md         ← este archivo
+│   └── v2/
+│       └── GUIDELINE.md     ← este archivo
 ├── public/                  ← assets estáticos
 ├── src/
 │   ├── app/                 ← router, providers, composición raíz
