@@ -8,15 +8,15 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, 'src'),
       '@app': path.resolve(__dirname, 'src/app'),
-      '@features': path.resolve(__dirname, 'src/features'),
       '@lib': path.resolve(__dirname, 'src/lib'),
-      '@testing': path.resolve(__dirname, 'src/testing'),
-      '@shared': path.resolve(__dirname, 'src/shared'),
+      'mfe_entryexit/EntryExitApp': path.resolve(__dirname, 'src/test/mocks/mfe-entryexit-app.tsx'),
+      'mfe_admin/AdminApp': path.resolve(__dirname, 'src/test/mocks/mfe-admin-app.tsx'),
     },
   },
   test: {
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
+    passWithNoTests: true,
   },
 })

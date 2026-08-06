@@ -1,2 +1,1 @@
-// TODO: Configurar rutas protegidas
-export {}
+export { router } from '@/app/router'

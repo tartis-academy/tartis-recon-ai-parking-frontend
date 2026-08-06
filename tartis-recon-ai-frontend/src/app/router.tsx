@@ -1,98 +1,128 @@
+import { lazy } from 'react'
 import {
   createRouter,
   createRootRoute,
   createRoute,
-  Outlet,
+  Link,
 } from '@tanstack/react-router'
-import AdminHomePage from '@/features/admin/pages/AdminHomePage'
+import { ShellLayout } from './layouts/ShellLayout'
+import { RemoteSlot } from './components/RemoteSlot'
+import { shellLabels } from './labels'
 
-import { AdminLayoutContainer } from '@/features/admin/containers/AdminLayoutContainer'
-import { VehicleListContainer } from '@/features/admin/containers/VehicleListContainer'
-import { SpotListContainer } from '@/features/admin/containers/SpotListContainer'
-import { StayListContainer } from '@/features/admin/containers/StayListContainer'
-import { VehicleFormContainer } from '@/features/admin/containers/VehicleFormContainer'
-import { TicketListContainer } from '@/features/admin/containers/TicketListContainer'
-import { TariffListPage } from '@/features/admin'
-
-import { TotemPage } from '@/pages/TotemPage'
+// eslint-disable-next-line react-refresh/only-export-components -- lazy-loaded federated remotes, consumed as components in route definitions
+const EntryExitApp = lazy(() => import('mfe_entryexit/EntryExitApp'))
+// eslint-disable-next-line react-refresh/only-export-components
+const AdminApp = lazy(() => import('mfe_admin/AdminApp'))
 
 const rootRoute = createRootRoute({
-  component: () => (
-    <div>
-      <Outlet />
-    </div>
-  ),
+  component: ShellLayout,
 })
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: AdminHomePage,
+  component: function HomePage() {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-white">
+            {shellLabels.homeTitle}
+          </h2>
+          <p className="mt-1 text-gray-400">{shellLabels.homeDescription}</p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <Link
+            to="/entry-exit"
+            className="group rounded-xl border border-border-subtle bg-surface-card p-6 transition-all duration-300 hover:border-brand-500/50 hover:shadow-brand-glow"
+          >
+            <span className="mb-3 block text-3xl" aria-hidden="true">🚗</span>
+            <h3 className="text-lg font-semibold text-white transition-colors group-hover:text-brand-400">
+              {shellLabels.navEntryExit}
+            </h3>
+            <p className="mt-1 text-sm text-gray-400">
+              {shellLabels.entryExitDescription}
+            </p>
+          </Link>
+
+          <Link
+            to="/admin"
+            className="group rounded-xl border border-border-subtle bg-surface-card p-6 transition-all duration-300 hover:border-brand-500/50 hover:shadow-brand-glow"
+          >
+            <span className="mb-3 block text-3xl" aria-hidden="true">⚙️</span>
+            <h3 className="text-lg font-semibold text-white transition-colors group-hover:text-brand-400">
+              {shellLabels.navAdmin}
+            </h3>
+            <p className="mt-1 text-sm text-gray-400">
+              {shellLabels.adminDescription}
+            </p>
+          </Link>
+        </div>
+      </div>
+    )
+  },
 })
 
-const totemRoute = createRoute({
+const entryExitRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/totem',
-  component: TotemPage,
+  path: '/entry-exit',
+  component: function EntryExitPage() {
+    return (
+      <RemoteSlot moduleName={shellLabels.navEntryExit}>
+        <EntryExitApp />
+      </RemoteSlot>
+    )
+  },
+})
+
+const entradaRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/entrada',
+  component: function EntradaPage() {
+    return (
+      <RemoteSlot moduleName={shellLabels.navEntryExit}>
+        <EntryExitApp />
+      </RemoteSlot>
+    )
+  },
+})
+
+const salidaRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/salida',
+  component: function SalidaPage() {
+    return (
+      <RemoteSlot moduleName={shellLabels.navEntryExit}>
+        <EntryExitApp />
+      </RemoteSlot>
+    )
+  },
 })
 
 const adminRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin',
-  component: AdminLayoutContainer,
+  component: function AdminPage() {
+    return (
+      <RemoteSlot moduleName={shellLabels.navAdmin}>
+        <AdminApp />
+      </RemoteSlot>
+    )
+  },
 })
 
-const vehiclesRoute = createRoute({
-  getParentRoute: () => adminRoute,
-  path: '/vehicles',
-  component: () => (
-    <>
-      <VehicleListContainer />
-      <Outlet />
-    </>
-  ),
-})
-
-const vehicleNewRoute = createRoute({
-  getParentRoute: () => vehiclesRoute,
-  path: '/new',
-  component: VehicleFormContainer,
-})
-
-const spotsRoute = createRoute({
-  getParentRoute: () => adminRoute,
-  path: '/spots',
-  component: SpotListContainer,
-})
-
-const tariffsRoute = createRoute({
-  getParentRoute: () => adminRoute,
-  path: '/tariffs',
-  component: TariffListPage,
-})
-
-const staysRoute = createRoute({
-  getParentRoute: () => adminRoute,
-  path: '/stays',
-  component: StayListContainer,
-})
-
-const ticketsRoute = createRoute({
-  getParentRoute: () => adminRoute,
-  path: '/tickets',
-  component: TicketListContainer,
-})
-
-const routeTree = rootRoute.addChildren([
+export const routeTree = rootRoute.addChildren([
   indexRoute,
-  totemRoute,
-  adminRoute.addChildren([
-    vehiclesRoute.addChildren([vehicleNewRoute]),
-    spotsRoute,
-    tariffsRoute,
-    staysRoute,
-    ticketsRoute,
-  ]),
+  entryExitRoute,
+  entradaRoute,
+  salidaRoute,
+  adminRoute,
 ])
 
 export const router = createRouter({ routeTree })
+
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router
+  }
+}
