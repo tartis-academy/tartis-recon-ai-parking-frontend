@@ -1,86 +1,58 @@
-# React + TypeScript + Vite
+# TARTIS Recon-AI Parking — Frontend Shell Host
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este repositorio es el **Host / Shell principal** que orquesta la plataforma web de control y gestión de aparcamientos **TARTIS Recon-AI Parking**.
 
-Currently, two official plugins are available:
+A través de una arquitectura basada en **Microfrontends (Module Federation)**, el Shell Host actúa como contenedor principal integrando dinámicamente los módulos de administración y de control de entrada/salida.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🚀 Inicio Rápido (Desarrollo)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Requisitos previos
+- Node.js (v18+ recomendado)
+- `npm` o `pnpm`
 
-## Expanding the ESLint configuration
+### Comandos de desarrollo
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```bash
+# Instalar dependencias
+npm install
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# Ejecutar el Shell Host en modo desarrollo (puerto 3000 por defecto)
+npm run dev
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+# Construir la aplicación para producción
+npm run build
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+# Previsualizar el build de producción
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🧩 Arquitectura de Microfrontends (Remotes Consumidos)
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+El Shell Host expone utilidades globales (`AuthProvider`, estado de sesión) e integra los siguientes microfrontends remotos:
 
-```
+| Módulo Remoto | Variable de Entorno / URL | Puerto Dev | Descripción |
+|---|---|---|---|
+| **`mfeAdmin`** | `VITE_MFE_ADMIN_URL` | 3001 | Panel de administración global, usuarios y analítica. |
+| **`mfeEntryExit`** | `VITE_MFE_ENTRYEXIT_URL` | 3002 | Control de accesos de vehículos en tiempo real y barreras. |
 
-## Escaneo de imagen (Trivy)
+---
 
-El job `docker-scan` de la CI construye la imagen final del Dockerfile (build
-de Vite servido por nginx) y la escanea con [Trivy](https://trivy.dev/). El
-informe completo (`CRITICAL` + `HIGH`) se publica siempre en la pestaña
-**Security** del repo; solo una vulnerabilidad `CRITICAL` hace fallar el job.
+## 📚 Documentación del Proyecto
 
-Si una `CRITICAL` no tiene fix disponible todavía y hay que aceptar el riesgo
-de forma consciente, se ignora explícitamente añadiendo su CVE a un
-`.trivyignore` en la raíz del repo (no existe ninguno hoy).
+Toda la documentación técnica del proyecto se encuentra organizada bajo la carpeta [`docs/`](docs/README.md):
+
+- **[📖 Índice Maestro de Documentación](docs/README.md)**: Política de releases, historial de cambios de alcance e índice global.
+- **[🚀 Fase II Activa (v2)](docs/v2/README.md)**: Arquitectura actual de Microfrontends, guía de despliegue y estándares de desarrollo.
+- **[📜 Fase I Histórica (v1)](docs/v1/README.md)**: Documentación del MVP inicial y versión histórica.
+
+---
+
+## 🛡️ Escaneo de imagen (Trivy)
+
+El job `docker-scan` de la CI construye la imagen final del Dockerfile (build de Vite servido por nginx) y la escanea con [Trivy](https://trivy.dev/). El informe completo (`CRITICAL` + `HIGH`) se publica siempre en la pestaña **Security** del repo; solo una vulnerabilidad `CRITICAL` hace fallar el job.
+
+Si una `CRITICAL` no tiene fix disponible todavía y hay que aceptar el riesgo de forma consciente, se ignora explícitamente añadiendo su CVE a un `.trivyignore` en la raíz del repo.
